@@ -3,8 +3,11 @@ using UnityEngine;
 
 public class Zone : MonoBehaviour {
 
+    [SerializeField]
+    private Material _zoneMaterial;
     private List<Vector3> _vertices;
     private Vector3 _centerZone;
+    private GameObject _zoneObject;
     private float _minHeight, _maxHeight, _meanHeight, _deltaHeight;
     private Color _col;
     private bool _accessible;
@@ -116,6 +119,26 @@ public class Zone : MonoBehaviour {
         set
         {
             _centerId = value;
+        }
+    }
+
+    public GameObject ZoneObject
+    {
+        get
+        {
+            return _zoneObject;
+        }
+        set
+        {
+            _zoneObject = value;
+        }
+    }
+
+    public Material ZoneMaterial
+    {
+        get
+        {
+            return _zoneMaterial;
         }
     }
 

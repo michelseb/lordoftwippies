@@ -49,7 +49,7 @@ MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1590865868955146}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -96,6 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d8b2fe601e3884d95d2b0bad23e83d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _zoneMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!135 &135494921431979362
 SphereCollider:
   m_ObjectHideFlags: 1
@@ -104,7 +105,7 @@ SphereCollider:
   m_GameObject: {fileID: 1590865868955146}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}

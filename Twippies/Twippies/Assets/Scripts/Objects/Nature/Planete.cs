@@ -15,7 +15,7 @@ public class Planete : ManageableObjet {
     private MeshCollider _meshCollider;
     private Vector3[] _originalVertices, _deformedVertices, _updatedVertices;
     private Vector3[] _vertexVelocities;
-    private bool _shaping;
+    private bool _shaping, _deforming;
     //private float _shapingStrength;
 
     protected override void Start()
@@ -71,9 +71,21 @@ public class Planete : ManageableObjet {
             _mesh.vertices = _deformedVertices;
             _mesh.RecalculateNormals();
             _meshCollider.sharedMesh = _mesh;
-            _zManager.Vertices = _mesh.vertices;
-            _zManager.SetVertices();
-            _zManager.SetHeights();
+            if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
+            {
+                _deforming = true;
+            }
+            else
+            {
+                if (_deforming)
+                {
+                    _zManager.Vertices = _mesh.vertices;
+                    _zManager.SetVertices();
+                    _zManager.SetHeights();
+                    _deforming = false;
+                }
+            }
+            
 
         }
         else
@@ -182,7 +194,7 @@ public class Planete : ManageableObjet {
     protected void UpdateVertex(int i)
     {
         Vector3 velocity = _vertexVelocities[i]; // Récupération de la force appliquée au vertice
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
         {
             _updatedVertices[i] = _deformedVertices[i]; //Update du vertice si bouton appuyé
         }

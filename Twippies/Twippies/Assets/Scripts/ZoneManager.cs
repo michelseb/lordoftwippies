@@ -8,23 +8,24 @@ public class ZoneManager : MonoBehaviour {
     [SerializeField]
     private Zone _zonePrefab;
     private int _nbVertex;
-    private KdTree<Zone> _zones;
+    private List<Zone> _zones;
 
 
     private void Start()
     {
-        _zones = new KdTree<Zone>();
+        _zones = new List<Zone>();
         _planeteMesh = GetComponent<MeshFilter>().mesh;
         _vertices = _planeteMesh.vertices;
         _nbVertex = _planeteMesh.vertexCount;
 
         for (int i = 0; i < 1000; i++)
         {
-            FindCenter(.5f);
+            FindCenter(1f);
         }
 
         SetVertices();
         SetHeights();
+
         /*for (int i = 0; i < _nbVertex; i++)
         {
             float distMin = Mathf.Infinity;
@@ -86,7 +87,7 @@ public class ZoneManager : MonoBehaviour {
         Vector3 center = transform.TransformPoint(_vertices[id]);
         foreach (Zone z in _zones)
         {
-            float dist = (center - transform.TransformPoint(z.CenterZone)).magnitude;
+            float dist = (center - z.CenterZone).magnitude;
             if (dist < minDist)
             {
                 return;
@@ -111,7 +112,7 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
-    public KdTree<Zone> Zones
+    public List<Zone> Zones
     {
         get
         {
@@ -130,27 +131,27 @@ public class ZoneManager : MonoBehaviour {
             z.transform.parent = transform;
         }
 
-        /*for (int i = 0; i < _nbVertex; i++)
+        for (int i = 0; i < _nbVertex; i++)
         {
             float distMin = Mathf.Infinity;
             Zone tempZone = null;
             foreach (Zone z in _zones)
             {
-                float dist = (_planeteMesh.vertices[i] - z.CenterZone).sqrMagnitude;
+                float dist = (_vertices[i] - z.CenterZone).sqrMagnitude;
                 if (dist < distMin)
                 {
                     distMin = dist;
                     tempZone = z;
                 }
             }
-            tempZone.Vertices.Add(_planeteMesh.vertices[i]);
-        }*/
-
-        foreach (Vector3 v in _vertices)
-        {
-            Zone zone = _zones.FindClosest(transform.TransformPoint(v));
-            zone.Vertices.Add(transform.TransformPoint(v));
+            tempZone.Vertices.Add(_vertices[i]);
         }
+
+        /*for (int i = 0; i < _nbVertex; i++)
+        { 
+            Zone zone = _zones.FindClosest(transform.TransformPoint(_vertices[i]));
+            zone.Vertices.Add(transform.TransformPoint(_vertices[i]));
+        }*/
     }
     public void SetHeights()
     {
@@ -159,6 +160,8 @@ public class ZoneManager : MonoBehaviour {
             Debug.Log(zone.Vertices.Count);
             zone.SetMaxHeight(transform.position);
             zone.SetMinHeight(transform.position);
+            zone.ZoneObject = MeshMaker.CreateZone(zone.Vertices.ToArray(), transform, zone.ZoneMaterial);
+            zone.ZoneObject.GetComponent<MeshRenderer>().material.color = zone.Col;
         }
     }
 

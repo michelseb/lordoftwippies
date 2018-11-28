@@ -36,6 +36,7 @@ public abstract class DraggableObjet : ManageableObjet {
         transform.parent = _p.gameObject.transform;
         _p.Face(transform);
         _initHeight = transform.position.x;
+
     }
 
     protected virtual void LateUpdate()
@@ -65,7 +66,31 @@ public abstract class DraggableObjet : ManageableObjet {
         {
             _dragging = false;
         }
-        _zone = _zManager.Zones.FindClosest(transform.position);
+
+        //Debug.DrawLine(transform.position, _zone.Center);
+        
+        foreach (Transform child in transform)
+        {
+            if (child.gameObject.GetComponent<MeshRenderer>() != null)
+            {
+                child.gameObject.GetComponent<MeshRenderer>().material.color = _zone.Col;
+            }
+        }
+
+        float distMin = Mathf.Infinity;
+        Zone tempZone = null;
+        foreach (Zone z in _zManager.Zones)
+        {
+            float dist = (transform.position - z.CenterZone).sqrMagnitude;
+            if (dist < distMin)
+            {
+                distMin = dist;
+                tempZone = z;
+            }
+        }
+        _zone = tempZone;
+
+        /*
         if (_zone.MinHeight < P.Water.Radius/2)
         {
             
@@ -87,8 +112,8 @@ public abstract class DraggableObjet : ManageableObjet {
                 }
             }
         }
-        
-        
+        */
+
     }
     protected virtual void FixedUpdate()
     {
