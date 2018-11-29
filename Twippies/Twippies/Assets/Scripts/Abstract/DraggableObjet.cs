@@ -73,7 +73,7 @@ public abstract class DraggableObjet : ManageableObjet {
         {
             if (child.gameObject.GetComponent<MeshRenderer>() != null)
             {
-                child.gameObject.GetComponent<MeshRenderer>().material.color = _zone.Col;
+                //child.gameObject.GetComponent<MeshRenderer>().material.color = _zone.Col;
             }
         }
 

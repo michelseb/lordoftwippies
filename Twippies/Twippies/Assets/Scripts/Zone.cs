@@ -9,14 +9,42 @@ public class Zone : MonoBehaviour {
     private Vector3 _centerZone;
     private GameObject _zoneObject;
     private float _minHeight, _maxHeight, _meanHeight, _deltaHeight;
-    private Color _col;
+    private Color _color;
     private bool _accessible;
     private int _centerId;
+    private int _nbEntries;
+    private MeshCollider _collider;
+    private MeshRenderer _renderer;
 
     private void Awake()
     {
-        _col = new Color(Random.value, Random.value, Random.value);
+        _color = new Color(Random.value, Random.value, Random.value);
         _vertices = new List<Vector3>();
+    }
+
+    private void Update()
+    {
+        if (_collider == null)
+        {
+            if (_zoneObject != null) {
+                _collider = _zoneObject.GetComponent<MeshCollider>();
+                _renderer = _zoneObject.GetComponent<MeshRenderer>();
+            }
+        }
+        if (!_renderer.enabled)
+        {
+            if (_nbEntries > 0)
+            {
+                _renderer.enabled = true;
+            } 
+        }
+        else
+        {
+            if (_nbEntries <= 0)
+            {
+               _renderer.enabled = false;
+            }
+        }
     }
 
     public void SetMinHeight(Vector3 center)
@@ -46,11 +74,32 @@ public class Zone : MonoBehaviour {
         _maxHeight = height;
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("entrée");
+        if (other.tag == "Twippie")
+        {
+            
+            _nbEntries++;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        Debug.Log("sortie");
+        if (other.tag == "Twippie")
+        {
+            
+            if (_nbEntries > 0)
+                _nbEntries--;
+        }
+    }
+
     public Color Col
     {
         get
         {
-            return _col;
+            return _color;
         }
     }
 

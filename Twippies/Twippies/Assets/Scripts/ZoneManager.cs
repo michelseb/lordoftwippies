@@ -20,7 +20,7 @@ public class ZoneManager : MonoBehaviour {
 
         for (int i = 0; i < 1000; i++)
         {
-            FindCenter(1f);
+            FindCenter(2f);
         }
 
         SetVertices();
@@ -144,7 +144,7 @@ public class ZoneManager : MonoBehaviour {
                     tempZone = z;
                 }
             }
-            tempZone.Vertices.Add(_vertices[i]);
+            tempZone.Vertices.Add(transform.TransformPoint(_vertices[i]));
         }
 
         /*for (int i = 0; i < _nbVertex; i++)
@@ -157,11 +157,15 @@ public class ZoneManager : MonoBehaviour {
     {
         foreach (Zone zone in _zones)
         {
-            Debug.Log(zone.Vertices.Count);
+            if (zone.ZoneObject!= null)
+            {
+                Destroy(zone.ZoneObject);
+            }
             zone.SetMaxHeight(transform.position);
             zone.SetMinHeight(transform.position);
-            zone.ZoneObject = MeshMaker.CreateZone(zone.Vertices.ToArray(), transform, zone.ZoneMaterial);
-            zone.ZoneObject.GetComponent<MeshRenderer>().material.color = zone.Col;
+            zone.ZoneObject = MeshMaker.CreateSelection(zone.Vertices, zone.transform, zone.Center);
+            zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .2f);
+            zone.ZoneObject.GetComponent<MeshRenderer>().material.color = new Color(1, (zone.MinHeight - 4) / 2, 0);//zone.Col;
         }
     }
 
