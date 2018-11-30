@@ -1,0 +1,4 @@
+sceneSetups:
+- path: Assets/CPU-GPU/Scenes/CPUvsGPU.unity
+  isLoaded: 1
+  isActive: 1

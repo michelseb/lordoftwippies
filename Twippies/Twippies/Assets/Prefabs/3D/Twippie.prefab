@@ -160,7 +160,7 @@ MonoBehaviour:
   _sleepiness: 100
   _hunger: 100
   _thirst: 100
-  _speed: 0.5
+  _speed: 1
 --- !u!136 &136446711309089188
 CapsuleCollider:
   m_ObjectHideFlags: 1

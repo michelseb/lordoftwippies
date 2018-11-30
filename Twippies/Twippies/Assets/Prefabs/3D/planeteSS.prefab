@@ -63,6 +63,7 @@ GameObject:
   - component: {fileID: 114751641857333390}
   - component: {fileID: 114096340336135250}
   - component: {fileID: 114193364866869416}
+  - component: {fileID: 114205979466608698}
   m_Layer: 0
   m_Name: planeteSS
   m_TagString: Planet
@@ -513,9 +514,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b60f2589c33d564ab8dd47b9fc2d3af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _vertices: []
   _zonePrefab: {fileID: 114338826418669768, guid: e84722a6820471b468bb9a479ec21111,
     type: 2}
+--- !u!114 &114205979466608698
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1332633013073338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c306f5d4afa0a6c489ea07a2e9b50fb7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _twippie: {fileID: 1491261447225362, guid: b514f5979457a9c499b47c90baede76f, type: 2}
+  _nbObjets: 100
 --- !u!114 &114310311304771704
 MonoBehaviour:
   m_ObjectHideFlags: 1

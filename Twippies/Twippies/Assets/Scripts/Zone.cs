@@ -15,11 +15,13 @@ public class Zone : MonoBehaviour {
     private int _nbEntries;
     private MeshCollider _collider;
     private MeshRenderer _renderer;
+    private ObjetManager _om;
 
     private void Awake()
     {
         _color = new Color(Random.value, Random.value, Random.value);
         _vertices = new List<Vector3>();
+        _om = ObjetManager.Instance;
     }
 
     private void Update()
@@ -31,6 +33,7 @@ public class Zone : MonoBehaviour {
                 _renderer = _zoneObject.GetComponent<MeshRenderer>();
             }
         }
+        _renderer.material.color = new Color(Mathf.Lerp(_renderer.material.color.r, (_nbEntries*50)/_om.allObjects.Count, Time.deltaTime * 2), .3f, Mathf.Lerp(_renderer.material.color.b, .3f + (_nbEntries * 100) / _om.allObjects.Count, Time.deltaTime * 2), .6f);
         if (!_renderer.enabled)
         {
             if (_nbEntries > 0)
@@ -42,7 +45,7 @@ public class Zone : MonoBehaviour {
         {
             if (_nbEntries <= 0)
             {
-               _renderer.enabled = false;
+               //_renderer.enabled = false;
             }
         }
     }

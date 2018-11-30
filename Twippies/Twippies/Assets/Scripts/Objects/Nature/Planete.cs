@@ -80,7 +80,7 @@ public class Planete : ManageableObjet {
                 if (_deforming)
                 {
                     _zManager.Vertices = _mesh.vertices;
-                    _zManager.SetVertices();
+                    //_zManager.SetVertices();
                     _zManager.SetHeights();
                     _deforming = false;
                 }

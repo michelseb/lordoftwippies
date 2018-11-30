@@ -6,9 +6,10 @@ using MIConvexHull;
 
 public class MeshMaker {
 
-    public static GameObject CreateSelection(IEnumerable<Vector3> points, Transform t, Vector3 pos)
+    public static GameObject CreateSelection(IEnumerable<Vector3> points, Transform t, Vector3 pos, Vector3 worldPos)
     {
         GameObject go = new GameObject("ZoneObject");
+        go.layer = 2;
         
         go.transform.position = pos;
         MeshFilter mf = go.AddComponent(typeof(MeshFilter)) as MeshFilter;
@@ -16,6 +17,8 @@ public class MeshMaker {
         foreach (Vector3 p in points)
         {
             Vector3 nP = p - pos;
+            newPoints.Add(nP);
+            nP += (p - worldPos).normalized * .5f;
             newPoints.Add(nP);
         }
         mf.mesh = CreateMesh(newPoints);
@@ -34,7 +37,7 @@ public class MeshMaker {
         col.convex = true;
         col.isTrigger = true;
         go.transform.parent = t;
-        go.transform.localScale = Vector3.one * 2.5f;
+        //go.transform.localScale = Vector3.one * 2f;
         return go;
     }
 
