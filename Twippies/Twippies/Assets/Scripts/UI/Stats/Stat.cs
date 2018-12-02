@@ -3,6 +3,7 @@
     Label,
     Text,
     Bool,
+    Choice,
     Value
 }
 

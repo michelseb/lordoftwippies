@@ -79,6 +79,12 @@ public class StatManager : MonoBehaviour {
                 BoolStat s = (BoolStat)_statsList[a];
                 s.Value = GUI.Toggle(r, s.Value, s.Label);
             }
+            else if (_statsList[a] is ChoiceStat)
+            {
+                r.size *= 2;
+                ChoiceStat s = (ChoiceStat)_statsList[a];
+                s.Value = GUI.SelectionGrid(r, s.Value, s.Values, 3);
+            }
         }
     }
 
@@ -97,5 +103,9 @@ public class StatManager : MonoBehaviour {
     public TextStat StatToText(Stat s)
     {
         return (TextStat)s;
+    }
+    public ChoiceStat StatToChoice(Stat s)
+    {
+        return (ChoiceStat)s;
     }
 }

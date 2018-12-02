@@ -16,6 +16,16 @@ public class Zone : MonoBehaviour {
     private MeshCollider _collider;
     private MeshRenderer _renderer;
     private ObjetManager _om;
+    public enum DisplayMode
+    {
+        Population,
+        Height,
+        Needs,
+        Groups,
+        None
+    }
+
+    private DisplayMode _displayMode; 
 
     private void Awake()
     {
@@ -33,19 +43,45 @@ public class Zone : MonoBehaviour {
                 _renderer = _zoneObject.GetComponent<MeshRenderer>();
             }
         }
-        _renderer.material.color = new Color(Mathf.Lerp(_renderer.material.color.r, (_nbEntries*50)/_om.allObjects.Count, Time.deltaTime * 2), .3f, Mathf.Lerp(_renderer.material.color.b, .3f + (_nbEntries * 100) / _om.allObjects.Count, Time.deltaTime * 2), .6f);
-        if (!_renderer.enabled)
+
+        if (_displayMode == DisplayMode.None)
         {
-            if (_nbEntries > 0)
+            if (_renderer.enabled)
             {
-                _renderer.enabled = true;
-            } 
+                _renderer.enabled = false;
+            }
         }
         else
         {
-            if (_nbEntries <= 0)
+            if (!_renderer.enabled)
             {
-               //_renderer.enabled = false;
+                _renderer.enabled = true;
+            }
+            switch (_displayMode)
+            {
+                case DisplayMode.Population:
+
+                    _renderer.material.color = new Color(Mathf.Lerp(_renderer.material.color.r, (_nbEntries * 50) / _om.allObjects.Count, Time.deltaTime * 2), 
+                                                        .3f, 
+                                                        Mathf.Lerp(_renderer.material.color.b, .3f + (_nbEntries * 100) / _om.allObjects.Count, Time.deltaTime * 2), 
+                                                        .6f);
+
+                    break;
+
+
+                case DisplayMode.Height:
+
+                    _renderer.material.color = new Color(1, (_minHeight - 4) / 2, 0);
+                    break;
+
+
+                case DisplayMode.Needs:
+                    break;
+
+
+                case DisplayMode.Groups:
+                    break;
+               
             }
         }
     }
@@ -191,6 +227,18 @@ public class Zone : MonoBehaviour {
         get
         {
             return _zoneMaterial;
+        }
+    }
+
+    public DisplayMode Display
+    {
+        get
+        {
+            return _displayMode;
+        }
+        set
+        {
+            _displayMode = value;
         }
     }
 

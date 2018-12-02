@@ -54,6 +54,27 @@ public class Planete : ManageableObjet {
 
         _shaping = _stats.StatToBool(_stats.StatsList[3]).Value;
         //_shapingStrength = _stats.StatToValue(_stats.StatsList[4]).Value;
+        switch (_stats.StatToChoice(_stats.StatsList[4]).Value)
+        {
+            case 0:
+                foreach (Zone z in _zManager.Zones)
+                {
+                    z.Display = Zone.DisplayMode.None;
+                }
+                break;
+            case 1:
+                foreach (Zone z in _zManager.Zones)
+                {
+                    z.Display = Zone.DisplayMode.Population;
+                }
+                break;
+            case 2:
+                foreach (Zone z in _zManager.Zones)
+                {
+                    z.Display = Zone.DisplayMode.Height;
+                }
+                break;
+        }
 
         if (_shaping)
         {
@@ -208,11 +229,12 @@ public class Planete : ManageableObjet {
 
     protected override void GenerateStats()
     {
-        _stats.StatsList = new Stat[4];
+        _stats.StatsList = new Stat[5];
         _stats.StatsList[0] = new LabelStat("Woaaaa (Planète)");
         _stats.StatsList[1] = new TextStat("Planète Twippie", 20);
         _stats.StatsList[2] = new BoolStat(true, "Don't press this");
         _stats.StatsList[3] = new BoolStat(false, "Shape mode");
+        _stats.StatsList[4] = new ChoiceStat(new string[] { "None", "Population", "Height", "Needs", "Groups" }, 0);
         //_stats.StatsList[4] = new ValueStat(0, -30, 30, "Shape strength", false);
 
     }
