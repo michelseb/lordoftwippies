@@ -8,7 +8,8 @@ public class Twippie : DraggableObjet {
     {
         Walking,
         Sleeping,
-        Building
+        Building,
+        Contemplating
     }
 
     protected enum Emotion
@@ -33,9 +34,10 @@ public class Twippie : DraggableObjet {
     }
 
     protected Vector3 _goal;
+    protected GameObject _goalObject;
     protected List<Zone> _steps;
-    protected State _state;
-    private Sun _s;
+    protected State _state, _previousState;
+    private Sun _sun;
 
     [SerializeField]
     private float _sleepiness;
@@ -47,6 +49,9 @@ public class Twippie : DraggableObjet {
     [SerializeField]
     protected float _speed;
 
+    protected Coroutine _contemplation;
+    protected float _contemplateTime;
+
     protected override void Awake()
     {
         base.Awake();
@@ -56,9 +61,14 @@ public class Twippie : DraggableObjet {
     protected override void Start()
     {
         base.Start();
-        _s = _p.transform.GetComponentInChildren<Sun>();
+        _sun = _p.transform.GetComponentInChildren<Sun>();
         _outline.color = 3;
         _waterCost = 1;
+        _goal = transform.position;
+        _goalObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        SetGoal();
+        _state = State.Contemplating;
+        OnStateChange();
     }
 
 
@@ -66,22 +76,34 @@ public class Twippie : DraggableObjet {
     {
         base.Update();
 
-        if (_s != null)
+        
+
+        if (_state != State.Walking)
+        {
+            _previousState = _state;
+            if (Vector3.Distance(transform.position, _goal) > 1)
+            {
+                _state = State.Walking;
+            }
+        }
+
+        if (_sun != null)
         {
             if (!CheckActiveState())
             {
                 if (_state != State.Sleeping)
                 {
+                    _previousState = _state;
                     _state = State.Sleeping;
-                    OnStateChange(_state);
+                    OnStateChange();
                 }
             }
             else
             {
                 if (_state == State.Sleeping)
                 {
-                    _state = State.Walking;
-                    OnStateChange(_state);
+                    _state = _previousState;
+                    OnStateChange();
                 }
             }
         }
@@ -89,8 +111,9 @@ public class Twippie : DraggableObjet {
         {
             if (_state != State.Sleeping)
             {
+                _previousState = _state;
                 _state = State.Sleeping;
-                OnStateChange(_state);
+                OnStateChange();
             }
         }
 
@@ -99,6 +122,20 @@ public class Twippie : DraggableObjet {
             case State.Sleeping:
                 _sleepiness -= Time.deltaTime;
                 if (_sleepiness < 0) _sleepiness = 0;
+                break;
+
+
+            case State.Walking:
+                Vector3 lookRotation = _goalObject.transform.position - transform.position;
+                lookRotation.y = 0;
+                Quaternion rotation = Quaternion.LookRotation(lookRotation);
+                transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime);
+                Vector3 newPos = _r.position + transform.TransformDirection(new Vector3(0, 0, _speed * Time.deltaTime));
+                _r.MovePosition(newPos);
+                break;
+
+            case State.Contemplating:
+
                 break;
         }
 
@@ -120,29 +157,24 @@ public class Twippie : DraggableObjet {
     protected override void LateUpdate()
     {
         base.LateUpdate();
-        switch (_state) {
-
-            case State.Walking:
-                Vector3 newPos = _r.position + transform.TransformDirection(new Vector3(0, 0, _speed * Time.deltaTime));
-                _r.MovePosition(newPos);
-                break;
-
-
-            case State.Sleeping:
-                
-                break;
-        }
+        
     }
 
-    private void OnStateChange(State s)
+    private void OnStateChange()
     {
-        switch (s)
+        switch (_state)
         {
             case State.Sleeping:
                 gameObject.GetComponentInChildren<MeshRenderer>().material.color = Color.black;
                 break;
             case State.Walking:
                 gameObject.GetComponentInChildren<MeshRenderer>().material.color = Color.white;
+                break;
+            case State.Contemplating:
+                if (_contemplation == null)
+                {
+                    _contemplation = StartCoroutine(Contemplate(4));
+                }
                 break;
         }
     }
@@ -151,7 +183,7 @@ public class Twippie : DraggableObjet {
     {
         RaycastHit hit;
         LayerMask mask = ~(1 << 12 | 1 << 9);
-        if (Physics.Linecast(_s.transform.position, transform.position + transform.up/2, out hit, mask))
+        if (Physics.Linecast(_sun.transform.position, transform.position + transform.up/2, out hit, mask))
         {
             
             if (hit.collider.tag == "Planet" || hit.collider.tag == "Water")
@@ -189,6 +221,15 @@ public class Twippie : DraggableObjet {
 
     private void SetGoal()
     {
+        int zoneId = Random.Range(0, _p.ZManager.Zones.Count-1); // Choisit une zone aléatoire
+        _goal = _p.ZManager.Zones[zoneId].Center; // Place le goal en son centre
+        _goalObject.transform.position = _goal;
+        _goalObject.transform.parent = P.transform;
+    }
 
+    private IEnumerator Contemplate(float temps)
+    {
+        yield return new WaitForSeconds(temps);
+        SetGoal();
     }
 }

@@ -16,6 +16,7 @@ public class Zone : MonoBehaviour {
     private MeshCollider _collider;
     private MeshRenderer _renderer;
     private ObjetManager _om;
+    private ZoneManager _zManager;
     public enum DisplayMode
     {
         Population,
@@ -36,6 +37,7 @@ public class Zone : MonoBehaviour {
 
     private void Update()
     {
+        _centerZone = transform.TransformPoint(_zManager.Vertices[_centerId]);
         if (_collider == null)
         {
             if (_zoneObject != null) {
@@ -71,7 +73,7 @@ public class Zone : MonoBehaviour {
 
                 case DisplayMode.Height:
 
-                    _renderer.material.color = new Color(1, (_minHeight - 4) / 2, 0);
+                    _renderer.material.color = new Color(1, ((_minHeight+_maxHeight)/2 - 4) / 2, 0);
                     break;
 
 
@@ -115,7 +117,6 @@ public class Zone : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("entrée");
         if (other.tag == "Twippie")
         {
             
@@ -125,7 +126,6 @@ public class Zone : MonoBehaviour {
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("sortie");
         if (other.tag == "Twippie")
         {
             
@@ -151,14 +151,6 @@ public class Zone : MonoBehaviour {
         set
         {
             _vertices = value;
-        }
-    }
-
-    public Vector3 CenterZone
-    {
-        get
-        {
-            return _centerZone;
         }
     }
 
@@ -242,4 +234,15 @@ public class Zone : MonoBehaviour {
         }
     }
 
+    public ZoneManager ZManager
+    {
+        get
+        {
+            return _zManager;
+        }
+        set
+        {
+            _zManager = value;
+        }
+    }
 }

@@ -67,30 +67,28 @@ public abstract class DraggableObjet : ManageableObjet {
             _dragging = false;
         }
 
-        //Debug.DrawLine(transform.position, _zone.Center);
-        
-        foreach (Transform child in transform)
-        {
-            if (child.gameObject.GetComponent<MeshRenderer>() != null)
-            {
-                //child.gameObject.GetComponent<MeshRenderer>().material.color = _zone.Col;
-            }
-        }
-
         float distMin = Mathf.Infinity;
         Zone tempZone = null;
         foreach (Zone z in _zManager.Zones)
         {
-            float dist = (transform.position - z.CenterZone).sqrMagnitude;
+            float dist = (transform.position - z.Center).sqrMagnitude;
             if (dist < distMin)
             {
                 distMin = dist;
                 tempZone = z;
             }
         }
+        
         _zone = tempZone;
 
-        /*
+        foreach (Transform child in transform)
+        {
+            if (child.gameObject.GetComponent<MeshRenderer>() != null && _zone != null)
+            {
+                //child.gameObject.GetComponent<MeshRenderer>().material.color = _zone.Col;
+            }
+        }
+        
         if (_zone.MinHeight < P.Water.Radius/2)
         {
             
@@ -112,7 +110,7 @@ public abstract class DraggableObjet : ManageableObjet {
                 }
             }
         }
-        */
+        
 
     }
     protected virtual void FixedUpdate()

@@ -180,7 +180,6 @@ public abstract class ManageableObjet : Objet {
         _dist = _cam.WorldToScreenPoint(transform.position);
         _posX = Input.mousePosition.x - _dist.x;
         _posY = Input.mousePosition.y - _dist.y;
-        Debug.Log("Focused : "+_c.FocusedObject);
     }
     
 

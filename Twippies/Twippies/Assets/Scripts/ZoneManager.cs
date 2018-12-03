@@ -22,50 +22,18 @@ public class ZoneManager : MonoBehaviour {
 
         for (int i = 0; i < 1000; i++)
         {
-            FindCenter(2f);
+            FindCenter(1f);
         }
 
-        //SetVertices();
         SetTriangles();
         SetHeights();
 
-        /*for (int i = 0; i < _nbVertex; i++)
-        {
-            float distMin = Mathf.Infinity;
-            Zone tempZone = null;
-            foreach (Zone z in _zones)
-            {
-                float dist = (_vertices[i] - z.CenterZone).sqrMagnitude;
-                if (dist < distMin)
-                {
-                    distMin = dist;
-                    tempZone = z;
-                }
-            }
-            tempZone.Vertices.Add(_vertices[i]);
-        }*/
-
-        
-
-        /*for (int a = 0; a < _nbZones; a++)
-        {
-            Vector3[] vertices = new Vector3[_nbVertexPerZone];
-            for (int i = 0; i < _nbVertexPerZone; i++)
-            {
-                vertices[i] = _planeteMesh.vertices[a * _nbVertexPerZone + i];
-            }
-            Zone zone = new Zone(vertices);
-            zone.SetMinHeight(transform.position);
-            zone.SetMaxHeight(transform.position);
-            _zones.Add(zone);
-        }*/
     }
 
     private void OnDrawGizmos()
     {
         if (_zones == null)
         {
-            Debug.Log("no zones");
             return;
         }
 
@@ -74,7 +42,6 @@ public class ZoneManager : MonoBehaviour {
             Gizmos.matrix = transform.localToWorldMatrix;
             foreach (Zone z in _zones)
             {
-                //Gizmos.color = new Color(1, (z.MinHeight - 4) / 2, 0);
                 Gizmos.color = z.Col;
                 foreach (Vector3 v in z.Vertices)
                 {
@@ -90,13 +57,14 @@ public class ZoneManager : MonoBehaviour {
         Vector3 center = transform.TransformPoint(_vertices[id]);
         foreach (Zone z in _zones)
         {
-            float dist = (center - z.CenterZone).magnitude;
+            float dist = (center - z.Center).magnitude;
             if (dist < minDist)
             {
                 return;
             }
         }
         Zone zone = Instantiate(_zonePrefab,transform);
+        zone.ZManager = this;
         zone.Center = center;
         zone.CenterId = id;
         _zones.Add(zone);
@@ -138,43 +106,19 @@ public class ZoneManager : MonoBehaviour {
         {
             float distMin = Mathf.Infinity;
             Zone tempZone = null;
-            Zone secondZone = null;
-            float dist = 0, dist2 = 0;
+            float dist = 0;
             foreach (Zone z in _zones)
             {
-                dist = (_vertices[i] - z.CenterZone).sqrMagnitude;
+                dist = (_vertices[i] - z.Center).sqrMagnitude;
                 if (dist < distMin)
                 {
-                    if (tempZone != null)
-                    {
-                        if (dist2 < distMin)
-                        {
-                            dist2 = distMin;
-                            secondZone = tempZone;
-                        }
-                    }
                     distMin = dist;
                     tempZone = z;
-                }
-                else if (dist2 > dist)
-                {
-                    dist2 = dist;
-                    secondZone = z;
                 }
 
             }
             tempZone.Vertices.Add(transform.TransformPoint(_vertices[i]));
-            if (secondZone != null) {
-                if (Mathf.Abs(distMin-dist2) < 1f)
-                    secondZone.Vertices.Add(transform.TransformPoint(_vertices[i]));
-            }
         }
-
-        /*for (int i = 0; i < _nbVertex; i++)
-        { 
-            Zone zone = _zones.FindClosest(transform.TransformPoint(_vertices[i]));
-            zone.Vertices.Add(transform.TransformPoint(_vertices[i]));
-        }*/
     }
 
     public void SetTriangles()
@@ -200,7 +144,7 @@ public class ZoneManager : MonoBehaviour {
             Zone tempZone = null;
             foreach (Zone z in _zones)
             {
-                float dist = (centre - z.CenterZone).sqrMagnitude;
+                float dist = (centre - z.Center).sqrMagnitude;
                 if (dist < distMin)
                 {
                     distMin = dist;
@@ -232,7 +176,6 @@ public class ZoneManager : MonoBehaviour {
             zone.SetMinHeight(transform.position);
             zone.ZoneObject = MeshMaker.CreateSelection(zone.Vertices, zone.transform, zone.Center, transform.position);
             zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
-            zone.ZoneObject.GetComponent<MeshRenderer>().material.color = zone.Col;//new Color(1, (zone.MinHeight - 4) / 2, 0);//zone.Col;
         }
     }
 

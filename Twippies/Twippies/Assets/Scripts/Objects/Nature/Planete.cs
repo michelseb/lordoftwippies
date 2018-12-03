@@ -46,6 +46,7 @@ public class Planete : ManageableObjet {
             _updatedVertices[i] = _originalVertices[i];
         }
         _vertexVelocities = new Vector3[_originalVertices.Length];
+        Debug.Log(_originalVertices.Length);
     }
 
     protected override void Update()
@@ -84,29 +85,27 @@ public class Planete : ManageableObjet {
                 _water.Coll.enabled = false;
             }
 
-
-            for (int i = 0; i < _deformedVertices.Length; i++)
-            {
-                UpdateVertex(i);
-            }
-            _mesh.vertices = _deformedVertices;
-            _mesh.RecalculateNormals();
-            _meshCollider.sharedMesh = _mesh;
             if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
             {
+                for (int i = 0; i < _deformedVertices.Length; i++)
+                {
+                    UpdateVertex(i);
+                }
                 _deforming = true;
+                _mesh.vertices = _deformedVertices;
+                _mesh.RecalculateNormals();
+                _meshCollider.sharedMesh = _mesh;
             }
             else
             {
                 if (_deforming)
                 {
                     _zManager.Vertices = _mesh.vertices;
-                    //_zManager.SetVertices();
+                    _zManager.SetTriangles();
                     _zManager.SetHeights();
                     _deforming = false;
                 }
             }
-            
 
         }
         else
@@ -168,15 +167,19 @@ public class Planete : ManageableObjet {
                 AbsRotateObjet();
             }
 
-            Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
+            if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
+            {
+                Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
 
-            if (Physics.Raycast(inputRay, out hit) && Input.GetMouseButton(0))
-            {
-                Deform(hit.point, 10);
-            }else if (Physics.Raycast(inputRay, out hit) && Input.GetMouseButton(1))
-            {
-                Deform(hit.point, -10);
+                if (Physics.Raycast(inputRay, out hit) && Input.GetMouseButton(0))
+                {
+                    Deform(hit.point, 10);
+                }
+                else if (Physics.Raycast(inputRay, out hit) && Input.GetMouseButton(1))
+                {
+                    Deform(hit.point, -10);
+                }
             }
         }
     }
@@ -215,12 +218,9 @@ public class Planete : ManageableObjet {
     protected void UpdateVertex(int i)
     {
         Vector3 velocity = _vertexVelocities[i]; // Récupération de la force appliquée au vertice
-        if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
-        {
-            _updatedVertices[i] = _deformedVertices[i]; //Update du vertice si bouton appuyé
-        }
-        Vector3 deplacement = _deformedVertices[i] - _updatedVertices[i]; //Distance de déplacement du vertice depuis l'original
-        velocity -= deplacement *5* Time.deltaTime; //plus le point est déplacé, moins il va vite
+        _updatedVertices[i] = _deformedVertices[i]; //Update du vertice si bouton appuyé
+        //Vector3 deplacement = _deformedVertices[i] - _updatedVertices[i]; //Distance de déplacement du vertice depuis l'original
+        //velocity -= deplacement *5* Time.deltaTime; //plus le point est déplacé, moins il va vite
         velocity *= 1f - 5 * Time.deltaTime; //Réduction progressive de la vélocité pour éviter que ça rebondisse
         _vertexVelocities[i] = velocity;
         _deformedVertices[i] += velocity * Time.deltaTime;
@@ -289,6 +289,14 @@ public class Planete : ManageableObjet {
         get
         {
             return _water;
+        }
+    }
+
+    public ZoneManager ZManager
+    {
+        get
+        {
+            return _zManager;
         }
     }
 }
