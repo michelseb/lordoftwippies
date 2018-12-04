@@ -8,6 +8,7 @@ public class Zone : MonoBehaviour {
     private List<Vector3> _vertices;
     private Vector3 _centerZone;
     private GameObject _zoneObject;
+    private List<Zone> _neighbours;
     private float _minHeight, _maxHeight, _meanHeight, _deltaHeight;
     private Color _color;
     private bool _accessible;
@@ -32,12 +33,19 @@ public class Zone : MonoBehaviour {
     {
         _color = new Color(Random.value, Random.value, Random.value);
         _vertices = new List<Vector3>();
+        _neighbours = new List<Zone>();
         _om = ObjetManager.Instance;
     }
 
     private void Update()
     {
-        _centerZone = transform.TransformPoint(_zManager.Vertices[_centerId]);
+        
+        foreach (Zone z in Neighbours)
+        {
+            Debug.DrawLine(_centerZone, z._centerZone);
+        }
+
+        _centerZone = _zManager.transform.TransformPoint(_zManager.Vertices[_centerId]);
         if (_collider == null)
         {
             if (_zoneObject != null) {
@@ -243,6 +251,18 @@ public class Zone : MonoBehaviour {
         set
         {
             _zManager = value;
+        }
+    }
+
+    public List<Zone> Neighbours
+    {
+        get
+        {
+            return _neighbours;
+        }
+        set
+        {
+            _neighbours = value;
         }
     }
 }

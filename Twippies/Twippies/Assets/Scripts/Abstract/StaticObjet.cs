@@ -6,9 +6,8 @@ public abstract class StaticObjet : DraggableObjet {
 
     private bool _grounded;
 
-    protected override void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
-        base.FixedUpdate();
         if (_grounded)
         {
             _r.velocity = Vector3.zero;

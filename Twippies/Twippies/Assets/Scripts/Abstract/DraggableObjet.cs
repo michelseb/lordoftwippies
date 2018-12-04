@@ -110,24 +110,8 @@ public abstract class DraggableObjet : ManageableObjet {
                 }
             }
         }
-        
 
-    }
-    protected virtual void FixedUpdate()
-    {
-        
-        if (_p)
-        {
-            if (_dragging)
-            {
-                if (Input.GetMouseButton(0))
-                    _p.Face(transform);
-            }
-            else
-            {
-                _p.Attract(transform, _r);
-            }
-        }
+        MakeAttraction();
     }
 
     protected override void OnMouseOver()
@@ -153,6 +137,22 @@ public abstract class DraggableObjet : ManageableObjet {
             {
                 _p = p;
                 dist = Vector2.Distance(transform.position, p.transform.position);
+            }
+        }
+    }
+
+    protected virtual void MakeAttraction()
+    {
+        if (_p)
+        {
+            if (_dragging)
+            {
+                if (Input.GetMouseButton(0))
+                    _p.Face(transform);
+            }
+            else
+            {
+                _p.Attract(transform, _r);
             }
         }
     }

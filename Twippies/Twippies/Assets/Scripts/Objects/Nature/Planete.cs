@@ -46,7 +46,6 @@ public class Planete : ManageableObjet {
             _updatedVertices[i] = _originalVertices[i];
         }
         _vertexVelocities = new Vector3[_originalVertices.Length];
-        Debug.Log(_originalVertices.Length);
     }
 
     protected override void Update()
@@ -134,7 +133,7 @@ public class Planete : ManageableObjet {
 
         r.AddForce(-gravityUp * _gravity * r.mass);
         Quaternion targetRotation = Quaternion.FromToRotation(localUp, gravityUp) * t.rotation;
-        t.rotation = Quaternion.Slerp(t.rotation, targetRotation, 50f * Time.deltaTime);
+        t.rotation = targetRotation;//Quaternion.Slerp(t.rotation, targetRotation, 50f * Time.deltaTime);
     }
 
     public void Face(Transform t)
@@ -142,7 +141,7 @@ public class Planete : ManageableObjet {
         Vector3 gravityUp = (t.position - transform.position).normalized;
         Vector3 localUp = t.up;
         Quaternion targetRotation = Quaternion.FromToRotation(localUp, gravityUp) * t.rotation;
-        t.rotation = Quaternion.Slerp(t.rotation, targetRotation, 50f * Time.deltaTime);
+        t.rotation = targetRotation;//Quaternion.Slerp(t.rotation, targetRotation, 50f * Time.deltaTime);
     }
 
     protected override void OnMouseExit()

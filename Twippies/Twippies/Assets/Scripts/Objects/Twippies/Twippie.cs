@@ -33,7 +33,6 @@ public class Twippie : DraggableObjet {
         Cooldown
     }
 
-    protected Vector3 _goal;
     protected GameObject _goalObject;
     protected List<Zone> _steps;
     protected State _state, _previousState;
@@ -64,8 +63,8 @@ public class Twippie : DraggableObjet {
         _sun = _p.transform.GetComponentInChildren<Sun>();
         _outline.color = 3;
         _waterCost = 1;
-        _goal = transform.position;
-        _goalObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        _goalObject = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //_goalObject.GetComponent<SphereCollider>().isTrigger = true;
         SetGoal();
         _state = State.Contemplating;
         OnStateChange();
@@ -76,14 +75,31 @@ public class Twippie : DraggableObjet {
     {
         base.Update();
 
-        
+        /*
+        if (Input.GetMouseButtonDown(0))
+        {
+            SetGoal();
+        }*/
+
 
         if (_state != State.Walking)
         {
-            _previousState = _state;
-            if (Vector3.Distance(transform.position, _goal) > 1)
+            if (Vector3.Distance(transform.position, _goalObject.transform.position) > 1)
             {
+                _previousState = _state;
                 _state = State.Walking;
+                OnStateChange();
+            }
+        }
+
+        if (_state != State.Contemplating)
+        {
+            if (Vector3.Distance(transform.position, _goalObject.transform.position) <= 1)
+            {
+                
+                _previousState = _state;
+                _state = State.Contemplating;
+                OnStateChange();
             }
         }
 
@@ -126,10 +142,17 @@ public class Twippie : DraggableObjet {
 
 
             case State.Walking:
-                Vector3 lookRotation = _goalObject.transform.position - transform.position;
+                /*Vector3 lookRotation = _goalObject.transform.position - transform.position;
                 lookRotation.y = 0;
                 Quaternion rotation = Quaternion.LookRotation(lookRotation);
-                transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime);
+                transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime);*/
+                /*Vector3 targetPostition = new Vector3(_goalObject.transform.position.x,
+                                        transform.position.y,
+                                        _goalObject.transform.position.z);
+                transform.LookAt(targetPostition, transform.up);*/
+                Vector3 direction = _goalObject.transform.position - transform.position;
+                Quaternion rotation = Quaternion.FromToRotation(transform.forward, direction);
+                transform.rotation = rotation * transform.rotation;
                 Vector3 newPos = _r.position + transform.TransformDirection(new Vector3(0, 0, _speed * Time.deltaTime));
                 _r.MovePosition(newPos);
                 break;
@@ -173,7 +196,7 @@ public class Twippie : DraggableObjet {
             case State.Contemplating:
                 if (_contemplation == null)
                 {
-                    _contemplation = StartCoroutine(Contemplate(4));
+                    _contemplation = StartCoroutine(Contemplate(.5f));
                 }
                 break;
         }
@@ -221,9 +244,9 @@ public class Twippie : DraggableObjet {
 
     private void SetGoal()
     {
+        _goalObject.transform.parent = null;
         int zoneId = Random.Range(0, _p.ZManager.Zones.Count-1); // Choisit une zone aléatoire
-        _goal = _p.ZManager.Zones[zoneId].Center; // Place le goal en son centre
-        _goalObject.transform.position = _goal;
+        _goalObject.transform.position = _p.ZManager.Zones[zoneId].Center;// Place le goal en son centre
         _goalObject.transform.parent = P.transform;
     }
 
@@ -231,5 +254,8 @@ public class Twippie : DraggableObjet {
     {
         yield return new WaitForSeconds(temps);
         SetGoal();
+        _state = State.Walking;
+        OnStateChange();
+        _contemplation = null;
     }
 }

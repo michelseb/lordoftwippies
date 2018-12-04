@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class ZoneManager : MonoBehaviour {
 
@@ -24,13 +25,12 @@ public class ZoneManager : MonoBehaviour {
         {
             FindCenter(1f);
         }
-
         SetTriangles();
         SetHeights();
-
+        FindNeighbours();
     }
 
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
         if (_zones == null)
         {
@@ -49,7 +49,7 @@ public class ZoneManager : MonoBehaviour {
                 }
             }
         }
-    }
+    }*/
 
     private void FindCenter(float minDist)
     {
@@ -68,6 +68,27 @@ public class ZoneManager : MonoBehaviour {
         zone.Center = center;
         zone.CenterId = id;
         _zones.Add(zone);
+    }
+
+    private void FindNeighbours()
+    {
+        for (int a = 0; a < _zones.Count; a++)
+        {
+            for (int b = a+1; b < _zones.Count; b++)
+            {
+                if (_zones[a].Vertices.Any(x => _zones[b].Vertices.Any(y => x.Equals(y))))
+                {
+                    if (!_zones[a].Neighbours.Contains(_zones[b]))
+                    {
+                        _zones[a].Neighbours.Add(_zones[b]);
+                    }
+                    if (!_zones[b].Neighbours.Contains(_zones[a]))
+                    {
+                        _zones[b].Neighbours.Add(_zones[a]);
+                    }
+                }
+            }
+        }
     }
 
 
@@ -91,7 +112,7 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
-    public void SetVertices()
+    /*public void SetVertices()
     {
        foreach (Zone z in _zones)
         {
@@ -119,7 +140,7 @@ public class ZoneManager : MonoBehaviour {
             }
             tempZone.Vertices.Add(transform.TransformPoint(_vertices[i]));
         }
-    }
+    }*/
 
     public void SetTriangles()
     {
@@ -149,9 +170,10 @@ public class ZoneManager : MonoBehaviour {
                 {
                     distMin = dist;
                     tempZone = z;
+                    
                 }
-
             }
+           
             if (!tempZone.Vertices.Contains(a))
                 tempZone.Vertices.Add(transform.TransformPoint(a));
             if (!tempZone.Vertices.Contains(b))

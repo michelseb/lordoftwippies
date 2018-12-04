@@ -3,7 +3,7 @@
 public abstract class AerialObjet : DraggableObjet {
 
 
-    protected override void FixedUpdate()
+    protected override void MakeAttraction()
     {
         if (_p)
         {
