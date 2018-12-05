@@ -34,7 +34,10 @@ public class Twippie : DraggableObjet {
     }
 
     protected GameObject _goalObject;
+    protected Arrival _arrival;
     protected List<Zone> _steps;
+    [SerializeField]
+    protected PathFinder _pathFinder;
     protected State _state, _previousState;
     private Sun _sun;
 
@@ -63,11 +66,12 @@ public class Twippie : DraggableObjet {
         _sun = _p.transform.GetComponentInChildren<Sun>();
         _outline.color = 3;
         _waterCost = 1;
-        _goalObject = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        _goalObject = new GameObject();
+        _arrival = _goalObject.AddComponent<Arrival>();//GameObject.CreatePrimitive(PrimitiveType.Sphere);
         //_goalObject.GetComponent<SphereCollider>().isTrigger = true;
+        _arrival.ZoneManager = _zManager;
         SetGoal();
-        _state = State.Contemplating;
-        OnStateChange();
+        _pathFinder.Destination = _arrival;
     }
 
 
@@ -248,6 +252,8 @@ public class Twippie : DraggableObjet {
         int zoneId = Random.Range(0, _p.ZManager.Zones.Count-1); // Choisit une zone aléatoire
         _goalObject.transform.position = _p.ZManager.Zones[zoneId].Center;// Place le goal en son centre
         _goalObject.transform.parent = P.transform;
+        _arrival.SetArrival();
+        _steps = _pathFinder.GetTrajet();
     }
 
     private IEnumerator Contemplate(float temps)

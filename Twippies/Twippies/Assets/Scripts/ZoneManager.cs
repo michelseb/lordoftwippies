@@ -5,6 +5,7 @@ using System.Linq;
 public class ZoneManager : MonoBehaviour {
 
     private Mesh _planeteMesh;
+    private Planete _planete;
     private Vector3[] _vertices;
     private int[] _triangles;
     [SerializeField]
@@ -17,6 +18,7 @@ public class ZoneManager : MonoBehaviour {
     {
         _zones = new List<Zone>();
         _planeteMesh = GetComponent<MeshFilter>().mesh;
+        _planete = gameObject.GetComponent<Planete>();
         _vertices = _planeteMesh.vertices;
         _triangles = _planeteMesh.triangles;
         _nbVertex = _planeteMesh.vertexCount;
@@ -109,6 +111,14 @@ public class ZoneManager : MonoBehaviour {
         get
         {
             return _zones;
+        }
+    }
+
+    public Planete Planete
+    {
+        get
+        {
+            return _planete;
         }
     }
 

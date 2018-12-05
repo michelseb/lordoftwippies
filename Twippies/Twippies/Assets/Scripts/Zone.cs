@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class Zone : MonoBehaviour {
 
     [SerializeField]
@@ -11,13 +13,16 @@ public class Zone : MonoBehaviour {
     private List<Zone> _neighbours;
     private float _minHeight, _maxHeight, _meanHeight, _deltaHeight;
     private Color _color;
-    private bool _accessible;
     private int _centerId;
     private int _nbEntries;
     private MeshCollider _collider;
     private MeshRenderer _renderer;
     private ObjetManager _om;
     private ZoneManager _zManager;
+    private List<PathCost> _pathCosts;
+    private bool _accessible;
+
+
     public enum DisplayMode
     {
         Population,
@@ -39,7 +44,16 @@ public class Zone : MonoBehaviour {
 
     private void Update()
     {
-        
+
+        if (_meanHeight < _zManager.Planete.Water.Radius / 2)
+        {
+            _accessible = false;
+        }
+        else
+        {
+            _accessible = true;
+        }
+
         foreach (Zone z in Neighbours)
         {
             Debug.DrawLine(_centerZone, z._centerZone);
@@ -265,4 +279,17 @@ public class Zone : MonoBehaviour {
             _neighbours = value;
         }
     }
+
+    public List<PathCost> PathCosts
+    {
+        get
+        {
+            return _pathCosts;
+        }
+        set
+        {
+            _pathCosts = value;
+        }
+    }
+
 }

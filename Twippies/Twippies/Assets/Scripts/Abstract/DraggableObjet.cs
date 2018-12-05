@@ -170,4 +170,12 @@ public abstract class DraggableObjet : ManageableObjet {
         }
     }
 
+    public Zone Zone
+    {
+        get
+        {
+            return _zone;
+        }
+    }
+
 }

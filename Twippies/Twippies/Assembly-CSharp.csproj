@@ -92,6 +92,7 @@
     <Compile Include="Assets\Scripts\Abstract\ManageableObjet.cs" />
     <Compile Include="Assets\Scripts\Abstract\Objet.cs" />
     <Compile Include="Assets\Scripts\Abstract\StaticObjet.cs" />
+    <Compile Include="Assets\Scripts\Arrival.cs" />
     <Compile Include="Assets\Scripts\Controls.cs" />
     <Compile Include="Assets\Scripts\KdTree.cs" />
     <Compile Include="Assets\Scripts\MeshMaker.cs" />
