@@ -14,7 +14,7 @@ public class ZoneManager : MonoBehaviour {
     private List<Zone> _zones;
 
 
-    private void Start()
+    private void Awake()
     {
         _zones = new List<Zone>();
         _planeteMesh = GetComponent<MeshFilter>().mesh;
@@ -198,6 +198,8 @@ public class ZoneManager : MonoBehaviour {
 
     public void SetHeights()
     {
+        SphereCollider s = (SphereCollider)_planete.Water.Coll;
+        float radius = s.radius * _planete.Water.transform.lossyScale.magnitude;
         foreach (Zone zone in _zones)
         {
             if (zone.ZoneObject!= null)
@@ -206,8 +208,18 @@ public class ZoneManager : MonoBehaviour {
             }
             zone.SetMaxHeight(transform.position);
             zone.SetMinHeight(transform.position);
+            zone.MeanHeight = (zone.MaxHeight + zone.MinHeight) / 2;
             zone.ZoneObject = MeshMaker.CreateSelection(zone.Vertices, zone.transform, zone.Center, transform.position);
             zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
+            if (zone.MeanHeight < (radius / 2))
+                {
+                    zone.Accessible = false;
+                }
+                else
+                {
+                    zone.Accessible = true;
+                }
+
         }
     }
 

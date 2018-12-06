@@ -40,19 +40,11 @@ public class Zone : MonoBehaviour {
         _vertices = new List<Vector3>();
         _neighbours = new List<Zone>();
         _om = ObjetManager.Instance;
+        _pathCosts = new List<PathCost>();
     }
 
     private void Update()
     {
-
-        if (_meanHeight < _zManager.Planete.Water.Radius / 2)
-        {
-            _accessible = false;
-        }
-        else
-        {
-            _accessible = true;
-        }
 
         foreach (Zone z in Neighbours)
         {
@@ -117,7 +109,7 @@ public class Zone : MonoBehaviour {
         {
             if (Vector3.Distance(v, center) < height)
             {
-                height = Vector3.Distance(v, center);
+                height = Vector3.Distance(transform.TransformPoint(v), center);
             }
         }
         _minHeight = height;
@@ -131,7 +123,7 @@ public class Zone : MonoBehaviour {
         {
             if (Vector3.Distance(v, center) > height)
             {
-                height = Vector3.Distance(v, center);
+                height = Vector3.Distance(transform.TransformPoint(v), center);
             }
         }
         _maxHeight = height;
@@ -182,6 +174,10 @@ public class Zone : MonoBehaviour {
         {
             return _accessible;
         }
+        set
+        {
+            _accessible = value; 
+        }
     }
 
     public Vector3 Center
@@ -209,6 +205,19 @@ public class Zone : MonoBehaviour {
         get
         {
             return _maxHeight;
+        }
+
+    }
+
+    public float MeanHeight
+    {
+        get
+        {
+            return _meanHeight;
+        }
+        set
+        {
+            _meanHeight = value;
         }
     }
 

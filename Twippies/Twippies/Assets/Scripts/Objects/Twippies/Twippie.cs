@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class Twippie : DraggableObjet {
 
     protected enum State
@@ -35,7 +37,6 @@ public class Twippie : DraggableObjet {
 
     protected GameObject _goalObject;
     protected Arrival _arrival;
-    protected List<Zone> _steps;
     [SerializeField]
     protected PathFinder _pathFinder;
     protected State _state, _previousState;
@@ -66,24 +67,19 @@ public class Twippie : DraggableObjet {
         _sun = _p.transform.GetComponentInChildren<Sun>();
         _outline.color = 3;
         _waterCost = 1;
-        _goalObject = new GameObject();
+        _goalObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);//new GameObject();
         _arrival = _goalObject.AddComponent<Arrival>();//GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        //_goalObject.GetComponent<SphereCollider>().isTrigger = true;
+        _goalObject.GetComponent<SphereCollider>().isTrigger = true;
         _arrival.ZoneManager = _zManager;
-        SetGoal();
         _pathFinder.Destination = _arrival;
+        SetGoal();
+        
     }
 
 
     protected override void Update()
     {
         base.Update();
-
-        /*
-        if (Input.GetMouseButtonDown(0))
-        {
-            SetGoal();
-        }*/
 
 
         if (_state != State.Walking)
@@ -98,7 +94,7 @@ public class Twippie : DraggableObjet {
 
         if (_state != State.Contemplating)
         {
-            if (Vector3.Distance(transform.position, _goalObject.transform.position) <= 1)
+            if (Vector3.Distance(transform.position, _goalObject.transform.position) <= .3f)
             {
                 
                 _previousState = _state;
@@ -146,19 +142,29 @@ public class Twippie : DraggableObjet {
 
 
             case State.Walking:
-                /*Vector3 lookRotation = _goalObject.transform.position - transform.position;
-                lookRotation.y = 0;
-                Quaternion rotation = Quaternion.LookRotation(lookRotation);
-                transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime);*/
-                /*Vector3 targetPostition = new Vector3(_goalObject.transform.position.x,
-                                        transform.position.y,
-                                        _goalObject.transform.position.z);
-                transform.LookAt(targetPostition, transform.up);*/
-                Vector3 direction = _goalObject.transform.position - transform.position;
-                Quaternion rotation = Quaternion.FromToRotation(transform.forward, direction);
-                transform.rotation = rotation * transform.rotation;
-                Vector3 newPos = _r.position + transform.TransformDirection(new Vector3(0, 0, _speed * Time.deltaTime));
-                _r.MovePosition(newPos);
+                if (_pathFinder.Steps != null)
+                {
+                    if (_pathFinder.Steps.Count > 0)
+                    {
+                        Vector3 direction = _pathFinder.Steps[_pathFinder.Steps.Count-1].Zone.Center - transform.position;
+                        Quaternion rotation = Quaternion.FromToRotation(transform.forward, direction);
+                        transform.rotation = rotation * transform.rotation;
+                        Vector3 newPos = _r.position + transform.TransformDirection(new Vector3(0, 0, _speed * Time.deltaTime));
+                        _r.MovePosition(newPos);
+                        if (direction.magnitude < 1)
+                        {
+                            Destroy(_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go);
+                            _pathFinder.Steps.RemoveAt(_pathFinder.Steps.Count - 1);
+                        }
+                    }
+                    else
+                    {
+                        _previousState = _state;
+                        _state = State.Contemplating;
+                        OnStateChange();
+                    }
+                }
+               
                 break;
 
             case State.Contemplating:
@@ -249,11 +255,21 @@ public class Twippie : DraggableObjet {
     private void SetGoal()
     {
         _goalObject.transform.parent = null;
-        int zoneId = Random.Range(0, _p.ZManager.Zones.Count-1); // Choisit une zone aléatoire
+        int zoneId = Random.Range(0, _p.ZManager.Zones.Count - 1);
+        if (!_p.ZManager.Zones[zoneId].Accessible)
+        {
+            for (int a = 0; a < 100; a++)
+            {
+                zoneId = Random.Range(0, _p.ZManager.Zones.Count - 1);// Choisit une zone aléatoire
+                if (_p.ZManager.Zones[zoneId].Accessible)
+                    break;
+            }
+        }
         _goalObject.transform.position = _p.ZManager.Zones[zoneId].Center;// Place le goal en son centre
         _goalObject.transform.parent = P.transform;
         _arrival.SetArrival();
-        _steps = _pathFinder.GetTrajet();
+        _pathFinder.FindPath();
+
     }
 
     private IEnumerator Contemplate(float temps)

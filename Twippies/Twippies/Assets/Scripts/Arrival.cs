@@ -7,6 +7,7 @@ public class Arrival : MonoBehaviour {
     private Zone _finishZone;
     private ZoneManager _zoneManager;
 
+
     public void SetArrival()
     {
         float distMin = Mathf.Infinity;

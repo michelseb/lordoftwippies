@@ -36,6 +36,20 @@ public abstract class DraggableObjet : ManageableObjet {
         transform.parent = _p.gameObject.transform;
         _p.Face(transform);
         _initHeight = transform.position.x;
+        float distMin = Mathf.Infinity;
+        Zone tempZone = null;
+        foreach (Zone z in _zManager.Zones)
+        {
+            float dist = (transform.position - z.Center).sqrMagnitude;
+            if (dist < distMin)
+            {
+                distMin = dist;
+                tempZone = z;
+            }
+        }
+
+        _zone = tempZone;
+
 
     }
 
