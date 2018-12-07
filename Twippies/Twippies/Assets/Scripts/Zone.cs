@@ -29,6 +29,7 @@ public class Zone : MonoBehaviour {
         Height,
         Needs,
         Groups,
+        Accessible,
         None
     }
 
@@ -87,7 +88,7 @@ public class Zone : MonoBehaviour {
 
                 case DisplayMode.Height:
 
-                    _renderer.material.color = new Color(1, ((_minHeight+_maxHeight)/2 - 4) / 2, 0);
+                    _renderer.material.color = new Color(1, ((_minHeight+_maxHeight)/2 - 4) / 2, 0, .6f);
                     break;
 
 
@@ -96,6 +97,18 @@ public class Zone : MonoBehaviour {
 
 
                 case DisplayMode.Groups:
+                    break;
+
+                case DisplayMode.Accessible:
+
+                    if (_accessible)
+                    {
+                        _renderer.material.color = new Color(0, 1, 1, .6f);
+                    }else
+                    {
+                        _renderer.material.color = new Color(1, 0, 0, .6f);
+                    }
+
                     break;
                
             }
@@ -107,9 +120,9 @@ public class Zone : MonoBehaviour {
         float height = float.PositiveInfinity;
         foreach (Vector3 v in _vertices)
         {
-            if (Vector3.Distance(v, center) < height)
+            if (Vector3.Distance(_zManager.transform.TransformPoint(v), center) < height)
             {
-                height = Vector3.Distance(transform.TransformPoint(v), center);
+                height = Vector3.Distance(_zManager.transform.TransformPoint(v), center);
             }
         }
         _minHeight = height;
@@ -121,9 +134,9 @@ public class Zone : MonoBehaviour {
         float height = 0;
         foreach (Vector3 v in _vertices)
         {
-            if (Vector3.Distance(v, center) > height)
+            if (Vector3.Distance(_zManager.transform.TransformPoint(v), center) > height)
             {
-                height = Vector3.Distance(transform.TransformPoint(v), center);
+                height = Vector3.Distance(_zManager.transform.TransformPoint(v), center);
             }
         }
         _maxHeight = height;
@@ -218,6 +231,18 @@ public class Zone : MonoBehaviour {
         set
         {
             _meanHeight = value;
+        }
+    }
+
+    public float DeltaHeight
+    {
+        get
+        {
+            return _deltaHeight;
+        }
+        set
+        {
+            _deltaHeight = value;
         }
     }
 

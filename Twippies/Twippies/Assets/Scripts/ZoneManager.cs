@@ -11,22 +11,24 @@ public class ZoneManager : MonoBehaviour {
     [SerializeField]
     private Zone _zonePrefab;
     private int _nbVertex;
-    private List<Zone> _zones;
+    private Zone[] _zones;
 
 
     private void Awake()
     {
-        _zones = new List<Zone>();
+        
         _planeteMesh = GetComponent<MeshFilter>().mesh;
         _planete = gameObject.GetComponent<Planete>();
         _vertices = _planeteMesh.vertices;
         _triangles = _planeteMesh.triangles;
         _nbVertex = _planeteMesh.vertexCount;
 
+        List<Zone> tempZones = new List<Zone>();
         for (int i = 0; i < 1000; i++)
         {
-            FindCenter(1f);
+            FindCenter(.7f, tempZones);
         }
+        _zones = tempZones.ToArray();
         SetTriangles();
         SetHeights();
         FindNeighbours();
@@ -53,11 +55,11 @@ public class ZoneManager : MonoBehaviour {
         }
     }*/
 
-    private void FindCenter(float minDist)
+    private void FindCenter(float minDist, List<Zone> zones)
     {
         int id = Random.Range(0, _nbVertex - 1);
         Vector3 center = transform.TransformPoint(_vertices[id]);
-        foreach (Zone z in _zones)
+        foreach (Zone z in zones)
         {
             float dist = (center - z.Center).magnitude;
             if (dist < minDist)
@@ -69,14 +71,18 @@ public class ZoneManager : MonoBehaviour {
         zone.ZManager = this;
         zone.Center = center;
         zone.CenterId = id;
-        _zones.Add(zone);
+        zones.Add(zone);
     }
 
-    private void FindNeighbours()
+    public void FindNeighbours()
     {
-        for (int a = 0; a < _zones.Count; a++)
+        foreach (Zone z in _zones)
         {
-            for (int b = a+1; b < _zones.Count; b++)
+            z.Neighbours.Clear();
+        }
+        for (int a = 0; a < _zones.Length; a++)
+        {
+            for (int b = a+1; b < _zones.Length; b++)
             {
                 if (_zones[a].Vertices.Any(x => _zones[b].Vertices.Any(y => x.Equals(y))))
                 {
@@ -106,7 +112,7 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
-    public List<Zone> Zones
+    public Zone[] Zones
     {
         get
         {
@@ -198,8 +204,20 @@ public class ZoneManager : MonoBehaviour {
 
     public void SetHeights()
     {
-        SphereCollider s = (SphereCollider)_planete.Water.Coll;
-        float radius = s.radius * _planete.Water.transform.lossyScale.magnitude;
+        float radius = 0;
+        if (_planete.Water.Radius == 0)
+        {
+            SphereCollider s = _planete.Water.GetComponent<SphereCollider>();
+            
+            if (s != null)
+            {
+                radius = s.radius * _planete.Water.gameObject.transform.lossyScale.magnitude;
+            }
+        }
+        else
+        {
+            radius = _planete.Water.Radius;
+        }
         foreach (Zone zone in _zones)
         {
             if (zone.ZoneObject!= null)
@@ -209,9 +227,10 @@ public class ZoneManager : MonoBehaviour {
             zone.SetMaxHeight(transform.position);
             zone.SetMinHeight(transform.position);
             zone.MeanHeight = (zone.MaxHeight + zone.MinHeight) / 2;
+            zone.DeltaHeight = zone.MaxHeight - zone.MinHeight;
             zone.ZoneObject = MeshMaker.CreateSelection(zone.Vertices, zone.transform, zone.Center, transform.position);
             zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
-            if (zone.MeanHeight < (radius / 2))
+            if (zone.MeanHeight < (radius/2)+.7f || zone.DeltaHeight > 1) 
                 {
                     zone.Accessible = false;
                 }

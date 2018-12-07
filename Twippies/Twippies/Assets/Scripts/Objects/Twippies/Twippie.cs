@@ -67,9 +67,9 @@ public class Twippie : DraggableObjet {
         _sun = _p.transform.GetComponentInChildren<Sun>();
         _outline.color = 3;
         _waterCost = 1;
-        _goalObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);//new GameObject();
+        _goalObject = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Sphere);//new GameObject();
         _arrival = _goalObject.AddComponent<Arrival>();//GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        _goalObject.GetComponent<SphereCollider>().isTrigger = true;
+        //_goalObject.GetComponent<SphereCollider>().isTrigger = true;
         _arrival.ZoneManager = _zManager;
         _pathFinder.Destination = _arrival;
         SetGoal();
@@ -255,12 +255,12 @@ public class Twippie : DraggableObjet {
     private void SetGoal()
     {
         _goalObject.transform.parent = null;
-        int zoneId = Random.Range(0, _p.ZManager.Zones.Count - 1);
+        int zoneId = Random.Range(0, _p.ZManager.Zones.Length - 1);
         if (!_p.ZManager.Zones[zoneId].Accessible)
         {
             for (int a = 0; a < 100; a++)
             {
-                zoneId = Random.Range(0, _p.ZManager.Zones.Count - 1);// Choisit une zone aléatoire
+                zoneId = Random.Range(0, _p.ZManager.Zones.Length - 1);// Choisit une zone aléatoire
                 if (_p.ZManager.Zones[zoneId].Accessible)
                     break;
             }

@@ -74,6 +74,12 @@ public class Planete : ManageableObjet {
                     z.Display = Zone.DisplayMode.Height;
                 }
                 break;
+            case 5:
+                foreach (Zone z in _zManager.Zones)
+                {
+                    z.Display = Zone.DisplayMode.Accessible;
+                }
+                break;
         }
 
         if (_shaping)
@@ -102,6 +108,7 @@ public class Planete : ManageableObjet {
                     _zManager.Vertices = _mesh.vertices;
                     _zManager.SetTriangles();
                     _zManager.SetHeights();
+                    _zManager.FindNeighbours();
                     _deforming = false;
                 }
             }
@@ -233,7 +240,7 @@ public class Planete : ManageableObjet {
         _stats.StatsList[1] = new TextStat("Planète Twippie", 20);
         _stats.StatsList[2] = new BoolStat(true, "Don't press this");
         _stats.StatsList[3] = new BoolStat(false, "Shape mode");
-        _stats.StatsList[4] = new ChoiceStat(new string[] { "None", "Population", "Height", "Needs", "Groups" }, 0);
+        _stats.StatsList[4] = new ChoiceStat(new string[] { "None", "Population", "Height", "Needs", "Groups", "Access" }, 0);
         //_stats.StatsList[4] = new ValueStat(0, -30, 30, "Shape strength", false);
 
     }
