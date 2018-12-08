@@ -239,7 +239,7 @@ public class PathFinder : MonoBehaviour {
         }
 
         List<Zone> res = SetPath(currentZone);
-        DisplaySteps(res);
+        //DisplaySteps(res);
         ClearPath();
     }
     private void ClearPath()
@@ -297,14 +297,14 @@ public class PathFinder : MonoBehaviour {
 
     private void DisplaySteps(List<Zone> result)
     {
-        //Color col = new Color(Random.value, Random.value, Random.value);
+        Color col = new Color(Random.value, Random.value, Random.value);
         _steps = new List<Step>();
         foreach (Zone z in result)
         {
-            GameObject go = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            //go.GetComponent<MeshRenderer>().material.color = col;
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            go.GetComponent<MeshRenderer>().material.color = col;
             go.transform.position = z.Center;
-            //go.GetComponent<SphereCollider>().isTrigger = true;
+            go.GetComponent<SphereCollider>().isTrigger = true;
             go.transform.parent = _twippie.P.transform;
             Step step = new Step(go, z);
             _steps.Add(step);

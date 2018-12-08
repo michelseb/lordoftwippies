@@ -6,6 +6,7 @@ using UnityEngine;
 public class Zone : MonoBehaviour {
 
     [SerializeField]
+    private int _id;
     private Material _zoneMaterial;
     private List<Vector3> _vertices;
     private Vector3 _centerZone;
@@ -46,10 +47,12 @@ public class Zone : MonoBehaviour {
 
     private void Update()
     {
-
-        foreach (Zone z in Neighbours)
+        if (_id == 5)
         {
-            Debug.DrawLine(_centerZone, z._centerZone);
+            foreach (Zone z in Neighbours)
+            {
+                Debug.DrawLine(_centerZone, z._centerZone);
+            }
         }
 
         _centerZone = _zManager.transform.TransformPoint(_zManager.Vertices[_centerId]);
@@ -120,9 +123,9 @@ public class Zone : MonoBehaviour {
         float height = float.PositiveInfinity;
         foreach (Vector3 v in _vertices)
         {
-            if (Vector3.Distance(_zManager.transform.TransformPoint(v), center) < height)
+            if (Vector3.Distance(v, center) < height)
             {
-                height = Vector3.Distance(_zManager.transform.TransformPoint(v), center);
+                height = Vector3.Distance(v, center);
             }
         }
         _minHeight = height;
@@ -134,9 +137,9 @@ public class Zone : MonoBehaviour {
         float height = 0;
         foreach (Vector3 v in _vertices)
         {
-            if (Vector3.Distance(_zManager.transform.TransformPoint(v), center) > height)
+            if (Vector3.Distance(v, center) > height)
             {
-                height = Vector3.Distance(_zManager.transform.TransformPoint(v), center);
+                height = Vector3.Distance(v, center);
             }
         }
         _maxHeight = height;
@@ -323,6 +326,18 @@ public class Zone : MonoBehaviour {
         set
         {
             _pathCosts = value;
+        }
+    }
+
+    public int Id
+    {
+        get
+        {
+            return _id;
+        }
+        set
+        {
+            _id = value;
         }
     }
 

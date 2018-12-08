@@ -16,6 +16,7 @@ public class Planete : ManageableObjet {
     private Vector3[] _originalVertices, _deformedVertices, _updatedVertices;
     private Vector3[] _vertexVelocities;
     private bool _shaping, _deforming;
+    private int _displayIntervals = 3;
     //private float _shapingStrength;
 
     protected override void Start()
@@ -92,14 +93,18 @@ public class Planete : ManageableObjet {
 
             if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
             {
-                for (int i = 0; i < _deformedVertices.Length; i++)
+                if (Time.frameCount % _displayIntervals == 0)
                 {
-                    UpdateVertex(i);
+                    _mesh.MarkDynamic();
+                    for (int i = 0; i < _deformedVertices.Length; i++)
+                    {
+                        UpdateVertex(i);
+                    }
+                    _deforming = true;
+                    _mesh.vertices = _deformedVertices;
+                    _mesh.RecalculateNormals();
+                    _meshCollider.sharedMesh = _mesh;
                 }
-                _deforming = true;
-                _mesh.vertices = _deformedVertices;
-                _mesh.RecalculateNormals();
-                _meshCollider.sharedMesh = _mesh;
             }
             else
             {
@@ -107,8 +112,7 @@ public class Planete : ManageableObjet {
                 {
                     _zManager.Vertices = _mesh.vertices;
                     _zManager.SetTriangles();
-                    _zManager.SetHeights();
-                    _zManager.FindNeighbours();
+                    _zManager.GenerateZoneObjects();
                     _deforming = false;
                 }
             }
