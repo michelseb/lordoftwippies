@@ -36,20 +36,7 @@ public abstract class DraggableObjet : ManageableObjet {
         transform.parent = _p.gameObject.transform;
         _p.Face(transform);
         _initHeight = transform.position.x;
-        float distMin = Mathf.Infinity;
-        Zone tempZone = null;
-        foreach (Zone z in _zManager.Zones)
-        {
-            float dist = (transform.position - z.Center).sqrMagnitude;
-            if (dist < distMin)
-            {
-                distMin = dist;
-                tempZone = z;
-            }
-        }
-
-        _zone = tempZone;
-
+        GetZone();
 
     }
 
@@ -80,29 +67,8 @@ public abstract class DraggableObjet : ManageableObjet {
         {
             _dragging = false;
         }
-
-        float distMin = Mathf.Infinity;
-        Zone tempZone = null;
-        foreach (Zone z in _zManager.Zones)
-        {
-            float dist = (transform.position - z.Center).sqrMagnitude;
-            if (dist < distMin)
-            {
-                distMin = dist;
-                tempZone = z;
-            }
-        }
         
-        _zone = tempZone;
-
-        foreach (Transform child in transform)
-        {
-            if (child.gameObject.GetComponent<MeshRenderer>() != null && _zone != null)
-            {
-                //child.gameObject.GetComponent<MeshRenderer>().material.color = _zone.Col;
-            }
-        }
-        
+        /*
         if (_zone.MinHeight < P.Water.Radius/2)
         {
             
@@ -123,7 +89,7 @@ public abstract class DraggableObjet : ManageableObjet {
                     child.gameObject.GetComponent<MeshRenderer>().material.color = Color.white;
                 }
             }
-        }
+        }*/
 
         MakeAttraction();
     }
@@ -138,6 +104,7 @@ public abstract class DraggableObjet : ManageableObjet {
     {
         _lastPos = Vector3.zero;
         base.OnMouseUp();
+        GetZone();
         _dragging = false;
     }
 
@@ -169,6 +136,26 @@ public abstract class DraggableObjet : ManageableObjet {
                 _p.Attract(transform, _r);
             }
         }
+    }
+
+    protected virtual void GetZone()
+    {
+        if (_zone != null)
+            _zone.Accessible = true;
+        float distMin = Mathf.Infinity;
+        Zone tempZone = null;
+        foreach (Zone z in _zManager.Zones)
+        {
+            float dist = (transform.position - z.Center).sqrMagnitude;
+            if (dist < distMin)
+            {
+                distMin = dist;
+                tempZone = z;
+            }
+        }
+
+        _zone = tempZone;
+        _zone.Accessible = false;
     }
 
     public Planete P

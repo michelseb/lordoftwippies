@@ -14,4 +14,9 @@ public abstract class AerialObjet : DraggableObjet {
         }
     }
 
+    protected override void GetZone()
+    {
+        return;
+    }
+
 }

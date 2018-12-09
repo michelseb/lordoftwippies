@@ -239,7 +239,7 @@ public class PathFinder : MonoBehaviour {
         }
 
         List<Zone> res = SetPath(currentZone);
-        //DisplaySteps(res);
+        DisplaySteps(res);
         ClearPath();
     }
     private void ClearPath()

@@ -54,6 +54,7 @@ public class Twippie : DraggableObjet {
 
     protected Coroutine _contemplation;
     protected float _contemplateTime;
+    private int _frameInterval = 5;
 
     protected override void Awake()
     {
@@ -190,7 +191,9 @@ public class Twippie : DraggableObjet {
     protected override void LateUpdate()
     {
         base.LateUpdate();
-        
+
+        if (Time.frameCount % _frameInterval == 0)
+            GetZone();
     }
 
     private void OnStateChange()
@@ -236,6 +239,22 @@ public class Twippie : DraggableObjet {
         }
         
         
+    }
+
+    protected override void GetZone()
+    {
+        float distMin = Mathf.Infinity;
+        Zone tempZone = null;
+        foreach (Zone z in _zManager.Zones)
+        {
+            float dist = (transform.position - z.Center).sqrMagnitude;
+            if (dist < distMin)
+            {
+                distMin = dist;
+                tempZone = z;
+            }
+        }
+        _zone = tempZone;
     }
 
     protected override void GenerateStats()
