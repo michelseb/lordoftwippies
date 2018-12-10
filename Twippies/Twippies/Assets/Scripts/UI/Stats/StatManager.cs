@@ -43,11 +43,11 @@ public class StatManager : MonoBehaviour {
         _mObjet = GetComponent<ManageableObjet>();
     }
 
-    /*
+    
     private void OnGUI()
     {
         GUI.depth = 1;
-        GUI.DrawTexture(new Rect(20, 20 + (Screen.height * 2 / 3), 100, 100), _mObjet.Icon);
+        //GUI.(new Rect(20, 20 + (Screen.height * 2 / 3), 100, 100), _mObjet.Icon);
         for (int a = 0; a < _statsList.Length; a++)
         {
             Rect r = new Rect(Screen.width/5, 10+(Screen.height * 2/3)+(a * 25), 200, 20);
@@ -87,7 +87,7 @@ public class StatManager : MonoBehaviour {
                 s.Value = GUI.SelectionGrid(r, s.Value, s.Values, 3);
             }
         }
-    }*/
+    }
 
     public ValueStat StatToValue(Stat s)
     {

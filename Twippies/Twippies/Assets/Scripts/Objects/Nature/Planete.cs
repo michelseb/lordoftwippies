@@ -17,7 +17,6 @@ public class Planete : ManageableObjet {
     private Vector3[] _vertexVelocities;
     private bool _shaping, _deforming;
     private int _displayIntervals = 3;
-    //private float _shapingStrength;
 
     protected override void Start()
     {
@@ -54,35 +53,36 @@ public class Planete : ManageableObjet {
         base.Update();
 
         _shaping = _stats.StatToBool(_stats.StatsList[3]).Value;
-        //_shapingStrength = _stats.StatToValue(_stats.StatsList[4]).Value;
-        switch (_stats.StatToChoice(_stats.StatsList[4]).Value)
+        if (_c.ctrl != Controls.ControlMode.Dragging)
         {
-            case 0:
-                foreach (Zone z in _zManager.Zones)
-                {
-                    z.Display = Zone.DisplayMode.None;
-                }
-                break;
-            case 1:
-                foreach (Zone z in _zManager.Zones)
-                {
-                    z.Display = Zone.DisplayMode.Population;
-                }
-                break;
-            case 2:
-                foreach (Zone z in _zManager.Zones)
-                {
-                    z.Display = Zone.DisplayMode.Height;
-                }
-                break;
-            case 5:
-                foreach (Zone z in _zManager.Zones)
-                {
-                    z.Display = Zone.DisplayMode.Accessible;
-                }
-                break;
+            switch (_stats.StatToChoice(_stats.StatsList[4]).Value)
+            {
+                case 0:
+                    foreach (Zone z in _zManager.Zones)
+                    {
+                        z.Display = Zone.DisplayMode.None;
+                    }
+                    break;
+                case 1:
+                    foreach (Zone z in _zManager.Zones)
+                    {
+                        z.Display = Zone.DisplayMode.Population;
+                    }
+                    break;
+                case 2:
+                    foreach (Zone z in _zManager.Zones)
+                    {
+                        z.Display = Zone.DisplayMode.Height;
+                    }
+                    break;
+                case 5:
+                    foreach (Zone z in _zManager.Zones)
+                    {
+                        z.Display = Zone.DisplayMode.Accessible;
+                    }
+                    break;
+            }
         }
-
         if (_shaping)
         {
 

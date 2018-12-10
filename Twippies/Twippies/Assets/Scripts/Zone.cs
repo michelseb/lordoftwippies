@@ -82,14 +82,14 @@ public class Zone : MonoBehaviour {
                     _renderer.material.color = new Color(Mathf.Lerp(_renderer.material.color.r, (_nbEntries * 50) / _om.allObjects.Count, Time.deltaTime * 2), 
                                                         .3f, 
                                                         Mathf.Lerp(_renderer.material.color.b, .3f + (_nbEntries * 100) / _om.allObjects.Count, Time.deltaTime * 2), 
-                                                        .6f);
+                                                        .4f);
 
                     break;
 
 
                 case DisplayMode.Height:
 
-                    _renderer.material.color = new Color(1, ((_minHeight+_maxHeight)/2 - 4) / 2, 0, .6f);
+                    _renderer.material.color = new Color(1, ((_minHeight+_maxHeight)/2 - 4) / 2, 0, .4f);
                     break;
 
 
@@ -104,10 +104,10 @@ public class Zone : MonoBehaviour {
 
                     if (_accessible)
                     {
-                        _renderer.material.color = new Color(0, 1, 1, .6f);
+                        _renderer.material.color = new Color(0, 1, 1, .4f);
                     }else
                     {
-                        _renderer.material.color = new Color(1, 0, 0, .6f);
+                        _renderer.material.color = new Color(1, 0, 0, .4f);
                     }
 
                     break;

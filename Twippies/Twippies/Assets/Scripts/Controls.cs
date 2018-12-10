@@ -126,6 +126,15 @@ public class Controls : MonoBehaviour {
                 if (_newObject && !_planeCollider.activeSelf)
                 {
                     _planeCollider.SetActive(true);
+                    if ((_focusedObject is AerialObjet) == false)
+                    {
+                        {
+                            foreach (Zone z in _om.ActivePlanet.ZManager.Zones)
+                            {
+                                z.Display = Zone.DisplayMode.Accessible;
+                            }
+                        }
+                    }
                 }
                 if (Input.GetButton("Fire1")) // Clic gauche
                 {
@@ -194,6 +203,25 @@ public class Controls : MonoBehaviour {
                 }
                 else // Clic laché
                 {
+                    if (_newObject)
+                    {
+                        if (_focusedObject is DraggableObjet)
+                        {
+                            if ((_focusedObject is AerialObjet) == false)
+                            {
+                                DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
+                                if (!draggableObjet.Zone.Accessible)
+                                {
+                                    _om.allObjects.Remove(_focusedObject);
+                                    Destroy(_focusedObject.gameObject);
+                                    _focusedObject = null;
+                                    _newObject = false;
+                                    ctrl = ControlMode.Waiting;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     if (clic == ClicMode.RightClic)
                     {
                         if (_uiR.MouseOver && _focusedObject is DraggableObjet)
@@ -212,7 +240,6 @@ public class Controls : MonoBehaviour {
                         {
                             child.gameObject.layer = _focusedLayer;
                         }
-                        //_uiR.PlayMouthClose();
                         _planeCollider.SetActive(false);
                     }
                     _aerialDragCollider.SetActive(false);

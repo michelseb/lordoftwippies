@@ -4,6 +4,7 @@ using UnityEngine;
 public class ObjetManager : MonoBehaviour {
 
     public List<ManageableObjet> allObjects;
+    private Planete _activePlanet;
 
     private static ObjetManager _instance;
     public static ObjetManager Instance
@@ -23,6 +24,7 @@ public class ObjetManager : MonoBehaviour {
         {
             allObjects.Add(m);
         }
+        _activePlanet = FindObjectOfType<Planete>();
     }
 
     public List<ManageableObjet> AllObjects<T>()
@@ -32,4 +34,15 @@ public class ObjetManager : MonoBehaviour {
         return result;
     }
 
+    public Planete ActivePlanet
+    {
+        get
+        {
+            return _activePlanet;
+        }
+        set
+        {
+            _activePlanet = value;
+        }
+    }
 }
