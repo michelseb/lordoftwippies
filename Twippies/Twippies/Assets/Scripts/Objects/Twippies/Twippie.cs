@@ -154,7 +154,7 @@ public class Twippie : DraggableObjet {
                         _r.MovePosition(newPos);
                         if (direction.magnitude < 1)
                         {
-                            Destroy(_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go);
+                            //Destroy(_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go);
                             _pathFinder.Steps.RemoveAt(_pathFinder.Steps.Count - 1);
                         }
                     }

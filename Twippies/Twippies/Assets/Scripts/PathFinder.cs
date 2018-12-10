@@ -12,6 +12,12 @@ public struct Step
         _zone = zone;
     }
 
+    public Step(Zone zone)
+    {
+        _go = null;
+        _zone = zone;
+    }
+
     public GameObject Go
     {
         get
@@ -301,12 +307,12 @@ public class PathFinder : MonoBehaviour {
         _steps = new List<Step>();
         foreach (Zone z in result)
         {
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            go.GetComponent<MeshRenderer>().material.color = col;
-            go.transform.position = z.Center;
-            go.GetComponent<SphereCollider>().isTrigger = true;
-            go.transform.parent = _twippie.P.transform;
-            Step step = new Step(go, z);
+            //GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //go.GetComponent<MeshRenderer>().material.color = col;
+            //go.transform.position = z.Center;
+            //go.GetComponent<SphereCollider>().isTrigger = true;
+            //go.transform.parent = _twippie.P.transform;
+            Step step = new Step(z);
             _steps.Add(step);
         }
     }

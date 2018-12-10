@@ -8,6 +8,9 @@ public class UIResources : MonoBehaviour {
     SpriteRenderer[] sprites;
     [SerializeField]
     private ObjetManager _om;
+    [SerializeField]
+    private GameObject _body;
+    private Vector3 _bodyScale;
     private ThingBuilder _builder;
     private Controls _c;
     [SerializeField]
@@ -40,8 +43,21 @@ public class UIResources : MonoBehaviour {
         _builder = ThingBuilder.Instance;
         _om = ObjetManager.Instance;
         _c = Controls.Instance;
-    }
+        _bodyScale = _body.transform.localScale;
+        for (int a = 0; a < _builder.Constructables.Length; a++)
+        {
+            GameObject uiThing = Instantiate(_builder.Constructables[a]);
+            uiThing.transform.SetParent(_body.transform, true);
+            
+            uiThing.transform.localScale = Vector3.one;
+            uiThing.transform.localPosition = Vector3.zero;
+            uiThing.layer = 14;
+            //SpriteRenderer sp = uiThing.GetComponent<SpriteRenderer>();
+            //sp.sortingLayerName = "Resources";
+            //sp.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
+        }
 
+    }
 
     public void PlayMouthOpen()
     {
@@ -119,43 +135,23 @@ public class UIResources : MonoBehaviour {
         }
     }
 
-    private void OnGUI()
-    {
-        if (_selected)
-        {
-            if (mouthAnim.GetCurrentAnimatorStateInfo(0).IsName("MouthOpen"))
-            {
-                Event evt = Event.current;
-                for (int a = 0; a < _builder.Constructables.Length; a++)
-                {
-                    Rect rect = new Rect(40, 140 + a * 60, 50, 50);
-                    GUI.DrawTexture(rect, _builder.Constructables[a].Icon);
-                    if (rect.Contains(evt.mousePosition))
-                    {
-                        if (Input.GetMouseButtonDown(0) && _c.ctrl != Controls.ControlMode.Dragging)
-                        {
-                            _c.ctrl = Controls.ControlMode.Dragging;
-                            //Cursor.lockState = CursorLockMode.Locked;
-                            GameObject go = Instantiate(_builder.Constructables[a].gameObject, Camera.main.ScreenToWorldPoint(Input.mousePosition), Quaternion.identity);
-                            if (go.GetComponent<ManageableObjet>() != null)
-                            {
-                                _c.FocusedObject = go.GetComponent<ManageableObjet>();
-                                _om.allObjects.Add(_c.FocusedObject);
-                            }
-                            //Cursor.lockState = CursorLockMode.None;
-                            
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public bool MouseOver
     {
         get
         {
             return _mouseOver;
+        }
+    }
+
+    public bool Selected
+    {
+        get
+        {
+            return _selected;
+        }
+        set
+        {
+            _selected = value;
         }
     }
 

@@ -43,7 +43,7 @@ public class Controls : MonoBehaviour {
     private UIManager _ui;
     private UIResources _uiR;
     private ObjetManager _om;
-
+    private bool _newObject;
 
     public ClicMode clic;
     public ControlMode ctrl;
@@ -123,6 +123,10 @@ public class Controls : MonoBehaviour {
 
             case ControlMode.Dragging:
 
+                if (_newObject && !_planeCollider.activeSelf)
+                {
+                    _planeCollider.SetActive(true);
+                }
                 if (Input.GetButton("Fire1")) // Clic gauche
                 {
                     if (!_dragCollider.activeSelf)
@@ -168,7 +172,11 @@ public class Controls : MonoBehaviour {
                         {
                             child.gameObject.layer = 15;
                         }
-                        _uiR.PlayMouthOpen();
+                        if (!_uiR.Selected)
+                        {
+                            _uiR.PlayMouthOpen();
+                            _uiR.Selected = true;
+                        }
                         _planeCollider.SetActive(true);
                     }
                     if (_focusedObject != null)
@@ -204,7 +212,7 @@ public class Controls : MonoBehaviour {
                         {
                             child.gameObject.layer = _focusedLayer;
                         }
-                        _uiR.PlayMouthClose();
+                        //_uiR.PlayMouthClose();
                         _planeCollider.SetActive(false);
                     }
                     _aerialDragCollider.SetActive(false);
@@ -222,6 +230,7 @@ public class Controls : MonoBehaviour {
                         }
                     }
                     _focusedObject = null;
+                    _newObject = false;
                     ctrl = ControlMode.Waiting;
                 }
 
@@ -287,6 +296,18 @@ public class Controls : MonoBehaviour {
         get
         {
             return _originClic;
+        }
+    }
+
+    public bool NewObject
+    {
+        get
+        {
+            return _newObject;
+        }
+        set
+        {
+            _newObject = value;
         }
     }
 }

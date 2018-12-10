@@ -43,6 +43,7 @@ public class StatManager : MonoBehaviour {
         _mObjet = GetComponent<ManageableObjet>();
     }
 
+    /*
     private void OnGUI()
     {
         GUI.depth = 1;
@@ -86,7 +87,7 @@ public class StatManager : MonoBehaviour {
                 s.Value = GUI.SelectionGrid(r, s.Value, s.Values, 3);
             }
         }
-    }
+    }*/
 
     public ValueStat StatToValue(Stat s)
     {

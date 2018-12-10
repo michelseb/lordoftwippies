@@ -5,7 +5,7 @@ using UnityEngine;
 public class Objet : MonoBehaviour {
 
     [SerializeField]
-    protected Texture _icon;
+    protected Sprite _icon;
 
     protected Vector3 _dist, _initSize;
     protected ObjetManager _o;
@@ -49,7 +49,7 @@ public class Objet : MonoBehaviour {
         }
     }
 
-    public Texture Icon
+    public Sprite Icon
     {
         get
         {

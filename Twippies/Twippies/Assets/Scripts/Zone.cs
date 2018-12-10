@@ -47,12 +47,10 @@ public class Zone : MonoBehaviour {
 
     private void Update()
     {
-        if (_id == 5)
+
+        foreach (Zone z in Neighbours)
         {
-            foreach (Zone z in Neighbours)
-            {
-                Debug.DrawLine(_centerZone, z._centerZone);
-            }
+            Debug.DrawLine(_centerZone, z._centerZone);
         }
 
         _centerZone = _zManager.transform.TransformPoint(_zManager.Vertices[_centerId]);

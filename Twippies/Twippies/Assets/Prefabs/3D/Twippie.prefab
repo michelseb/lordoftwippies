@@ -44,7 +44,7 @@ GameObject:
   m_Layer: 12
   m_Name: Twippie
   m_TagString: Twippie
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d24a7b5ba81d5941918a7892bba2a97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _icon: {fileID: 2800000, guid: 519e67734db9a2b48a54ff80cffc3a1d, type: 3}
+  _icon: {fileID: 21300000, guid: 519e67734db9a2b48a54ff80cffc3a1d, type: 3}
   _stats: {fileID: 114278088608654876}
   _p: {fileID: 0}
   _pathFinder: {fileID: 114895532142597180}

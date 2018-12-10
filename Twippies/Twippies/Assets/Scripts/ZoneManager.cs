@@ -91,14 +91,8 @@ public class ZoneManager : MonoBehaviour {
             {
                 if (_zones[a].Vertices.Any(x => _zones[b].Vertices.Any(y => x.Equals(y))))
                 {
-                    if (!_zones[a].Neighbours.Contains(_zones[b]))
-                    {
-                        _zones[a].Neighbours.Add(_zones[b]);
-                    }
-                    if (!_zones[b].Neighbours.Contains(_zones[a]))
-                    {
-                        _zones[b].Neighbours.Add(_zones[a]);
-                    }
+                    _zones[a].Neighbours.Add(_zones[b]);
+                    _zones[b].Neighbours.Add(_zones[a]);
                 }
             }
         }

@@ -4,7 +4,7 @@ using UnityEngine;
 public class ThingBuilder : MonoBehaviour {
 
     [SerializeField]
-    private Objet[] _constructables;
+    private GameObject[] _constructables;
 
     private static ThingBuilder _instance;
     public static ThingBuilder Instance
@@ -18,7 +18,7 @@ public class ThingBuilder : MonoBehaviour {
         }
     }
 
-    public Objet[] Constructables
+    public GameObject[] Constructables
     {
         get
         {
