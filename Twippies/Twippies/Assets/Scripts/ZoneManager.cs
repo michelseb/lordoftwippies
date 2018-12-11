@@ -226,17 +226,22 @@ public class ZoneManager : MonoBehaviour {
             zone.MeanHeight = (zone.MaxHeight + zone.MinHeight) / 2;
             zone.DeltaHeight = zone.MaxHeight - zone.MinHeight;
 
-            if (zone.MeanHeight < (radius / 2) + .7f || zone.DeltaHeight > 1)
+            if (zone.MinHeight < (radius / 2) + .7f && zone.MaxHeight > (radius / 2) + .7f)
+            {
+                zone.WaterSpot = true;
+            }
+            else
+            {
+                zone.WaterSpot = false;
+            }
+
+            if (zone.MeanHeight < (radius / 2) + .7f || zone.DeltaHeight > .5f)
             {
                 zone.Accessible = false;
             }
             else
             {
                 zone.Accessible = true;
-            }
-            if (zone.ZoneObject != null)
-            {
-                Destroy(zone.ZoneObject);
             }
 
         }
@@ -250,7 +255,10 @@ public class ZoneManager : MonoBehaviour {
         
         foreach (Zone zone in _zones)
         {
-
+            if (zone.ZoneObject != null)
+            {
+                Destroy(zone.ZoneObject);
+            }
             zone.ZoneObject = MeshMaker.CreateSelection(zone.Vertices, zone.transform, zone.Center, transform.position);
             zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
 

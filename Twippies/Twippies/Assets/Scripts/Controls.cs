@@ -203,25 +203,7 @@ public class Controls : MonoBehaviour {
                 }
                 else // Clic laché
                 {
-                    if (_newObject)
-                    {
-                        if (_focusedObject is DraggableObjet)
-                        {
-                            if ((_focusedObject is AerialObjet) == false)
-                            {
-                                DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
-                                if (!draggableObjet.Zone.Accessible)
-                                {
-                                    _om.allObjects.Remove(_focusedObject);
-                                    Destroy(_focusedObject.gameObject);
-                                    _focusedObject = null;
-                                    _newObject = false;
-                                    ctrl = ControlMode.Waiting;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    
                     if (clic == ClicMode.RightClic)
                     {
                         if (_uiR.MouseOver && _focusedObject is DraggableObjet)
@@ -256,6 +238,44 @@ public class Controls : MonoBehaviour {
                             }
                         }
                     }
+
+                    if (_focusedObject != null)
+                    {
+                        if (_focusedObject is DraggableObjet)
+                        {
+                            DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
+                            draggableObjet.GetZone(false);
+                        }
+                    }
+
+                    if (_newObject)
+                    {
+                        if (_focusedObject is DraggableObjet)
+                        {
+                            if ((_focusedObject is AerialObjet) == false)
+                            {
+                                DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
+                                if (!draggableObjet.Zone.Accessible)
+                                {
+                                    _om.allObjects.Remove(_focusedObject);
+                                    Destroy(_focusedObject.gameObject);
+                                    _focusedObject = null;
+                                    _newObject = false;
+                                    ctrl = ControlMode.Waiting;
+                                }
+                            }
+                        }
+                    }
+
+                    if (_focusedObject != null)
+                    {
+                        if (_focusedObject is DraggableObjet && (_focusedObject is AerialObjet) == false &&(_focusedObject is Twippie) == false)
+                        {
+                            DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
+                            draggableObjet.GetZone(true);
+                        }
+                    }
+
                     _focusedObject = null;
                     _newObject = false;
                     ctrl = ControlMode.Waiting;

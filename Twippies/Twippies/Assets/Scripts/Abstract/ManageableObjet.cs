@@ -16,7 +16,9 @@ public abstract class ManageableObjet : Objet {
     protected cakeslice.Outline _outline;
     protected Collider _coll;
     protected Renderer _renderer;
-
+    protected float _timeReference;
+    protected bool _mouseOver;
+    protected int _displayIntervals = 3;
 
     protected abstract void GenerateStats();
 
@@ -78,6 +80,7 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void Update()
     {
+        
         transform.RotateAround(transform.position, _cam.transform.up, -_rotSpeedX * _rotSpeedMultiplier);
         transform.RotateAround(transform.position, _cam.transform.right, _rotSpeedY * _rotSpeedMultiplier);
         _rotSpeedX = Mathf.Lerp(_rotSpeedX, 0, .05f);
@@ -108,6 +111,7 @@ public abstract class ManageableObjet : Objet {
             _outline.enabled = false;
         }
         transform.localScale = _initSize;
+        _mouseOver = false;
     }
 
 
@@ -127,6 +131,7 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void OnMouseOver()
     {
+        _mouseOver = true;
         if (Input.GetMouseButtonDown(1))
         {
             SetFocus();

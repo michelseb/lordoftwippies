@@ -479,6 +479,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _icon: {fileID: 0}
   _stats: {fileID: 114181216130622234}
+  _planet: {fileID: 114418839681409838}
 --- !u!114 &114096340336135250
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -561,6 +562,7 @@ MonoBehaviour:
   _gravity: 15
   _objectDeplacementField: {fileID: 0}
   _water: {fileID: 114048212989039234}
+  _sun: {fileID: 114310311304771704}
 --- !u!114 &114501150488611440
 MonoBehaviour:
   m_ObjectHideFlags: 1

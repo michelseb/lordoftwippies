@@ -182,7 +182,6 @@ public class PathFinder : MonoBehaviour {
             _closeList.Add(currentZone);
             if (currentZone == _destination.FinishZone)
             {
-                Debug.Log("Chemin trouvé");
                 break;
             }
             int possibilities = 0;

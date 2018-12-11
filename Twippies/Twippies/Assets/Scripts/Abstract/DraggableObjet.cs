@@ -13,15 +13,14 @@ public abstract class DraggableObjet : ManageableObjet {
     protected float _initHeight;
     protected ZoneManager _zManager;
     protected Zone _zone;
-    
-    
+    protected Sun _planetSun;
+
 
     protected override void Awake()
     {
         base.Awake();
         
         _r = GetComponent<Rigidbody>();
-        
     }
 
 
@@ -31,17 +30,37 @@ public abstract class DraggableObjet : ManageableObjet {
         _r.constraints = RigidbodyConstraints.FreezeRotationZ;
         _dragLayer = LayerMask.GetMask("Positionning");
         _initSize = transform.lossyScale;
+        _currentSize = _initSize;
         SetPlanete();
         _zManager = P.gameObject.GetComponent<ZoneManager>();
         transform.parent = _p.gameObject.transform;
         _p.Face(transform);
+        _planetSun = _p.Sun;
         _initHeight = transform.position.x;
-        GetZone();
-
+        if (_c.ctrl != Controls.ControlMode.Dragging)
+        {
+            if ((this is Twippie) == false)
+            {
+                GetZone(true);
+            }
+            else
+            {
+                GetZone(false);
+            }
+        }
+        else
+        {
+            GetZone(false);
+        }
     }
 
     protected virtual void LateUpdate()
     {
+        if (_p.Sun != null)
+        {
+            _timeReference = _p.Sun.Speed;
+        }
+
         if (_c.ctrl == Controls.ControlMode.Dragging && _c.FocusedObject == this)
         {
             _dragging = true;
@@ -92,19 +111,19 @@ public abstract class DraggableObjet : ManageableObjet {
         }*/
 
         MakeAttraction();
+        transform.localScale = _currentSize;
     }
 
     protected override void OnMouseOver()
     {
         base.OnMouseOver();
-        transform.localScale = _initSize * _sizeMultiplier;
+        _currentSize = _initSize * _sizeMultiplier;
     }
 
     protected override void OnMouseUp()
     {
         _lastPos = Vector3.zero;
         base.OnMouseUp();
-        GetZone();
         _dragging = false;
     }
 
@@ -138,9 +157,9 @@ public abstract class DraggableObjet : ManageableObjet {
         }
     }
 
-    protected virtual void GetZone()
+    public virtual void GetZone(bool take)
     {
-        if (_zone != null)
+        if (_zone != null && take)
             _zone.Accessible = true;
         float distMin = Mathf.Infinity;
         Zone tempZone = null;
@@ -155,7 +174,8 @@ public abstract class DraggableObjet : ManageableObjet {
         }
 
         _zone = tempZone;
-        _zone.Accessible = false;
+        if (take)
+            _zone.Accessible = false;
     }
 
     public Planete P

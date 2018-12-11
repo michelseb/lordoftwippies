@@ -7,7 +7,7 @@ public class Objet : MonoBehaviour {
     [SerializeField]
     protected Sprite _icon;
 
-    protected Vector3 _dist, _initSize;
+    protected Vector3 _dist, _initSize, _currentSize;
     protected ObjetManager _o;
     protected float _posX, _posY;
     protected int _woodCost, _waterCost, _stoneCost;
@@ -23,6 +23,7 @@ public class Objet : MonoBehaviour {
     protected virtual void Start()
     {
         _initSize = transform.localScale;
+        _currentSize = _initSize;
     }
 
     public int WoodCost

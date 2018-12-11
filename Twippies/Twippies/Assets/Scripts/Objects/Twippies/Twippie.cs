@@ -21,18 +21,24 @@ public class Twippie : DraggableObjet {
         Surprised,
         Scared,
         Euphoric,
-        Content
+        Content,
+        None
     }
 
-    protected enum Need
+    protected enum BasicNeed
     {
         Eat,
         Drink,
-        Socialize,
         Sleep,
-        Move,
+        None
+    }
+
+    protected enum AdvancedNeed
+    {
+        Socialize,
         Warmup,
-        Cooldown
+        Cooldown,
+        None
     }
 
     protected GameObject _goalObject;
@@ -40,7 +46,8 @@ public class Twippie : DraggableObjet {
     [SerializeField]
     protected PathFinder _pathFinder;
     protected State _state, _previousState;
-    private Sun _sun;
+    protected BasicNeed _basicNeed;
+    protected AdvancedNeed _advancedNeed;
 
     [SerializeField]
     private float _sleepiness;
@@ -49,8 +56,13 @@ public class Twippie : DraggableObjet {
     [SerializeField]
     private float _thirst;
 
+    private float _age;
+    private float _ageSize;
+
     [SerializeField]
     protected float _speed;
+
+    protected float _initSpeed;
 
     protected Coroutine _contemplation;
     protected float _contemplateTime;
@@ -65,7 +77,9 @@ public class Twippie : DraggableObjet {
     protected override void Start()
     {
         base.Start();
-        _sun = _p.transform.GetComponentInChildren<Sun>();
+        _basicNeed = BasicNeed.None;
+        _advancedNeed = AdvancedNeed.None;
+        _initSpeed = _speed;
         _outline.color = 3;
         _waterCost = 1;
         _goalObject = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Sphere);//new GameObject();
@@ -74,6 +88,7 @@ public class Twippie : DraggableObjet {
         _arrival.ZoneManager = _zManager;
         _pathFinder.Destination = _arrival;
         SetGoal();
+        StartCoroutine(CheckSleepNeed());
         
     }
 
@@ -82,8 +97,41 @@ public class Twippie : DraggableObjet {
     {
         base.Update();
 
+        _age += Time.deltaTime * _timeReference * .01f;
+        if (_age > 100)
+            _age = 100;
+        _ageSize = _age / 20;
+        if (!_mouseOver)
+        {
+            _currentSize = _initSize + Vector3.one * _ageSize;
+        }
+        else
+        {
+            _currentSize = _initSize * _sizeMultiplier + Vector3.one * _ageSize;
+        }
 
-        if (_state != State.Walking)
+        if (_planetSun != null)
+        {
+            if (true)
+            {
+                
+            }
+            else
+            {
+                
+            }
+        }
+        else
+        {
+            if (_state != State.Sleeping)
+            {
+                _previousState = _state;
+                _state = State.Sleeping;
+                OnStateChange();
+            }
+        }
+
+        if (_state != State.Walking && _state != State.Sleeping)
         {
             if (Vector3.Distance(transform.position, _goalObject.transform.position) > 1)
             {
@@ -104,35 +152,7 @@ public class Twippie : DraggableObjet {
             }
         }
 
-        if (_sun != null)
-        {
-            if (!CheckActiveState())
-            {
-                if (_state != State.Sleeping)
-                {
-                    _previousState = _state;
-                    _state = State.Sleeping;
-                    OnStateChange();
-                }
-            }
-            else
-            {
-                if (_state == State.Sleeping)
-                {
-                    _state = _previousState;
-                    OnStateChange();
-                }
-            }
-        }
-        else
-        {
-            if (_state != State.Sleeping)
-            {
-                _previousState = _state;
-                _state = State.Sleeping;
-                OnStateChange();
-            }
-        }
+        
 
         switch (_state)
         {
@@ -149,9 +169,9 @@ public class Twippie : DraggableObjet {
                     {
                         Vector3 direction = _pathFinder.Steps[_pathFinder.Steps.Count-1].Zone.Center - transform.position;
                         Quaternion rotation = Quaternion.FromToRotation(transform.forward, direction);
-                        transform.rotation = rotation * transform.rotation;
+                        transform.rotation = Quaternion.Slerp(transform.rotation, rotation * transform.rotation, Time.deltaTime * 10);
                         Vector3 newPos = _r.position + transform.TransformDirection(new Vector3(0, 0, _speed * Time.deltaTime));
-                        _r.MovePosition(newPos);
+                        _r.MovePosition(newPos); 
                         if (direction.magnitude < 1)
                         {
                             //Destroy(_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go);
@@ -182,9 +202,12 @@ public class Twippie : DraggableObjet {
             }
         }
 
+        
+        _stats.StatToValue(_stats.StatsList[2]).Value = _age;
         _stats.StatToValue(_stats.StatsList[3]).Value = _hunger;
         _stats.StatToValue(_stats.StatsList[4]).Value = _thirst;
         _stats.StatToValue(_stats.StatsList[5]).Value = _sleepiness;
+        
 
     }
 
@@ -193,7 +216,7 @@ public class Twippie : DraggableObjet {
         base.LateUpdate();
 
         if (Time.frameCount % _frameInterval == 0)
-            GetZone();
+            GetZone(false);
     }
 
     private void OnStateChange()
@@ -215,51 +238,75 @@ public class Twippie : DraggableObjet {
         }
     }
 
-    private bool CheckActiveState()
+    protected override void OnMouseOver()
+    {
+        base.OnMouseOver();
+        _speed = 0;
+    }
+
+    protected override void OnMouseExit()
+    {
+        base.OnMouseExit();
+        _speed = _initSpeed;
+    }
+
+    private IEnumerator CheckSleepNeed()
     {
         RaycastHit hit;
-        LayerMask mask = ~(1 << 12 | 1 << 9);
-        if (Physics.Linecast(_sun.transform.position, transform.position + transform.up/2, out hit, mask))
+        LayerMask mask = ~(1 << 12 | 1 << 9 | 1 << 2);
+        if (_planetSun != null)
         {
-            
-            if (hit.collider.tag == "Planet" || hit.collider.tag == "Water")
+            if (Physics.Linecast(_planetSun.transform.position, transform.position + transform.up, out hit, mask))
             {
-                return false;
-            } 
-            else
-            {
-                //Debug.DrawLine(_s.transform.position, transform.position + transform.up/2, Color.red);
-                return true;
+                if (hit.collider.tag != "Planet" && hit.collider.tag != "Water")
+                {
+                    //Debug.DrawLine(_planetSun.transform.position, transform.position + transform.up, Color.red);
+                    if (_state == State.Sleeping)
+                    {
+                        _state = _previousState;
+                        OnStateChange();
+                    }
+                    yield return new WaitForSeconds(5);
+                }
             }
         }
-        else
+        if (_state != State.Sleeping)
         {
-            //Debug.DrawLine(_s.transform.position, transform.position + transform.up/2, Color.red);
-            return true;
+            _previousState = _state;
+            _state = State.Sleeping;
+            OnStateChange();
         }
+
+        yield return new WaitForSeconds(5);
         
         
     }
 
-    protected override void GetZone()
+    private IEnumerator CheckBasicNeeds()
     {
-        float distMin = Mathf.Infinity;
-        Zone tempZone = null;
-        foreach (Zone z in _zManager.Zones)
+        if (_thirst >= 50)
         {
-            float dist = (transform.position - z.Center).sqrMagnitude;
-            if (dist < distMin)
-            {
-                distMin = dist;
-                tempZone = z;
-            }
+            _basicNeed = BasicNeed.Drink;
+            yield return new WaitForSeconds(6);
         }
-        _zone = tempZone;
+        if (_hunger >= 50)
+        {
+            _basicNeed = BasicNeed.Eat;
+            yield return new WaitForSeconds(6);
+        }
+        if (_sleepiness >= 50)
+        {
+            _basicNeed = BasicNeed.Sleep;
+            yield return new WaitForSeconds(6);
+        }
+
+        yield return new WaitForSeconds(6);
+
     }
 
     protected override void GenerateStats()
     {
-        _stats.StatsList = new Stat[9];
+        _stats.StatsList = new Stat[10];
         _stats.StatsList[0] = new LabelStat("Twippie");
         _stats.StatsList[1] = new TextStat("Petit Twippie", 20);
         _stats.StatsList[2] = new ValueStat(0, 0, 100, "age", false);

@@ -22,6 +22,7 @@ public class Zone : MonoBehaviour {
     private ZoneManager _zManager;
     private List<PathCost> _pathCosts;
     private bool _accessible;
+    private bool _waterSpot;
 
 
     public enum DisplayMode
@@ -31,6 +32,8 @@ public class Zone : MonoBehaviour {
         Needs,
         Groups,
         Accessible,
+        Water,
+        Food,
         None
     }
 
@@ -109,6 +112,21 @@ public class Zone : MonoBehaviour {
                     {
                         _renderer.material.color = new Color(1, 0, 0, .4f);
                     }
+
+                    break;
+
+                case DisplayMode.Water:
+                    if (_waterSpot)
+                    {
+                        _renderer.material.color = new Color(0, .8f, 1, .6f);
+                    }
+                    else
+                    {
+                        _renderer.material.color = new Color(0, 0, 0, .3f);
+                    }
+                    break;
+
+                case DisplayMode.Food:
 
                     break;
                
@@ -191,6 +209,18 @@ public class Zone : MonoBehaviour {
         set
         {
             _accessible = value; 
+        }
+    }
+
+    public bool WaterSpot
+    {
+        get
+        {
+            return _waterSpot;
+        }
+        set
+        {
+            _waterSpot = value;
         }
     }
 

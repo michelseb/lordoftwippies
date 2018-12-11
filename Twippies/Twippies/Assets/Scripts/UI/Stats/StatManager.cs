@@ -84,7 +84,7 @@ public class StatManager : MonoBehaviour {
             {
                 r.size *= 2;
                 ChoiceStat s = (ChoiceStat)_statsList[a];
-                s.Value = GUI.SelectionGrid(r, s.Value, s.Values, 3);
+                s.Value = GUI.SelectionGrid(r, s.Value, s.Values, 4);
             }
         }
     }

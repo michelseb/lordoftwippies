@@ -3,7 +3,10 @@
 public class WaterObjet : ManageableObjet {
 
 
-    private float _radius;
+    private float _radius, _previousRadius;
+    [SerializeField]
+    private Planete _planet;
+    
 
     protected override void GenerateStats()
     {
@@ -19,15 +22,24 @@ public class WaterObjet : ManageableObjet {
         base.Start();
         _outline.color = 0;
         _outline.eraseRenderer = true;
+        SetRadius();
+        _previousRadius = _radius;
+        _displayIntervals = 10;
     }
 
     protected override void Update()
     {
         base.Update();
-        float scale = _stats.StatToValue(_stats.StatsList[3]).Value;
-        transform.localScale = new Vector3(scale, scale, scale);
-        SphereCollider s = (SphereCollider)_coll;
-        _radius = s.radius * transform.lossyScale.magnitude;
+        SetRadius();
+        if (Time.frameCount % _displayIntervals == 0 && !Input.GetMouseButton(0))
+        {
+            if (Mathf.Abs(_previousRadius - _radius) > .1f)
+            {
+                _planet.ZManager.SetTriangles();
+                _planet.ZManager.GenerateZoneObjects();
+                _previousRadius = _radius;
+            }
+        }
     }
 
     public float Radius
@@ -36,6 +48,15 @@ public class WaterObjet : ManageableObjet {
         {
             return _radius;
         }
+    }
+
+    private void SetRadius()
+    {
+        float scale = _stats.StatToValue(_stats.StatsList[3]).Value;
+        transform.localScale = new Vector3(scale, scale, scale);
+        SphereCollider s = (SphereCollider)_coll;
+        _radius = s.radius * transform.lossyScale.magnitude;
+        Debug.Log(_radius + " " + _previousRadius);
     }
 
 }

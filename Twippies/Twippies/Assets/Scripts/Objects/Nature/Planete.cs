@@ -10,13 +10,14 @@ public class Planete : ManageableObjet {
     private Collider _objectDeplacementField;
     [SerializeField]
     private WaterObjet _water;
+    [SerializeField]
+    private Sun _sun;
     private ZoneManager _zManager;
     private Mesh _mesh;
     private MeshCollider _meshCollider;
     private Vector3[] _originalVertices, _deformedVertices, _updatedVertices;
     private Vector3[] _vertexVelocities;
     private bool _shaping, _deforming;
-    private int _displayIntervals = 3;
 
     protected override void Start()
     {
@@ -79,6 +80,18 @@ public class Planete : ManageableObjet {
                     foreach (Zone z in _zManager.Zones)
                     {
                         z.Display = Zone.DisplayMode.Accessible;
+                    }
+                    break;
+                case 6:
+                    foreach (Zone z in _zManager.Zones)
+                    {
+                        z.Display = Zone.DisplayMode.Water;
+                    }
+                    break;
+                case 7:
+                    foreach (Zone z in _zManager.Zones)
+                    {
+                        z.Display = Zone.DisplayMode.Food;
                     }
                     break;
             }
@@ -244,7 +257,7 @@ public class Planete : ManageableObjet {
         _stats.StatsList[1] = new TextStat("Planète Twippie", 20);
         _stats.StatsList[2] = new BoolStat(true, "Don't press this");
         _stats.StatsList[3] = new BoolStat(false, "Shape mode");
-        _stats.StatsList[4] = new ChoiceStat(new string[] { "None", "Population", "Height", "Needs", "Groups", "Access" }, 0);
+        _stats.StatsList[4] = new ChoiceStat(new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0);
         //_stats.StatsList[4] = new ValueStat(0, -30, 30, "Shape strength", false);
 
     }
@@ -299,6 +312,14 @@ public class Planete : ManageableObjet {
         get
         {
             return _water;
+        }
+    }
+
+    public Sun Sun
+    {
+        get
+        {
+            return _sun;
         }
     }
 
