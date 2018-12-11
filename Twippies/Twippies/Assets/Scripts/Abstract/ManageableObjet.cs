@@ -64,7 +64,7 @@ public abstract class ManageableObjet : Objet {
         }
         if (_outline == null)
         {
-            gameObject.AddComponent<Collider>();
+            gameObject.AddComponent<BoxCollider>();
             _outline = gameObject.AddComponent<cakeslice.Outline>();
         }
     }
