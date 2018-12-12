@@ -41,16 +41,16 @@ public abstract class DraggableObjet : ManageableObjet {
         {
             if ((this is Twippie) == false)
             {
-                GetZone(true);
+                _zone = GetZone(true);
             }
             else
             {
-                GetZone(false);
+                _zone = GetZone(false);
             }
         }
         else
         {
-            GetZone(false);
+            _zone = GetZone(false);
         }
     }
 
@@ -157,13 +157,24 @@ public abstract class DraggableObjet : ManageableObjet {
         }
     }
 
-    public virtual void GetZone(bool take)
+    public virtual Zone GetZone(bool take, Zone[] zoneList = null)
     {
         if (_zone != null && take)
             _zone.Accessible = true;
         float distMin = Mathf.Infinity;
         Zone tempZone = null;
-        foreach (Zone z in _zManager.Zones)
+        Zone[] zones;
+
+        if (zoneList != null)
+        {
+            zones = zoneList;
+        }
+        else
+        {
+            zones = _zManager.Zones;
+        }
+
+        foreach (Zone z in zones)
         {
             float dist = (transform.position - z.Center).sqrMagnitude;
             if (dist < distMin)
@@ -173,9 +184,10 @@ public abstract class DraggableObjet : ManageableObjet {
             }
         }
 
-        _zone = tempZone;
         if (take)
-            _zone.Accessible = false;
+            tempZone.Accessible = false;
+
+        return tempZone;
     }
 
     public Planete P
@@ -196,6 +208,10 @@ public abstract class DraggableObjet : ManageableObjet {
         get
         {
             return _zone;
+        }
+        set
+        {
+            _zone = value;
         }
     }
 

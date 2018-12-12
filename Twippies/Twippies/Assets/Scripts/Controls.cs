@@ -244,7 +244,7 @@ public class Controls : MonoBehaviour {
                         if (_focusedObject is DraggableObjet)
                         {
                             DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
-                            draggableObjet.GetZone(false);
+                            draggableObjet.Zone = draggableObjet.GetZone(false);
                         }
                     }
 
@@ -272,7 +272,7 @@ public class Controls : MonoBehaviour {
                         if (_focusedObject is DraggableObjet && (_focusedObject is AerialObjet) == false &&(_focusedObject is Twippie) == false)
                         {
                             DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
-                            draggableObjet.GetZone(true);
+                            draggableObjet.Zone = draggableObjet.GetZone(true);
                         }
                     }
 

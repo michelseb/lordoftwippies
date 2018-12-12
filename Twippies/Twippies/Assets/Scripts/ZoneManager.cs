@@ -12,7 +12,7 @@ public class ZoneManager : MonoBehaviour {
     private Zone _zonePrefab;
     private int _nbVertex;
     private Zone[] _zones;
-
+    private List<Zone> _drinkZones;
 
     private void Awake()
     {
@@ -32,6 +32,7 @@ public class ZoneManager : MonoBehaviour {
         }
         Debug.Log("nombre de zones : " + id);
         _zones = tempZones.ToArray();
+        _drinkZones = new List<Zone>();
         SetTriangles();
         GenerateZoneObjects();
         FindNeighbours();
@@ -119,6 +120,14 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
+    public List<Zone> DrinkZones
+    {
+        get
+        {
+            return _drinkZones;
+        }
+    }
+
     public Planete Planete
     {
         get
@@ -127,36 +136,6 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
-    /*public void SetVertices()
-    {
-       foreach (Zone z in _zones)
-        {
-            z.transform.parent = null;
-            z.Vertices.Clear();
-            z.Center = transform.TransformPoint(_vertices[z.CenterId]);
-            z.transform.position = z.Center;
-            z.transform.parent = transform;
-        }
-
-        for (int i = 0; i < _nbVertex; i++)
-        {
-            float distMin = Mathf.Infinity;
-            Zone tempZone = null;
-            float dist = 0;
-            foreach (Zone z in _zones)
-            {
-                dist = (_vertices[i] - z.Center).sqrMagnitude;
-                if (dist < distMin)
-                {
-                    distMin = dist;
-                    tempZone = z;
-                }
-
-            }
-            tempZone.Vertices.Add(transform.TransformPoint(_vertices[i]));
-        }
-    }*/
-
     public void SetTriangles()
     {
         for (int a = 0; a < _vertices.Length; a++)
@@ -164,20 +143,7 @@ public class ZoneManager : MonoBehaviour {
             _vertices[a] = transform.TransformPoint(_planeteMesh.vertices[a]);
         }
 
-        float radius = 0;
-        if (_planete.Water.Radius == 0)
-        {
-            SphereCollider s = _planete.Water.GetComponent<SphereCollider>();
-
-            if (s != null)
-            {
-                radius = s.radius * _planete.Water.gameObject.transform.lossyScale.magnitude;
-            }
-        }
-        else
-        {
-            radius = _planete.Water.Radius;
-        }
+        
 
         _triangles = _planeteMesh.triangles;
         foreach (Zone z in _zones)
@@ -218,34 +184,7 @@ public class ZoneManager : MonoBehaviour {
             
         }
 
-        foreach (Zone zone in _zones)
-        {
-
-            zone.SetMaxHeight(transform.position);
-            zone.SetMinHeight(transform.position);
-            zone.MeanHeight = (zone.MaxHeight + zone.MinHeight) / 2;
-            zone.DeltaHeight = zone.MaxHeight - zone.MinHeight;
-
-            if (zone.MinHeight < (radius / 2) + .7f && zone.MaxHeight > (radius / 2) + .7f)
-            {
-                zone.WaterSpot = true;
-            }
-            else
-            {
-                zone.WaterSpot = false;
-            }
-
-            if (zone.MeanHeight < (radius / 2) + .7f || zone.DeltaHeight > .5f)
-            {
-                zone.Accessible = false;
-            }
-            else
-            {
-                zone.Accessible = true;
-            }
-
-        }
-
+        GetZoneInfo();
         _vertices = _planeteMesh.vertices;
 
     }
@@ -261,6 +200,53 @@ public class ZoneManager : MonoBehaviour {
             }
             zone.ZoneObject = MeshMaker.CreateSelection(zone.Vertices, zone.transform, zone.Center, transform.position);
             zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
+
+        }
+    }
+
+    public void GetZoneInfo()
+    {
+        float radius = 0;
+        if (_planete.Water.Radius == 0)
+        {
+            SphereCollider s = _planete.Water.GetComponent<SphereCollider>();
+
+            if (s != null)
+            {
+                radius = s.radius * _planete.Water.gameObject.transform.lossyScale.magnitude;
+            }
+        }
+        else
+        {
+            radius = _planete.Water.Radius;
+        }
+        _drinkZones.Clear();
+        foreach (Zone zone in _zones)
+        {
+
+            zone.SetMaxHeight(transform.position);
+            zone.SetMinHeight(transform.position);
+            zone.MeanHeight = (zone.MaxHeight + zone.MinHeight) / 2;
+            zone.DeltaHeight = zone.MaxHeight - zone.MinHeight;
+
+            if (zone.MinHeight < (radius / 2) + .7f && zone.MaxHeight > (radius / 2) + .7f)
+            {
+                zone.WaterSpot = true;
+                _drinkZones.Add(zone);
+            }
+            else
+            {
+                zone.WaterSpot = false;
+            }
+
+            if (zone.MeanHeight < (radius / 2) + .7f || zone.DeltaHeight > .5f)
+            {
+                zone.Accessible = false;
+            }
+            else
+            {
+                zone.Accessible = true;
+            }
 
         }
     }

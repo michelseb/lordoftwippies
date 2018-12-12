@@ -6,15 +6,9 @@ public struct Step
 {
     private GameObject _go;
     private Zone _zone;
-    public Step(GameObject go, Zone zone)
+    public Step(Zone zone, GameObject go = null)
     {
         _go = go;
-        _zone = zone;
-    }
-
-    public Step(Zone zone)
-    {
-        _go = null;
         _zone = zone;
     }
 
@@ -192,7 +186,7 @@ public class PathFinder : MonoBehaviour {
                     if (a == currentZone.Neighbours.Count - 1 && possibilities == 0)
                     {
                         List<Zone> result = SetPath(currentZone);
-                        DisplaySteps(result);
+                        DisplaySteps(result, true);
                         ClearPath();
                         return;
                     }
@@ -244,7 +238,7 @@ public class PathFinder : MonoBehaviour {
         }
 
         List<Zone> res = SetPath(currentZone);
-        DisplaySteps(res);
+        DisplaySteps(res, true);
         ClearPath();
     }
     private void ClearPath()
@@ -300,18 +294,26 @@ public class PathFinder : MonoBehaviour {
         return result;
     }
 
-    private void DisplaySteps(List<Zone> result)
+    private void DisplaySteps(List<Zone> result, bool obj)
     {
         Color col = new Color(Random.value, Random.value, Random.value);
         _steps = new List<Step>();
+        Step step;
         foreach (Zone z in result)
         {
-            //GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            //go.GetComponent<MeshRenderer>().material.color = col;
-            //go.transform.position = z.Center;
-            //go.GetComponent<SphereCollider>().isTrigger = true;
-            //go.transform.parent = _twippie.P.transform;
-            Step step = new Step(z);
+            if (obj)
+            {
+                GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                go.GetComponent<MeshRenderer>().material.color = col;
+                go.transform.position = z.Center;
+                go.GetComponent<SphereCollider>().isTrigger = true;
+                go.transform.parent = _twippie.P.transform;
+                step = new Step(z, go);
+            }
+            else
+            {
+                step = new Step(z);
+            }
             _steps.Add(step);
         }
     }

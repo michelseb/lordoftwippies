@@ -24,19 +24,17 @@ public class WaterObjet : ManageableObjet {
         _outline.eraseRenderer = true;
         SetRadius();
         _previousRadius = _radius;
-        _displayIntervals = 10;
     }
 
     protected override void Update()
     {
         base.Update();
         SetRadius();
-        if (Time.frameCount % _displayIntervals == 0 && !Input.GetMouseButton(0))
+        if (!Input.GetMouseButton(0))
         {
             if (Mathf.Abs(_previousRadius - _radius) > .1f)
             {
-                _planet.ZManager.SetTriangles();
-                _planet.ZManager.GenerateZoneObjects();
+                _planet.ZManager.GetZoneInfo();
                 _previousRadius = _radius;
             }
         }
@@ -56,7 +54,6 @@ public class WaterObjet : ManageableObjet {
         transform.localScale = new Vector3(scale, scale, scale);
         SphereCollider s = (SphereCollider)_coll;
         _radius = s.radius * transform.lossyScale.magnitude;
-        Debug.Log(_radius + " " + _previousRadius);
     }
 
 }

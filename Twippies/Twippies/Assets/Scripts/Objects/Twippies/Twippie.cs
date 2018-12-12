@@ -11,6 +11,8 @@ public class Twippie : DraggableObjet {
         Walking,
         Sleeping,
         Building,
+        Drinking,
+        Eating,
         Contemplating
     }
 
@@ -41,6 +43,15 @@ public class Twippie : DraggableObjet {
         None
     }
 
+    protected enum GoalType
+    {
+        Wander,
+        Drink,
+        Eat,
+        Sleep,
+        Socialize
+    }
+
     protected GameObject _goalObject;
     protected Arrival _arrival;
     [SerializeField]
@@ -48,6 +59,7 @@ public class Twippie : DraggableObjet {
     protected State _state, _previousState;
     protected BasicNeed _basicNeed;
     protected AdvancedNeed _advancedNeed;
+    protected GoalType _goalType;
 
     [SerializeField]
     private float _sleepiness;
@@ -64,9 +76,8 @@ public class Twippie : DraggableObjet {
 
     protected float _initSpeed;
 
-    protected Coroutine _contemplation;
+    protected Coroutine _contemplation, _drink, _eat;
     protected float _contemplateTime;
-    private int _frameInterval = 5;
 
     protected override void Awake()
     {
@@ -76,6 +87,7 @@ public class Twippie : DraggableObjet {
 
     protected override void Start()
     {
+        _displayIntervals = 5;
         base.Start();
         _basicNeed = BasicNeed.None;
         _advancedNeed = AdvancedNeed.None;
@@ -87,8 +99,9 @@ public class Twippie : DraggableObjet {
         //_goalObject.GetComponent<SphereCollider>().isTrigger = true;
         _arrival.ZoneManager = _zManager;
         _pathFinder.Destination = _arrival;
-        SetGoal();
+        SetGoal(GoalType.Wander);
         StartCoroutine(CheckSleepNeed());
+        StartCoroutine(CheckBasicNeeds());
         
     }
 
@@ -97,10 +110,8 @@ public class Twippie : DraggableObjet {
     {
         base.Update();
 
-        _age += Time.deltaTime * _timeReference * .01f;
-        if (_age > 100)
-            _age = 100;
-        _ageSize = _age / 20;
+        _age = UpdateValue(_age, _timeReference * .01f);  
+        _ageSize = _age / 40;
         if (!_mouseOver)
         {
             _currentSize = _initSize + Vector3.one * _ageSize;
@@ -110,26 +121,6 @@ public class Twippie : DraggableObjet {
             _currentSize = _initSize * _sizeMultiplier + Vector3.one * _ageSize;
         }
 
-        if (_planetSun != null)
-        {
-            if (true)
-            {
-                
-            }
-            else
-            {
-                
-            }
-        }
-        else
-        {
-            if (_state != State.Sleeping)
-            {
-                _previousState = _state;
-                _state = State.Sleeping;
-                OnStateChange();
-            }
-        }
 
         if (_state != State.Walking && _state != State.Sleeping)
         {
@@ -141,24 +132,35 @@ public class Twippie : DraggableObjet {
             }
         }
 
-        if (_state != State.Contemplating)
+        if (_state == State.Walking)
         {
             if (Vector3.Distance(transform.position, _goalObject.transform.position) <= .3f)
             {
                 
                 _previousState = _state;
-                _state = State.Contemplating;
-                OnStateChange();
+                switch (_goalType)
+                {
+                    case GoalType.Drink:
+                        _state = State.Drinking;
+                        OnStateChange();
+                        break;
+                    case GoalType.Eat:
+                        _state = State.Eating;
+                        OnStateChange();
+                        break;
+                    case GoalType.Wander:
+                        _state = State.Contemplating;
+                        OnStateChange();
+                        break;
+                }
+                
             }
         }
-
-        
 
         switch (_state)
         {
             case State.Sleeping:
-                _sleepiness -= Time.deltaTime;
-                if (_sleepiness < 0) _sleepiness = 0;
+                _sleepiness = UpdateValue(_sleepiness, -1);
                 break;
 
 
@@ -174,20 +176,35 @@ public class Twippie : DraggableObjet {
                         _r.MovePosition(newPos); 
                         if (direction.magnitude < 1)
                         {
-                            //Destroy(_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go);
+                            if (_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go != null)
+                                Destroy(_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go);
                             _pathFinder.Steps.RemoveAt(_pathFinder.Steps.Count - 1);
                         }
                     }
                     else
                     {
                         _previousState = _state;
-                        _state = State.Contemplating;
+                        switch (_goalType)
+                        {
+                            case GoalType.Wander:
+                                _state = State.Contemplating;
+                                break;
+
+                            case GoalType.Drink:
+                                _state = State.Drinking;
+                                break;
+
+                            case GoalType.Eat:
+                                _state = State.Eating;
+                                break;
+
+                        }
                         OnStateChange();
                     }
                 }
                
                 break;
-
+                
             case State.Contemplating:
 
                 break;
@@ -195,13 +212,10 @@ public class Twippie : DraggableObjet {
 
         if (_state != State.Sleeping)
         {
-            _sleepiness += Time.deltaTime;
-            if (_sleepiness > 100)
-            {
-                _sleepiness = 100;
-            }
+            _sleepiness = UpdateValue(_sleepiness);
         }
-
+        _thirst = UpdateValue(_thirst, 4);
+        _hunger = UpdateValue(_hunger, .5f);
         
         _stats.StatToValue(_stats.StatsList[2]).Value = _age;
         _stats.StatToValue(_stats.StatsList[3]).Value = _hunger;
@@ -215,8 +229,8 @@ public class Twippie : DraggableObjet {
     {
         base.LateUpdate();
 
-        if (Time.frameCount % _frameInterval == 0)
-            GetZone(false);
+        if (Time.frameCount % _displayIntervals == 0)
+            _zone = GetZone(false);
     }
 
     private void OnStateChange()
@@ -228,6 +242,12 @@ public class Twippie : DraggableObjet {
                 break;
             case State.Walking:
                 gameObject.GetComponentInChildren<MeshRenderer>().material.color = Color.white;
+                break;
+            case State.Drinking:
+                if (_drink == null)
+                {
+                    _drink = StartCoroutine(Drink(4f));
+                }
                 break;
             case State.Contemplating:
                 if (_contemplation == null)
@@ -252,55 +272,67 @@ public class Twippie : DraggableObjet {
 
     private IEnumerator CheckSleepNeed()
     {
-        RaycastHit hit;
-        LayerMask mask = ~(1 << 12 | 1 << 9 | 1 << 2);
-        if (_planetSun != null)
+        while (true)
         {
-            if (Physics.Linecast(_planetSun.transform.position, transform.position + transform.up, out hit, mask))
+            RaycastHit hit;
+            LayerMask mask = ~(1 << 12 | 1 << 9 | 1 << 2 | 1 << 10);
+            if (_planetSun != null)
             {
-                if (hit.collider.tag != "Planet" && hit.collider.tag != "Water")
+                if (Physics.Linecast(_planetSun.transform.position, transform.position + transform.up/2, out hit, mask))
                 {
-                    //Debug.DrawLine(_planetSun.transform.position, transform.position + transform.up, Color.red);
+                    if (_state != State.Sleeping)
+                    {
+                        if (_sleepiness >= 50)
+                        {
+                            _previousState = _state;
+                            _state = State.Sleeping;
+                            OnStateChange();
+                        }
+                    }
+
+                    yield return new WaitForSeconds(2);
+                }
+                else
+                {
                     if (_state == State.Sleeping)
                     {
                         _state = _previousState;
+                        _previousState =  /// update previous states + hunger function
                         OnStateChange();
                     }
-                    yield return new WaitForSeconds(5);
+
+                    yield return new WaitForSeconds(2);
                 }
             }
+            
         }
-        if (_state != State.Sleeping)
-        {
-            _previousState = _state;
-            _state = State.Sleeping;
-            OnStateChange();
-        }
-
-        yield return new WaitForSeconds(5);
-        
         
     }
 
     private IEnumerator CheckBasicNeeds()
     {
-        if (_thirst >= 50)
+        while (true)
         {
-            _basicNeed = BasicNeed.Drink;
-            yield return new WaitForSeconds(6);
-        }
-        if (_hunger >= 50)
-        {
-            _basicNeed = BasicNeed.Eat;
-            yield return new WaitForSeconds(6);
-        }
-        if (_sleepiness >= 50)
-        {
-            _basicNeed = BasicNeed.Sleep;
-            yield return new WaitForSeconds(6);
-        }
 
-        yield return new WaitForSeconds(6);
+            while (_thirst >= 50)
+            {
+                _basicNeed = BasicNeed.Drink;
+                yield return new WaitForSeconds(3);
+            }
+            while (_hunger >= 50)
+            {
+                _basicNeed = BasicNeed.Eat;
+                yield return new WaitForSeconds(3);
+            }
+            while (_sleepiness >= 50)
+            {
+                _basicNeed = BasicNeed.Sleep;
+                yield return new WaitForSeconds(3);
+            }
+
+            _basicNeed = BasicNeed.None;
+            yield return new WaitForSeconds(3);
+        }
 
     }
 
@@ -318,32 +350,91 @@ public class Twippie : DraggableObjet {
         _stats.StatsList[8] = new LabelStat("Action :");
     }
 
-    private void SetGoal()
+    private void SetGoal(GoalType goal)
     {
         _goalObject.transform.parent = null;
-        int zoneId = Random.Range(0, _p.ZManager.Zones.Length - 1);
-        if (!_p.ZManager.Zones[zoneId].Accessible)
+        _goalType = goal;
+        switch (goal)
         {
-            for (int a = 0; a < 100; a++)
-            {
-                zoneId = Random.Range(0, _p.ZManager.Zones.Length - 1);// Choisit une zone aléatoire
-                if (_p.ZManager.Zones[zoneId].Accessible)
-                    break;
-            }
+            case GoalType.Wander:
+                int zoneId = Random.Range(0, _p.ZManager.Zones.Length - 1);
+
+                if (!_p.ZManager.Zones[zoneId].Accessible)
+                {
+                    for (int a = 0; a < 100; a++)
+                    {
+                        zoneId = Random.Range(0, _p.ZManager.Zones.Length - 1);// Choisit une zone aléatoire
+                        if (_p.ZManager.Zones[zoneId].Accessible)
+                            break;
+                    }
+                }
+                _goalObject.transform.position = _p.ZManager.Zones[zoneId].Center;// Place le goal en son centre
+
+                break;
+            case GoalType.Drink:
+                Zone zone = GetZone(false, _zManager.DrinkZones.ToArray());
+                zone.Accessible = true;
+                _goalObject.transform.position = zone.Center;
+                Debug.Log("Let's go drink");
+                break;
         }
-        _goalObject.transform.position = _p.ZManager.Zones[zoneId].Center;// Place le goal en son centre
+        
+        
         _goalObject.transform.parent = P.transform;
         _arrival.SetArrival();
         _pathFinder.FindPath();
 
     }
 
+    private GoalType DefineGoal()
+    {
+        switch (_basicNeed)
+        {
+            case BasicNeed.Drink:
+                return GoalType.Drink;
+            case BasicNeed.Eat:
+                return GoalType.Eat;
+            case BasicNeed.Sleep:
+                return GoalType.Sleep;
+        }
+        switch (_advancedNeed)
+        {
+            case AdvancedNeed.Socialize:
+                return GoalType.Socialize;
+        }
+        return GoalType.Wander;
+    }
+
+    private float UpdateValue(float value, float factor = 1)
+    {
+        value += Time.deltaTime * factor;
+        if (value < 0)
+            value = 0;
+        if (value > 100)
+            value = 100;
+
+        return value;
+    }
+
+
     private IEnumerator Contemplate(float temps)
     {
         yield return new WaitForSeconds(temps);
-        SetGoal();
+        SetGoal(DefineGoal());
         _state = State.Walking;
         OnStateChange();
         _contemplation = null;
     }
+
+    private IEnumerator Drink(float temps)
+    {
+        Debug.Log("Drinking");
+        yield return new WaitForSeconds(temps);
+        _thirst = 0;
+        SetGoal(DefineGoal());
+        _state = State.Walking;
+        OnStateChange();
+        _drink = null;
+    }
+
 }
