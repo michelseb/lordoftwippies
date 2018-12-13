@@ -17,7 +17,7 @@ public class Sun : AerialObjet {
         _stats.StatsList[1] = new TextStat("Soleil", 20);
         _stats.StatsList[2] = new BoolStat(true, "On/Off");
         _stats.StatsList[3] = new ValueStat(1, 0, 10, "brightness", false);
-        _stats.StatsList[4] = new ValueStat(5, 0, 50, "rotation speed", false);
+        _stats.StatsList[4] = new ValueStat(2, 0, 20, "rotation speed", false);
     }
 
     protected override void Start()

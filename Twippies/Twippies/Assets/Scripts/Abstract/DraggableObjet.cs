@@ -157,7 +157,7 @@ public abstract class DraggableObjet : ManageableObjet {
         }
     }
 
-    public virtual Zone GetZone(bool take, Zone[] zoneList = null)
+    public virtual Zone GetZone(bool take, Zone[] zoneList = null, bool checkTaken = false)
     {
         if (_zone != null && take)
             _zone.Accessible = true;
@@ -181,6 +181,17 @@ public abstract class DraggableObjet : ManageableObjet {
             {
                 distMin = dist;
                 tempZone = z;
+            }
+        }
+
+        if (checkTaken)
+        {
+            WaterZone zone = (WaterZone)tempZone as WaterZone;
+            if (zone.Taken)
+            {
+                foreach ( Zone zone in zones){
+
+                }
             }
         }
 

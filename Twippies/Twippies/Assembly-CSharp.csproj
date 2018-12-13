@@ -94,7 +94,6 @@
      <Compile Include="Assets\Scripts\Arrival.cs" />
      <Compile Include="Assets\Scripts\Controls.cs" />
      <Compile Include="Assets\Scripts\KdTree.cs" />
-     <Compile Include="Assets\Scripts\MeshMaker.cs" />
      <Compile Include="Assets\Scripts\Objects\Nature\Cloud.cs" />
      <Compile Include="Assets\Scripts\Objects\Nature\Planete.cs" />
      <Compile Include="Assets\Scripts\Objects\Nature\Sun.cs" />
@@ -118,8 +117,10 @@
      <Compile Include="Assets\Scripts\UI\Stats\ValueStat.cs" />
      <Compile Include="Assets\Scripts\UI\UIManager.cs" />
      <Compile Include="Assets\Scripts\Vertex.cs" />
-     <Compile Include="Assets\Scripts\Zone.cs" />
-     <Compile Include="Assets\Scripts\ZoneManager.cs" />
+     <Compile Include="Assets\Scripts\Zones\MeshMaker.cs" />
+     <Compile Include="Assets\Scripts\Zones\WaterZone.cs" />
+     <Compile Include="Assets\Scripts\Zones\Zone.cs" />
+     <Compile Include="Assets\Scripts\Zones\ZoneManager.cs" />
      <None Include="Assets\Shaders\heightblend.cginc" />
      <None Include="Assets\Shaders\PlaneteShader.shader" />
      <None Include="Assets\Shaders\MultiTex.shader" />

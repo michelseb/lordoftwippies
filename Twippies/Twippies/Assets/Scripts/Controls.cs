@@ -357,4 +357,16 @@ public class Controls : MonoBehaviour {
             _newObject = value;
         }
     }
+
+    public int FocusedLayer
+    {
+        get
+        {
+            return _focusedLayer;
+        }
+        set
+        {
+            _focusedLayer = value;
+        }
+    }
 }

@@ -19,14 +19,15 @@ public class UIObject : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
     {
-        Debug.Log("Dragging");
         _controls.NewObject = true;
         _controls.ctrl = Controls.ControlMode.Dragging;
         GameObject go = Instantiate(_objet.gameObject, Camera.main.ScreenToWorldPoint(Input.mousePosition), Quaternion.identity);
+        _controls.FocusedLayer = go.layer;
         if (go.GetComponent<ManageableObjet>() != null)
         {
             _controls.FocusedObject = go.GetComponent<ManageableObjet>();
             _om.allObjects.Add(_controls.FocusedObject);
+            
         }
 
     }

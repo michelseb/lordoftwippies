@@ -13,7 +13,8 @@ public class Twippie : DraggableObjet {
         Building,
         Drinking,
         Eating,
-        Contemplating
+        Contemplating,
+        None
     }
 
     protected enum Emotion
@@ -60,6 +61,8 @@ public class Twippie : DraggableObjet {
     protected BasicNeed _basicNeed;
     protected AdvancedNeed _advancedNeed;
     protected GoalType _goalType;
+    [SerializeField]
+    private LayerMask _mask;
 
     [SerializeField]
     private float _sleepiness;
@@ -78,6 +81,7 @@ public class Twippie : DraggableObjet {
 
     protected Coroutine _contemplation, _drink, _eat;
     protected float _contemplateTime;
+    
 
     protected override void Awake()
     {
@@ -91,6 +95,7 @@ public class Twippie : DraggableObjet {
         base.Start();
         _basicNeed = BasicNeed.None;
         _advancedNeed = AdvancedNeed.None;
+        _previousState = State.None;
         _initSpeed = _speed;
         _outline.color = 3;
         _waterCost = 1;
@@ -126,34 +131,7 @@ public class Twippie : DraggableObjet {
         {
             if (Vector3.Distance(transform.position, _goalObject.transform.position) > 1)
             {
-                _previousState = _state;
-                _state = State.Walking;
-                OnStateChange();
-            }
-        }
-
-        if (_state == State.Walking)
-        {
-            if (Vector3.Distance(transform.position, _goalObject.transform.position) <= .3f)
-            {
-                
-                _previousState = _state;
-                switch (_goalType)
-                {
-                    case GoalType.Drink:
-                        _state = State.Drinking;
-                        OnStateChange();
-                        break;
-                    case GoalType.Eat:
-                        _state = State.Eating;
-                        OnStateChange();
-                        break;
-                    case GoalType.Wander:
-                        _state = State.Contemplating;
-                        OnStateChange();
-                        break;
-                }
-                
+                ChangeState(State.Walking);
             }
         }
 
@@ -183,23 +161,21 @@ public class Twippie : DraggableObjet {
                     }
                     else
                     {
-                        _previousState = _state;
                         switch (_goalType)
                         {
                             case GoalType.Wander:
-                                _state = State.Contemplating;
+                                ChangeState(State.Contemplating);
                                 break;
 
                             case GoalType.Drink:
-                                _state = State.Drinking;
+                                ChangeState(State.Drinking);
                                 break;
 
                             case GoalType.Eat:
-                                _state = State.Eating;
+                                ChangeState(State.Eating);
                                 break;
 
                         }
-                        OnStateChange();
                     }
                 }
                
@@ -214,7 +190,7 @@ public class Twippie : DraggableObjet {
         {
             _sleepiness = UpdateValue(_sleepiness);
         }
-        _thirst = UpdateValue(_thirst, 4);
+        _thirst = UpdateValue(_thirst, 1.5f);
         _hunger = UpdateValue(_hunger, .5f);
         
         _stats.StatToValue(_stats.StatsList[2]).Value = _age;
@@ -275,30 +251,26 @@ public class Twippie : DraggableObjet {
         while (true)
         {
             RaycastHit hit;
-            LayerMask mask = ~(1 << 12 | 1 << 9 | 1 << 2 | 1 << 10);
             if (_planetSun != null)
             {
-                if (Physics.Linecast(_planetSun.transform.position, transform.position + transform.up/2, out hit, mask))
+                if (Physics.Linecast(_planetSun.transform.position, transform.position + transform.up/2, out hit, _mask))
                 {
                     if (_state != State.Sleeping)
                     {
                         if (_sleepiness >= 50)
                         {
-                            _previousState = _state;
-                            _state = State.Sleeping;
-                            OnStateChange();
+                            ChangeState(State.Sleeping);
                         }
                     }
-
+                    Debug.Log(hit.collider.gameObject.name);
                     yield return new WaitForSeconds(2);
                 }
                 else
                 {
+                    Debug.Log("Previous : "+_previousState + " Current : " + _state);
                     if (_state == State.Sleeping)
                     {
-                        _state = _previousState;
-                        _previousState =  /// update previous states + hunger function
-                        OnStateChange();
+                        ChangeState(_previousState);
                     }
 
                     yield return new WaitForSeconds(2);
@@ -372,10 +344,10 @@ public class Twippie : DraggableObjet {
 
                 break;
             case GoalType.Drink:
-                Zone zone = GetZone(false, _zManager.DrinkZones.ToArray());
+                WaterZone zone = (WaterZone)GetZone(false, _zManager.DrinkZones.ToArray());
                 zone.Accessible = true;
+                zone.taken = false;
                 _goalObject.transform.position = zone.Center;
-                Debug.Log("Let's go drink");
                 break;
         }
         
@@ -416,13 +388,21 @@ public class Twippie : DraggableObjet {
         return value;
     }
 
+    private void ChangeState(State state)
+    {
+        if (_state != state)
+        {
+            _previousState = _state;
+        }
+        _state = state;
+        OnStateChange();
+    }
 
     private IEnumerator Contemplate(float temps)
     {
         yield return new WaitForSeconds(temps);
         SetGoal(DefineGoal());
-        _state = State.Walking;
-        OnStateChange();
+        ChangeState(State.Walking);
         _contemplation = null;
     }
 
@@ -432,8 +412,7 @@ public class Twippie : DraggableObjet {
         yield return new WaitForSeconds(temps);
         _thirst = 0;
         SetGoal(DefineGoal());
-        _state = State.Walking;
-        OnStateChange();
+        ChangeState(State.Walking);
         _drink = null;
     }
 
