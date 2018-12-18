@@ -12,7 +12,7 @@ public class ZoneManager : MonoBehaviour {
     private Zone _zonePrefab;
     private int _nbVertex;
     private Zone[] _zones;
-    private List<WaterZone> _drinkZones;
+    private List<Zone> _drinkZones;
 
     private void Awake()
     {
@@ -32,7 +32,7 @@ public class ZoneManager : MonoBehaviour {
         }
         Debug.Log("nombre de zones : " + id);
         _zones = tempZones.ToArray();
-        _drinkZones = new List<WaterZone>();
+        _drinkZones = new List<Zone>();
         SetTriangles();
         GenerateZoneObjects();
         FindNeighbours();
@@ -120,7 +120,7 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
-    public List<WaterZone> DrinkZones
+    public List<Zone> DrinkZones
     {
         get
         {
@@ -231,8 +231,12 @@ public class ZoneManager : MonoBehaviour {
 
             if (zone.MinHeight < (radius / 2) + .7f && zone.MaxHeight > (radius / 2) + .7f)
             {
-                zone = (WaterZone)zone as WaterZone;
-                _drinkZones.Add((WaterZone)zone);
+                zone.WaterZone = true;
+                _drinkZones.Add(zone);
+            }
+            else
+            {
+                zone.WaterZone = false;
             }
 
             if (zone.MeanHeight < (radius / 2) + .7f || zone.DeltaHeight > .5f)

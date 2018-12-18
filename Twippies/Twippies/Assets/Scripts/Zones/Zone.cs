@@ -55,6 +55,8 @@ public class Zone : MonoBehaviour {
     private ZoneManager _zManager;
     private List<PathCost> _pathCosts;
     private bool _accessible;
+    private bool _taken;
+    private bool _waterZone;
 
 
     public enum DisplayMode
@@ -148,7 +150,7 @@ public class Zone : MonoBehaviour {
                     break;
 
                 case DisplayMode.Water:
-                    if (this is WaterZone)
+                    if (_waterZone)
                     {
                         _renderer.material.color = new Color(0, .8f, 1, .6f);
                     }
@@ -241,6 +243,30 @@ public class Zone : MonoBehaviour {
         set
         {
             _accessible = value; 
+        }
+    }
+
+    public bool Taken
+    {
+        get
+        {
+            return _taken;
+        }
+        set
+        {
+            _taken = value;
+        }
+    }
+
+    public bool WaterZone
+    {
+        get
+        {
+            return _waterZone;
+        }
+        set
+        {
+            _waterZone = value;
         }
     }
 

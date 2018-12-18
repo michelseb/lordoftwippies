@@ -157,7 +157,45 @@ public abstract class DraggableObjet : ManageableObjet {
         }
     }
 
-    public virtual Zone GetZone(bool take, Zone[] zoneList = null, bool checkTaken = false)
+    public Zone GetRandomZoneByDistance(bool take, Zone[] zoneList = null, bool checkTaken = false, float distanceMax = float.MaxValue)
+    {
+        if (_zone != null && take)
+            _zone.Accessible = true;
+        Zone[] zones;
+        if (zoneList != null)
+        {
+            zones = zoneList;
+        }
+        else
+        {
+            zones = _zManager.Zones;
+        }
+
+        for (int i = 0; i < zones.Length; i++)
+        {
+            Zone temp = zones[i];
+            int randomIndex = Random.Range(i, zones.Length);
+            zones[i] = zones[randomIndex];
+            zones[randomIndex] = temp;
+        }
+
+
+        foreach (Zone z in zones)
+        {
+            float dist = (transform.position - z.Center).sqrMagnitude;
+            if (z.Accessible)
+            {
+                if (dist < distanceMax)
+                {
+                    return z;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public virtual Zone GetZone(bool take, Zone[] zoneList = null, bool checkTaken = false, bool shouldAccess = true)
     {
         if (_zone != null && take)
             _zone.Accessible = true;
@@ -174,26 +212,37 @@ public abstract class DraggableObjet : ManageableObjet {
             zones = _zManager.Zones;
         }
 
-        foreach (Zone z in zones)
-        {
-            float dist = (transform.position - z.Center).sqrMagnitude;
-            if (dist < distMin)
-            {
-                distMin = dist;
-                tempZone = z;
-            }
-        }
 
         if (checkTaken)
         {
-            WaterZone zone = (WaterZone)tempZone as WaterZone;
-            if (zone.Taken)
+            foreach (Zone z in zones)
             {
-                foreach ( Zone zone in zones){
+                float dist = (transform.position - z.Center).sqrMagnitude;
 
+                if (!z.Taken)
+                {
+                    z.Taken = true;
+                    return z;
                 }
             }
         }
+
+
+
+        foreach (Zone z in zones)
+        {
+            float dist = (transform.position - z.Center).sqrMagnitude;
+            if (z.Accessible)
+            {
+                if (dist < distMin)
+                {
+                    distMin = dist;
+                    tempZone = z;
+                }
+            }
+        }
+
+        
 
         if (take)
             tempZone.Accessible = false;

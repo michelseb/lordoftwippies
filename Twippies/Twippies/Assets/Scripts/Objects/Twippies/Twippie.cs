@@ -73,7 +73,7 @@ public class Twippie : DraggableObjet {
 
     private float _age;
     private float _ageSize;
-
+    private float _endurance;
     [SerializeField]
     protected float _speed;
 
@@ -99,6 +99,7 @@ public class Twippie : DraggableObjet {
         _initSpeed = _speed;
         _outline.color = 3;
         _waterCost = 1;
+        _endurance = 30+Random.value;
         _goalObject = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Sphere);//new GameObject();
         _arrival = _goalObject.AddComponent<Arrival>();//GameObject.CreatePrimitive(PrimitiveType.Sphere);
         //_goalObject.GetComponent<SphereCollider>().isTrigger = true;
@@ -326,31 +327,34 @@ public class Twippie : DraggableObjet {
     {
         _goalObject.transform.parent = null;
         _goalType = goal;
+        Zone zone = null;
         switch (goal)
         {
             case GoalType.Wander:
-                int zoneId = Random.Range(0, _p.ZManager.Zones.Length - 1);
-
-                if (!_p.ZManager.Zones[zoneId].Accessible)
+                zone = GetRandomZoneByDistance(take: false, distanceMax: _endurance);
+                _goalObject.transform.position = zone.Center;
+                /*for (int a = 0; a < 100; a++)
                 {
-                    for (int a = 0; a < 100; a++)
-                    {
-                        zoneId = Random.Range(0, _p.ZManager.Zones.Length - 1);// Choisit une zone aléatoire
-                        if (_p.ZManager.Zones[zoneId].Accessible)
-                            break;
-                    }
-                }
-                _goalObject.transform.position = _p.ZManager.Zones[zoneId].Center;// Place le goal en son centre
-
+                    zoneId = Random.Range(0, _p.ZManager.Zones.Length - 1);// Choisit une zone aléatoire
+                    if (_p.ZManager.Zones[zoneId].Accessible)
+                        break;
+                }*/
                 break;
             case GoalType.Drink:
-                WaterZone zone = (WaterZone)GetZone(false, _zManager.DrinkZones.ToArray());
-                zone.Accessible = true;
-                zone.taken = false;
-                _goalObject.transform.position = zone.Center;
+                zone = GetRandomZoneByDistance(take: false, zoneList : _zManager.DrinkZones.ToArray(), distanceMax: _endurance);
+                if (zone != null)
+                {
+                    zone.Accessible = true;
+                    zone.Taken = false;
+                    _goalObject.transform.position = zone.Center;
+                }
+                else
+                {
+                    SetGoal(GoalType.Wander); // Or create conflict !!
+                }
                 break;
         }
-        
+
         
         _goalObject.transform.parent = P.transform;
         _arrival.SetArrival();
