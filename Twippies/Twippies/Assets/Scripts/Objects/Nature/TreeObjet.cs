@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class TreeObjet : StaticObjet {
 
-    protected override void GenerateStats()
-    {
-        _stats.StatsList = new Stat[3];
-        _stats.StatsList[0] = new LabelStat("Pomo (Plante verte)");
-        _stats.StatsList[1] = new TextStat("Plante verte", 20);
-        _stats.StatsList[2] = new ValueStat(4, 2, 20, "height", false);
-    }
+    private Vector3 _size;
 
+    protected override void Awake()
+    {
+        base.Awake();
+        _type = "Pomo (Plante verte)";
+        _name = "Plante verte";
+    }
     protected override void Start()
     {
         base.Start();
@@ -19,11 +19,15 @@ public class TreeObjet : StaticObjet {
         _woodCost = 5;
     }
 
-    protected override void Update()
+    public Vector3 Size
     {
-        base.Update();
-        ValueStat scale = (ValueStat)_stats.StatsList[2];
-        transform.localScale = new Vector3(scale.Value, scale.Value, scale.Value);
+        get
+        {
+            return _size;
+        }
+        set
+        {
+            _size = value;
+        }
     }
-
 }

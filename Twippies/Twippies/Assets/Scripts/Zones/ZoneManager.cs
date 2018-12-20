@@ -7,7 +7,6 @@ public class ZoneManager : MonoBehaviour {
     private Mesh _planeteMesh;
     private Planete _planete;
     private Vector3[] _vertices;
-    private int[] _triangles;
     [SerializeField]
     private Zone _zonePrefab;
     private int _nbVertex;
@@ -20,7 +19,6 @@ public class ZoneManager : MonoBehaviour {
         _planeteMesh = GetComponent<MeshFilter>().mesh;
         _planete = gameObject.GetComponent<Planete>();
         _vertices = _planeteMesh.vertices;
-        _triangles = _planeteMesh.triangles;
         _nbVertex = _planeteMesh.vertexCount;
 
         List<Zone> tempZones = new List<Zone>();
@@ -143,9 +141,7 @@ public class ZoneManager : MonoBehaviour {
             _vertices[a] = transform.TransformPoint(_planeteMesh.vertices[a]);
         }
 
-        
-
-        _triangles = _planeteMesh.triangles;
+        int[] triangles = _planeteMesh.triangles;
         foreach (Zone z in _zones)
         {
             z.transform.parent = null;
@@ -155,11 +151,11 @@ public class ZoneManager : MonoBehaviour {
             z.transform.parent = transform;
         }
 
-        for (int i = 0; i < _triangles.Length-3; i += 3)
+        for (int i = 0; i < triangles.Length-3; i += 3)
         {
-            Vector3 a = _vertices[_triangles[i]];
-            Vector3 b = _vertices[_triangles[i + 1]];
-            Vector3 c = _vertices[_triangles[i + 2]];
+            Vector3 a = _vertices[triangles[i]];
+            Vector3 b = _vertices[triangles[i + 1]];
+            Vector3 c = _vertices[triangles[i + 2]];
 
             Vector3 centre = (a + b + c) / 3;
             float distMin = Mathf.Infinity;

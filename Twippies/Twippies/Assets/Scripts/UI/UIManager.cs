@@ -92,13 +92,12 @@ public class UIManager : MonoBehaviour {
             GUI.depth = 5;
             float screenSizeX = Screen.width;
             float screenSizeY = Screen.height;
-            float yStart = Screen.height * 2 / 3;
-            float ySize = (Screen.height / 3) - 20f;
+            float yStart = Screen.height * 1 / 2;
+            float ySize = (Screen.height / 2) - 20f;
             float xStart = 10;
             float xSize = Screen.width - 20;
             GUI.DrawTextureWithTexCoords(new Rect(xStart-5, yStart-5, xSize+10, ySize+10), _infoGUITexFont, new Rect((2 * (xStart-5)) / screenSizeX, (yStart-5) / screenSizeY, (xSize+10) / screenSizeX, (ySize+10) / screenSizeY));
             GUI.DrawTextureWithTexCoords(new Rect(xStart, yStart, xSize, ySize), _infoGUITex, new Rect((2*xStart)/screenSizeX, yStart/screenSizeY, xSize/screenSizeX, ySize/screenSizeY));//Screen.height/(Screen.width*1/3)));
-            float a = (Screen.height / 3) * _infoGUITex.width / Screen.width;
             _previewCam.Render();
             _UICam.Render();
 

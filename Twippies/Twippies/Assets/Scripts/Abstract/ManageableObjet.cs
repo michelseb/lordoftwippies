@@ -8,8 +8,10 @@ public abstract class ManageableObjet : Objet {
     [SerializeField]
     protected StatManager _stats;
 
-    
 
+    protected string _type;
+    protected string _name;
+    protected float _age;
     protected Controls _c;
     protected float _rotSpeedX, _rotSpeedY, _rotSpeedMultiplier = 10;
     protected float _sizeMultiplier = 2.3f;
@@ -20,7 +22,7 @@ public abstract class ManageableObjet : Objet {
     protected bool _mouseOver;
     protected int _displayIntervals = 3;
 
-    protected abstract void GenerateStats();
+    
 
     protected override void Awake()
     {
@@ -94,7 +96,9 @@ public abstract class ManageableObjet : Objet {
             }
         }
 
-        
+        _age = UpdateValue(_age, _timeReference * .01f);
+        _stats.StatToValue(_stats.StatsList[2]).Value = _age;
+
     }
 
 
@@ -186,6 +190,24 @@ public abstract class ManageableObjet : Objet {
         _posX = Input.mousePosition.x - _dist.x;
         _posY = Input.mousePosition.y - _dist.y;
     }
-    
+
+    protected float UpdateValue(float value, float factor = 1)
+    {
+        value += Time.deltaTime * factor;
+        if (value < 0)
+            value = 0;
+        if (value > 100)
+            value = 100;
+
+        return value;
+    }
+
+    protected virtual void GenerateStats()
+    {
+        _stats.StatsList = new Stat[10];
+        _stats.StatsList[0] = new LabelStat(_type);
+        _stats.StatsList[1] = new TextStat(_name, 20);
+        _stats.StatsList[2] = new ValueStat(0, 0, 100, "age", false);
+    }
 
 }

@@ -157,10 +157,8 @@ public abstract class DraggableObjet : ManageableObjet {
         }
     }
 
-    public Zone GetRandomZoneByDistance(bool take, Zone[] zoneList = null, bool checkTaken = false, float distanceMax = float.MaxValue)
+    public Zone GetRandomZoneByDistance(Zone[] zoneList = null, bool checkTaken = false, float distanceMax = float.MaxValue)
     {
-        if (_zone != null && take)
-            _zone.Accessible = true;
         Zone[] zones;
         if (zoneList != null)
         {

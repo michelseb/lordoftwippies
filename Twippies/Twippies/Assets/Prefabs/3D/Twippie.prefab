@@ -159,10 +159,13 @@ MonoBehaviour:
   _stats: {fileID: 114278088608654876}
   _p: {fileID: 0}
   _pathFinder: {fileID: 114895532142597180}
+  _mask:
+    serializedVersion: 2
+    m_Bits: 0
   _sleepiness: 0
   _hunger: 0
   _thirst: 0
-  _speed: 2
+  _speed: 0.5
 --- !u!114 &114895532142597180
 MonoBehaviour:
   m_ObjectHideFlags: 1

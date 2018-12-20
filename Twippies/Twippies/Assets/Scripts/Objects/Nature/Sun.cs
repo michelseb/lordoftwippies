@@ -10,19 +10,27 @@ public class Sun : AerialObjet {
     [SerializeField]
     private Light _light;
 
+    private bool _on;
+
+
     protected override void GenerateStats()
     {
-        _stats.StatsList = new Stat[5];
-        _stats.StatsList[0] = new LabelStat("Woaaaa (Soleil)");
-        _stats.StatsList[1] = new TextStat("Soleil", 20);
-        _stats.StatsList[2] = new BoolStat(true, "On/Off");
-        _stats.StatsList[3] = new ValueStat(1, 0, 10, "brightness", false);
-        _stats.StatsList[4] = new ValueStat(2, 0, 20, "rotation speed", false);
+        base.GenerateStats();
+        _stats.StatsList[3] = new BoolStat(true, "On/Off");
+        _stats.StatsList[4] = new ValueStat(1, 0, 10, "brightness", false);
+        _stats.StatsList[5] = new ValueStat(2, 0, 20, "rotation speed", false);
+    }
+    protected override void Awake()
+    {
+        base.Awake();
+        _type = "Woaaaa (Soleil)";
+        _name = "Soleil";
     }
 
     protected override void Start()
     {
         base.Start();
+        
         //_r.constraints = RigidbodyConstraints.FreezePositionX;
         _outline.color = 0;
     }
@@ -30,10 +38,12 @@ public class Sun : AerialObjet {
     protected override void Update()
     {
         base.Update();
-        _speed = _stats.StatToValue(_stats.StatsList[4]).Value;
-        _light.enabled = _stats.StatToBool(_stats.StatsList[2]).Value;
-        _light.intensity = _stats.StatToValue(_stats.StatsList[3]).Value;
-        transform.Translate(_speed * Time.deltaTime, 0, 0);
+        _on = _stats.StatToBool(_stats.StatsList[3]).Value;
+        _speed = _stats.StatToValue(_stats.StatsList[5]).Value;
+        _light.enabled = _on;
+        _light.intensity = _stats.StatToValue(_stats.StatsList[4]).Value;
+        if (_on)
+            transform.Translate(_speed * Time.deltaTime, 0, 0);
     }
 
     public float Speed

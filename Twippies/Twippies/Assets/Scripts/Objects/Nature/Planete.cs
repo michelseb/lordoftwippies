@@ -19,6 +19,12 @@ public class Planete : ManageableObjet {
     private Vector3[] _vertexVelocities;
     private bool _shaping, _deforming;
 
+    protected override void Awake()
+    {
+        base.Awake();
+        _type = "Woaaaa(Planète)";
+        _name = "Planète Twippie";
+    }
     protected override void Start()
     {
         base.Start();
@@ -53,10 +59,10 @@ public class Planete : ManageableObjet {
     {
         base.Update();
 
-        _shaping = _stats.StatToBool(_stats.StatsList[3]).Value;
+        _shaping = _stats.StatToBool(_stats.StatsList[4]).Value;
         if (_c.ctrl != Controls.ControlMode.Dragging)
         {
-            switch (_stats.StatToChoice(_stats.StatsList[4]).Value)
+            switch (_stats.StatToChoice(_stats.StatsList[5]).Value)
             {
                 case 0:
                     foreach (Zone z in _zManager.Zones)
@@ -139,7 +145,7 @@ public class Planete : ManageableObjet {
             }
         }
 
-        if (_stats.StatToBool(_stats.StatsList[2]).Value == false)
+        if (_stats.StatToBool(_stats.StatsList[3]).Value == false)
         {
             foreach (Transform child in transform)
             {
@@ -252,12 +258,10 @@ public class Planete : ManageableObjet {
 
     protected override void GenerateStats()
     {
-        _stats.StatsList = new Stat[5];
-        _stats.StatsList[0] = new LabelStat("Woaaaa (Planète)");
-        _stats.StatsList[1] = new TextStat("Planète Twippie", 20);
-        _stats.StatsList[2] = new BoolStat(true, "Don't press this");
-        _stats.StatsList[3] = new BoolStat(false, "Shape mode");
-        _stats.StatsList[4] = new ChoiceStat(new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0);
+        base.GenerateStats();
+        _stats.StatsList[3] = new BoolStat(true, "Don't press this");
+        _stats.StatsList[4] = new BoolStat(false, "Shape mode");
+        _stats.StatsList[5] = new ChoiceStat(new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0);
         //_stats.StatsList[4] = new ValueStat(0, -30, 30, "Shape strength", false);
 
     }

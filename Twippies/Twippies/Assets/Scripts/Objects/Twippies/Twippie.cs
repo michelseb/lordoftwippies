@@ -49,7 +49,6 @@ public class Twippie : DraggableObjet {
         Wander,
         Drink,
         Eat,
-        Sleep,
         Socialize
     }
 
@@ -71,7 +70,6 @@ public class Twippie : DraggableObjet {
     [SerializeField]
     private float _thirst;
 
-    private float _age;
     private float _ageSize;
     private float _endurance;
     [SerializeField]
@@ -86,13 +84,14 @@ public class Twippie : DraggableObjet {
     protected override void Awake()
     {
         base.Awake();
-
+        _type = "Twippie";
+        _name = "Petit twippie";
     }
 
     protected override void Start()
     {
-        _displayIntervals = 5;
         base.Start();
+        _displayIntervals = 5;
         _basicNeed = BasicNeed.None;
         _advancedNeed = AdvancedNeed.None;
         _previousState = State.None;
@@ -100,12 +99,11 @@ public class Twippie : DraggableObjet {
         _outline.color = 3;
         _waterCost = 1;
         _endurance = 30+Random.value;
-        _goalObject = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Sphere);//new GameObject();
-        _arrival = _goalObject.AddComponent<Arrival>();//GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        //_goalObject.GetComponent<SphereCollider>().isTrigger = true;
+        _goalObject = new GameObject();
+        _arrival = _goalObject.AddComponent<Arrival>();
         _arrival.ZoneManager = _zManager;
         _pathFinder.Destination = _arrival;
-        SetGoal(GoalType.Wander);
+        SetDestination(GoalType.Wander);
         StartCoroutine(CheckSleepNeed());
         StartCoroutine(CheckBasicNeeds());
         
@@ -116,7 +114,6 @@ public class Twippie : DraggableObjet {
     {
         base.Update();
 
-        _age = UpdateValue(_age, _timeReference * .01f);  
         _ageSize = _age / 40;
         if (!_mouseOver)
         {
@@ -139,7 +136,7 @@ public class Twippie : DraggableObjet {
         switch (_state)
         {
             case State.Sleeping:
-                _sleepiness = UpdateValue(_sleepiness, -1);
+                _sleepiness = UpdateValue(_sleepiness, -3);
                 break;
 
 
@@ -223,7 +220,7 @@ public class Twippie : DraggableObjet {
             case State.Drinking:
                 if (_drink == null)
                 {
-                    _drink = StartCoroutine(Drink(4f));
+                    _drink = StartCoroutine(Drink());
                 }
                 break;
             case State.Contemplating:
@@ -258,7 +255,7 @@ public class Twippie : DraggableObjet {
                 {
                     if (_state != State.Sleeping)
                     {
-                        if (_sleepiness >= 50)
+                        if (_basicNeed == BasicNeed.Sleep)
                         {
                             ChangeState(State.Sleeping);
                         }
@@ -268,7 +265,7 @@ public class Twippie : DraggableObjet {
                 }
                 else
                 {
-                    Debug.Log("Previous : "+_previousState + " Current : " + _state);
+                    
                     if (_state == State.Sleeping)
                     {
                         ChangeState(_previousState);
@@ -311,10 +308,8 @@ public class Twippie : DraggableObjet {
 
     protected override void GenerateStats()
     {
-        _stats.StatsList = new Stat[10];
-        _stats.StatsList[0] = new LabelStat("Twippie");
-        _stats.StatsList[1] = new TextStat("Petit Twippie", 20);
-        _stats.StatsList[2] = new ValueStat(0, 0, 100, "age", false);
+        base.GenerateStats();
+        
         _stats.StatsList[3] = new ValueStat(0, 0, 100, "hunger", true);
         _stats.StatsList[4] = new ValueStat(0, 0, 100, "thirst", true);
         _stats.StatsList[5] = new ValueStat(0, 0, 100, "fatigue", true);
@@ -323,7 +318,7 @@ public class Twippie : DraggableObjet {
         _stats.StatsList[8] = new LabelStat("Action :");
     }
 
-    private void SetGoal(GoalType goal)
+    private void SetDestination(GoalType goal)
     {
         _goalObject.transform.parent = null;
         _goalType = goal;
@@ -331,17 +326,17 @@ public class Twippie : DraggableObjet {
         switch (goal)
         {
             case GoalType.Wander:
-                zone = GetRandomZoneByDistance(take: false, distanceMax: _endurance);
-                _goalObject.transform.position = zone.Center;
-                /*for (int a = 0; a < 100; a++)
+                zone = GetRandomZoneByDistance(distanceMax: _endurance);
+                if (zone != null)
                 {
-                    zoneId = Random.Range(0, _p.ZManager.Zones.Length - 1);// Choisit une zone aléatoire
-                    if (_p.ZManager.Zones[zoneId].Accessible)
-                        break;
-                }*/
+                    _goalObject.transform.position = zone.Center;
+                }else
+                {
+                    _goalObject.transform.position = transform.position;
+                }
                 break;
             case GoalType.Drink:
-                zone = GetRandomZoneByDistance(take: false, zoneList : _zManager.DrinkZones.ToArray(), distanceMax: _endurance);
+                zone = GetRandomZoneByDistance(zoneList : _zManager.DrinkZones.ToArray(), distanceMax: _endurance);
                 if (zone != null)
                 {
                     zone.Accessible = true;
@@ -350,7 +345,7 @@ public class Twippie : DraggableObjet {
                 }
                 else
                 {
-                    SetGoal(GoalType.Wander); // Or create conflict !!
+                    SetDestination(GoalType.Wander); // Or create conflict !!
                 }
                 break;
         }
@@ -370,8 +365,6 @@ public class Twippie : DraggableObjet {
                 return GoalType.Drink;
             case BasicNeed.Eat:
                 return GoalType.Eat;
-            case BasicNeed.Sleep:
-                return GoalType.Sleep;
         }
         switch (_advancedNeed)
         {
@@ -381,16 +374,7 @@ public class Twippie : DraggableObjet {
         return GoalType.Wander;
     }
 
-    private float UpdateValue(float value, float factor = 1)
-    {
-        value += Time.deltaTime * factor;
-        if (value < 0)
-            value = 0;
-        if (value > 100)
-            value = 100;
 
-        return value;
-    }
 
     private void ChangeState(State state)
     {
@@ -399,25 +383,36 @@ public class Twippie : DraggableObjet {
             _previousState = _state;
         }
         _state = state;
+        Debug.Log("Previous : " + _previousState + " Current : " + _state);
         OnStateChange();
     }
 
     private IEnumerator Contemplate(float temps)
     {
         yield return new WaitForSeconds(temps);
-        SetGoal(DefineGoal());
-        ChangeState(State.Walking);
+        SetDestination(DefineGoal());
         _contemplation = null;
     }
 
-    private IEnumerator Drink(float temps)
+    private IEnumerator Drink()
     {
-        Debug.Log("Drinking");
-        yield return new WaitForSeconds(temps);
+        while (_thirst > 0)
+        {
+            _thirst -= 1;
+            yield return null;
+        }
         _thirst = 0;
-        SetGoal(DefineGoal());
-        ChangeState(State.Walking);
+        SetDestination(DefineGoal());
         _drink = null;
+    }
+
+    private IEnumerator Eat(TreeObjet tree)
+    {
+        while (tree.Size.x > 0)
+        {
+            tree.Size -= Vector3.one * Time.deltaTime;
+        }
+        yield return null;
     }
 
 }

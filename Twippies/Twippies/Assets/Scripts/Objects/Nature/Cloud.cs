@@ -11,10 +11,14 @@ public class Cloud : AerialObjet {
 
     protected override void GenerateStats()
     {
-        _stats.StatsList = new Stat[3];
-        _stats.StatsList[0] = new LabelStat("Vvvvv (Nuage)");
-        _stats.StatsList[1] = new TextStat("Nuage capricieux", 20);
-        _stats.StatsList[2] = new BoolStat(true, "Wet/Dry");
+        base.GenerateStats();
+        _stats.StatsList[3] = new BoolStat(true, "Wet/Dry");
+    }
+    protected override void Awake()
+    {
+        base.Awake();
+        _type = "Vvvvv (Nuage)";
+        _name = "Nuage capricieux";
     }
 
     protected override void Start()
@@ -27,7 +31,7 @@ public class Cloud : AerialObjet {
     protected override void Update()
     {
         base.Update();
-        BoolStat active = (BoolStat)_stats.StatsList[2];
+        BoolStat active = (BoolStat)_stats.StatsList[3];
         _raining = active.Value;
         
         if (_ps.isPlaying && !_raining)

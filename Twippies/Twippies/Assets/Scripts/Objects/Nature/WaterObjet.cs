@@ -10,11 +10,15 @@ public class WaterObjet : ManageableObjet {
 
     protected override void GenerateStats()
     {
-        _stats.StatsList = new Stat[4];
-        _stats.StatsList[0] = new LabelStat("Glougl (Océan)");
-        _stats.StatsList[1] = new TextStat("Eau potable", 20);
-        _stats.StatsList[2] = new BoolStat(true, "Hard/Soft");
-        _stats.StatsList[3] = new ValueStat(10, 0, 20, "niveau", false);
+        base.GenerateStats();
+        _stats.StatsList[3] = new BoolStat(true, "Hard/Soft");
+        _stats.StatsList[4] = new ValueStat(10, 0, 20, "niveau", false);
+    }
+    protected override void Awake()
+    {
+        base.Awake();
+        _type = "Glougl (Océan)";
+        _name = "Eau potable";
     }
 
     protected override void Start()
@@ -50,7 +54,7 @@ public class WaterObjet : ManageableObjet {
 
     private void SetRadius()
     {
-        float scale = _stats.StatToValue(_stats.StatsList[3]).Value;
+        float scale = _stats.StatToValue(_stats.StatsList[4]).Value;
         transform.localScale = new Vector3(scale, scale, scale);
         SphereCollider s = (SphereCollider)_coll;
         _radius = s.radius * transform.lossyScale.magnitude;

@@ -50,7 +50,7 @@ public class StatManager : MonoBehaviour {
         //GUI.(new Rect(20, 20 + (Screen.height * 2 / 3), 100, 100), _mObjet.Icon);
         for (int a = 0; a < _statsList.Length; a++)
         {
-            Rect r = new Rect(Screen.width/5, 10+(Screen.height * 2/3)+(a * 25), 200, 20);
+            Rect r = new Rect(Screen.width/5, 10+(Screen.height * 1/2)+(a * (Screen.height / 2) / _statsList.Length), Screen.width/3, (Screen.height/2)/_statsList.Length);
             if (_statsList[a] is TextStat)
             {
                 TextStat s = (TextStat)_statsList[a];
