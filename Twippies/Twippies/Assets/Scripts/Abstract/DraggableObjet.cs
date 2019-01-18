@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
-
+using System.Collections.Generic;
+using System.Collections;
 public abstract class DraggableObjet : ManageableObjet {
 
     [SerializeField]
@@ -21,12 +22,14 @@ public abstract class DraggableObjet : ManageableObjet {
         base.Awake();
         
         _r = GetComponent<Rigidbody>();
+        
     }
 
 
     protected override void Start()
     {
         base.Start();
+        transform.localScale = _initSize;
         _r.constraints = RigidbodyConstraints.FreezeRotationZ;
         _dragLayer = LayerMask.GetMask("Positionning");
         _initSize = transform.lossyScale;
@@ -52,6 +55,7 @@ public abstract class DraggableObjet : ManageableObjet {
         {
             _zone = GetZone(false);
         }
+
     }
 
     protected virtual void LateUpdate()
@@ -111,14 +115,9 @@ public abstract class DraggableObjet : ManageableObjet {
         }*/
 
         MakeAttraction();
-        transform.localScale = _currentSize;
     }
 
-    protected override void OnMouseOver()
-    {
-        base.OnMouseOver();
-        _currentSize = _initSize * _sizeMultiplier;
-    }
+    
 
     protected override void OnMouseUp()
     {
@@ -131,7 +130,7 @@ public abstract class DraggableObjet : ManageableObjet {
     {
         //Debug.Log("Setting planete for " +GetType());
         float dist = float.PositiveInfinity;
-        foreach(Planete p in _o.AllObjects<Planete>())
+        foreach(Planete p in _om.AllObjects<Planete>())
         {
             if (Vector2.Distance(transform.position, p.transform.position) < dist)
             {
@@ -157,22 +156,22 @@ public abstract class DraggableObjet : ManageableObjet {
         }
     }
 
-    public Zone GetRandomZoneByDistance(Zone[] zoneList = null, bool checkTaken = false, float distanceMax = float.MaxValue)
+    public Zone GetRandomZoneByDistance(Ressources.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
     {
-        Zone[] zones;
-        if (zoneList != null)
+        _zManager.AssigningZone = true;
+        List<Zone> zones = new List<Zone>();
+        for (int i = 0; i < _zManager.Zones.Length; i++)
         {
-            zones = zoneList;
-        }
-        else
-        {
-            zones = _zManager.Zones;
+            if (_zManager.Zones[i].Ressource.ressourceType == ressource)
+            {
+                zones.Add(_zManager.Zones[i]);
+            }
         }
 
-        for (int i = 0; i < zones.Length; i++)
+        for (int i = 0; i < zones.Count; i++)
         {
             Zone temp = zones[i];
-            int randomIndex = Random.Range(i, zones.Length);
+            int randomIndex = Random.Range(i, zones.Count);
             zones[i] = zones[randomIndex];
             zones[randomIndex] = temp;
         }
@@ -181,19 +180,25 @@ public abstract class DraggableObjet : ManageableObjet {
         foreach (Zone z in zones)
         {
             float dist = (transform.position - z.Center).sqrMagnitude;
-            if (z.Accessible)
+            if ((checkAccessible && z.Accessible) || checkAccessible == false)
             {
                 if (dist < distanceMax)
                 {
-                    return z;
+                    if ((checkTaken && z.Taken == false) || checkTaken == false)
+                    {
+                        _zManager.AssigningZone = false;
+                        return z;
+                    }
                 }
             }
         }
-
+        _zManager.AssigningZone = false;
         return null;
     }
 
-    public virtual Zone GetZone(bool take, Zone[] zoneList = null, bool checkTaken = false, bool shouldAccess = true)
+
+
+    public virtual Zone GetZone(bool take)
     {
         if (_zone != null && take)
             _zone.Accessible = true;
@@ -201,31 +206,7 @@ public abstract class DraggableObjet : ManageableObjet {
         Zone tempZone = null;
         Zone[] zones;
 
-        if (zoneList != null)
-        {
-            zones = zoneList;
-        }
-        else
-        {
-            zones = _zManager.Zones;
-        }
-
-
-        if (checkTaken)
-        {
-            foreach (Zone z in zones)
-            {
-                float dist = (transform.position - z.Center).sqrMagnitude;
-
-                if (!z.Taken)
-                {
-                    z.Taken = true;
-                    return z;
-                }
-            }
-        }
-
-
+        zones = _zManager.Zones;
 
         foreach (Zone z in zones)
         {
@@ -239,8 +220,6 @@ public abstract class DraggableObjet : ManageableObjet {
                 }
             }
         }
-
-        
 
         if (take)
             tempZone.Accessible = false;

@@ -8,7 +8,7 @@ public class Objet : MonoBehaviour {
     protected Sprite _icon;
 
     protected Vector3 _dist, _initSize, _currentSize;
-    protected ObjetManager _o;
+    protected ObjetManager _om;
     protected float _posX, _posY;
     protected int _woodCost, _waterCost, _stoneCost;
     
@@ -16,7 +16,7 @@ public class Objet : MonoBehaviour {
 
     protected virtual void Awake()
     {
-        _o = ObjetManager.Instance;
+        _om = ObjetManager.Instance;
         _cam = Camera.main;
     }
 

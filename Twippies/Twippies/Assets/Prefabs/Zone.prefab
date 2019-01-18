@@ -19,8 +19,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4618220502853798}
-  - component: {fileID: 114338826418669768}
   - component: {fileID: 54262468970182266}
+  - component: {fileID: 114973741472705764}
   m_Layer: 2
   m_Name: Zone
   m_TagString: Untagged
@@ -56,7 +56,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &114338826418669768
+--- !u!114 &114973741472705764
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -67,4 +67,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d8b2fe601e3884d95d2b0bad23e83d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _zoneMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  _id: 0

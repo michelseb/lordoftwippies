@@ -10,13 +10,11 @@ public class Mask : MonoBehaviour {
     private void Start()
     {
         _rectTransform = GetComponent<RectTransform>();
-        _initPos = _rectTransform.position;
     }
 
     private void Update()
     {
         _rectTransform.sizeDelta = _reference.localScale * 8;
-        //_rectTransform.position = (_reference.position+_initPos)/2;
     }
 
 }

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TreeObjet : StaticObjet {
+public class TreeObjet : StaticObjet, IConsumable {
 
-    private Vector3 _size;
+    private float _size;
 
     protected override void Awake()
     {
@@ -17,9 +17,12 @@ public class TreeObjet : StaticObjet {
         base.Start();
         _outline.color = 1;
         _woodCost = 5;
+        _size = _initSize.x * 2;
+        _zone.Ressource.ressourceType = Ressources.RessourceType.Food;
+        _zone.Ressource.consumableObject = this as IConsumable;
     }
 
-    public Vector3 Size
+    public float Size
     {
         get
         {
@@ -29,5 +32,27 @@ public class TreeObjet : StaticObjet {
         {
             _size = value;
         }
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        transform.localScale = _size * Vector3.one;
+    }
+
+    public bool Consuming()
+    {
+        _size -= Time.deltaTime;
+        if (_size > 0)
+            return true;
+        return false;
+    }
+
+    public void Consume()
+    {
+        _zone.Ressource.ressourceType = Ressources.RessourceType.None;
+        _om.allObjects.Remove(this);
+        Destroy(gameObject);
+        
     }
 }

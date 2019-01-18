@@ -136,6 +136,19 @@ public class Controls : MonoBehaviour {
                         }
                     }
                 }
+
+                if (_focusedObject is DraggableObjet) {
+                    DraggableObjet d = (DraggableObjet)_focusedObject;
+                    if (_focusedObject is Twippie == false)
+                    {
+                        if (d.Zone != null)
+                        {
+                            //d.Zone.Ressource.ressourceType = Ressources.RessourceType.None;
+                            //d.Zone.Accessible = true;
+                        }
+                    }
+                }
+
                 if (Input.GetButton("Fire1")) // Clic gauche
                 {
                     if (!_dragCollider.activeSelf)
@@ -245,6 +258,12 @@ public class Controls : MonoBehaviour {
                         {
                             DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
                             draggableObjet.Zone = draggableObjet.GetZone(false);
+                            if (draggableObjet is IConsumable)
+                            {
+                                IConsumable consumable = (IConsumable)draggableObjet;
+                                draggableObjet.Zone.Ressource.ressourceType = Ressources.RessourceType.Food;
+                                draggableObjet.Zone.Ressource.consumableObject = consumable;
+                            }
                         }
                     }
 

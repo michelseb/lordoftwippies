@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ObjetManager : MonoBehaviour {
 
@@ -44,5 +45,11 @@ public class ObjetManager : MonoBehaviour {
         {
             _activePlanet = value;
         }
+    }
+
+    public void OnGUI()
+    {
+        int nbTwippies = AllObjects<Twippie>().Count;
+        GUI.Label(new Rect(Screen.width/2 - 50, 10, 100, 20), "Twippies : "+nbTwippies.ToString());
     }
 }

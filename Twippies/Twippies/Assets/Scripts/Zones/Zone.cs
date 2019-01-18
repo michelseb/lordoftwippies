@@ -1,50 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-/*
-public struct WaterZone
-{
-    private Zone _zone;
-    private bool _taken;
-
-    public WaterZone(Zone zone, bool taken)
-    {
-        _zone = zone;
-        _taken = taken;
-    }
-
-    public Zone Zone
-    {
-        get
-        {
-            return _zone;
-        }
-    }
-
-    public bool Taken
-    {
-        get
-        {
-            return _taken;
-        }
-        set
-        {
-            _taken = value;
-        }
-    }
-
-}*/
-
-
 public class Zone : MonoBehaviour {
 
     [SerializeField]
     private int _id;
     private Material _zoneMaterial;
-    private List<Vector3> _vertices;
-    private Vector3 _centerZone;
-    private GameObject _zoneObject;
-    private List<Zone> _neighbours;
     private float _minHeight, _maxHeight, _meanHeight, _deltaHeight;
     private Color _color;
     private int _centerId;
@@ -53,10 +14,14 @@ public class Zone : MonoBehaviour {
     private MeshRenderer _renderer;
     private ObjetManager _om;
     private ZoneManager _zManager;
+    private Vector3 _centerZone;
+    private List<Vector3> _vertices;
+    private GameObject _zoneObject;
+    private List<Zone> _neighbours;
     private List<PathCost> _pathCosts;
     private bool _accessible;
     private bool _taken;
-    private bool _waterZone;
+    private Ressources _ressources;
 
 
     public enum DisplayMode
@@ -75,11 +40,11 @@ public class Zone : MonoBehaviour {
 
     private void Awake()
     {
-        _color = new Color(Random.value, Random.value, Random.value);
         _vertices = new List<Vector3>();
         _neighbours = new List<Zone>();
         _om = ObjetManager.Instance;
         _pathCosts = new List<PathCost>();
+        _ressources = new Ressources(Ressources.RessourceType.None, null, 0);
     }
 
     private void Update()
@@ -150,7 +115,7 @@ public class Zone : MonoBehaviour {
                     break;
 
                 case DisplayMode.Water:
-                    if (_waterZone)
+                    if (_ressources.ressourceType == Ressources.RessourceType.Drink)
                     {
                         _renderer.material.color = new Color(0, .8f, 1, .6f);
                     }
@@ -161,7 +126,14 @@ public class Zone : MonoBehaviour {
                     break;
 
                 case DisplayMode.Food:
-
+                    if (_ressources.ressourceType == Ressources.RessourceType.Food)
+                    {
+                        _renderer.material.color = new Color(0, 1, 0, .6f);
+                    }
+                    else
+                    {
+                        _renderer.material.color = new Color(0, 0, 0, .3f);
+                    }
                     break;
                
             }
@@ -255,18 +227,6 @@ public class Zone : MonoBehaviour {
         set
         {
             _taken = value;
-        }
-    }
-
-    public bool WaterZone
-    {
-        get
-        {
-            return _waterZone;
-        }
-        set
-        {
-            _waterZone = value;
         }
     }
 
@@ -414,5 +374,17 @@ public class Zone : MonoBehaviour {
             _id = value;
         }
     }
+    public Ressources Ressource
+    {
+        get
+        {
+            return _ressources;
+        }
+        set
+        {
+            _ressources = value;
+        }
+    }
+
 
 }

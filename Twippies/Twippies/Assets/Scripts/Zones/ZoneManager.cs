@@ -11,7 +11,7 @@ public class ZoneManager : MonoBehaviour {
     private Zone _zonePrefab;
     private int _nbVertex;
     private Zone[] _zones;
-    private List<Zone> _drinkZones;
+    private bool _assigningZone;
 
     private void Awake()
     {
@@ -30,7 +30,6 @@ public class ZoneManager : MonoBehaviour {
         }
         Debug.Log("nombre de zones : " + id);
         _zones = tempZones.ToArray();
-        _drinkZones = new List<Zone>();
         SetTriangles();
         GenerateZoneObjects();
         FindNeighbours();
@@ -118,11 +117,15 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
-    public List<Zone> DrinkZones
+    public bool AssigningZone
     {
         get
         {
-            return _drinkZones;
+            return _assigningZone;
+        }
+        set
+        {
+            _assigningZone = value;
         }
     }
 
@@ -216,10 +219,13 @@ public class ZoneManager : MonoBehaviour {
         {
             radius = _planete.Water.Radius;
         }
-        _drinkZones.Clear();
         for (int a = 0; a < _zones.Length; a++)
         {
             Zone zone = _zones[a];
+            if (zone.Ressource.ressourceType == Ressources.RessourceType.Drink)
+            {
+                zone.Ressource.ressourceType = Ressources.RessourceType.None;
+            }
             zone.SetMaxHeight(transform.position);
             zone.SetMinHeight(transform.position);
             zone.MeanHeight = (zone.MaxHeight + zone.MinHeight) / 2;
@@ -227,14 +233,8 @@ public class ZoneManager : MonoBehaviour {
 
             if (zone.MinHeight < (radius / 2) + .7f && zone.MaxHeight > (radius / 2) + .7f)
             {
-                zone.WaterZone = true;
-                _drinkZones.Add(zone);
+                zone.Ressource.ressourceType = Ressources.RessourceType.Drink;
             }
-            else
-            {
-                zone.WaterZone = false;
-            }
-
             if (zone.MeanHeight < (radius / 2) + .7f || zone.DeltaHeight > .5f)
             {
                 zone.Accessible = false;
