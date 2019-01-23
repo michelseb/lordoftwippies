@@ -9,9 +9,10 @@ public class ZoneManager : MonoBehaviour {
     private Vector3[] _vertices;
     [SerializeField]
     private Zone _zonePrefab;
+    [SerializeField]
+    private float _zoneSize;
     private int _nbVertex;
     private Zone[] _zones;
-    private bool _assigningZone;
 
     private void Awake()
     {
@@ -25,7 +26,7 @@ public class ZoneManager : MonoBehaviour {
         int id = 0;
         for (int i = 0; i < 1000; i++)
         {
-            if (FindCenter(.7f, tempZones, id))
+            if (FindCenter(_zoneSize, tempZones, id))
                 id++;
         }
         Debug.Log("nombre de zones : " + id);
@@ -117,17 +118,6 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
-    public bool AssigningZone
-    {
-        get
-        {
-            return _assigningZone;
-        }
-        set
-        {
-            _assigningZone = value;
-        }
-    }
 
     public Planete Planete
     {

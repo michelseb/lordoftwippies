@@ -22,7 +22,7 @@ public class Objet : MonoBehaviour {
 
     protected virtual void Start()
     {
-        _initSize = transform.localScale;
+        _initSize = transform.lossyScale;
         _currentSize = _initSize;
     }
 
@@ -56,6 +56,12 @@ public class Objet : MonoBehaviour {
         {
             return _icon;
         }
+    }
+
+    protected bool CoinFlip(float chance = .5f)
+    {
+        float rand = Random.value;
+        return (rand < chance);
     }
 
 }

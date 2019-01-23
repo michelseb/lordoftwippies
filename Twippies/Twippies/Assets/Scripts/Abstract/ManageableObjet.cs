@@ -182,6 +182,18 @@ public abstract class ManageableObjet : Objet {
         }
     }
 
+    public float Age
+    {
+        get
+        {
+            return _age;
+        }
+        set
+        {
+            _age = value;
+        }
+    }
+
     private void SetFocus()
     {
         
@@ -198,6 +210,17 @@ public abstract class ManageableObjet : Objet {
             value = 0;
         if (value > 100)
             value = 100;
+
+        return value;
+    }
+
+    protected Vector3 UpdateVector(Vector3 value, float factor = 1, float maxSize = 100)
+    {
+        value += Vector3.one * Time.deltaTime * factor;
+        if (value.x < 0)
+            value = Vector3.zero;
+        if (value.x > maxSize)
+            value = Vector3.one * maxSize;
 
         return value;
     }

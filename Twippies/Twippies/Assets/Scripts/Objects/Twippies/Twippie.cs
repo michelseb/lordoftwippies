@@ -54,6 +54,7 @@ public class Twippie : DraggableObjet {
 
     protected GameObject _goalObject;
     protected Arrival _arrival;
+    protected List<Zone> _knownZones;
     [SerializeField]
     protected PathFinder _pathFinder;
     protected State _state, _previousState;
@@ -97,6 +98,8 @@ public class Twippie : DraggableObjet {
         _basicNeed = BasicNeed.None;
         _advancedNeed = AdvancedNeed.None;
         _previousState = State.None;
+        _goalType = GoalType.Wander;
+        _knownZones = new List<Zone>();
         _initSpeed = _speed;
         _outline.color = 3;
         _waterCost = 1;
@@ -152,7 +155,7 @@ public class Twippie : DraggableObjet {
                         transform.rotation = Quaternion.Slerp(transform.rotation, rotation * transform.rotation, Time.deltaTime * 10);
                         Vector3 newPos = _r.position + transform.TransformDirection(new Vector3(0, 0, _speed * Time.deltaTime));
                         _r.MovePosition(newPos); 
-                        if (direction.magnitude < 1)
+                        if (direction.magnitude < .3f)
                         {
                             if (_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go != null)
                                 Destroy(_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go);
@@ -190,8 +193,8 @@ public class Twippie : DraggableObjet {
         {
             _sleepiness = UpdateValue(_sleepiness);
         }
-        _thirst = UpdateValue(_thirst, .2f);
-        _hunger = UpdateValue(_hunger, 3);
+        _thirst = UpdateValue(_thirst, ((100 -_thirst+1)/100));
+        _hunger = UpdateValue(_hunger, ((100 - _hunger+1)/200));
         
         _stats.StatToValue(_stats.StatsList[2]).Value = _age;
         _stats.StatToValue(_stats.StatsList[3]).Value = _hunger;
@@ -206,7 +209,13 @@ public class Twippie : DraggableObjet {
         base.LateUpdate();
 
         if (Time.frameCount % _displayIntervals == 0)
+        {
+            if (!_knownZones.Contains(_zone))
+            {
+                _knownZones.Add(_zone);
+            }
             _zone = GetZone(false);
+        }
     }
 
     private void OnStateChange()
@@ -228,7 +237,7 @@ public class Twippie : DraggableObjet {
                 Debug.Log("On va pouvoir manger !");
                 if (_eat == null)
                 {
-                    _eat = StartCoroutine(Eat(_zone.Ressource.consumableObject));
+                    _eat = StartCoroutine(Eat(_arrival.FinishZone.Ressource.consumableObject)); 
                 }
                 break;
             case State.Contemplating:
@@ -269,7 +278,6 @@ public class Twippie : DraggableObjet {
                             ChangeState(State.Sleeping);
                         }
                     }
-                    Debug.Log(hit.collider.gameObject.name);
                     yield return new WaitForSeconds(2);
                 }
                 else
@@ -345,7 +353,6 @@ public class Twippie : DraggableObjet {
     private void SetDestination(GoalType goal)
     {
         _goalObject.transform.parent = null;
-        _goalType = goal;
         Zone zone = null;
         switch (goal)
         {
@@ -354,35 +361,70 @@ public class Twippie : DraggableObjet {
                 if (zone != null)
                 {
                     _goalObject.transform.position = zone.Center;
-                }else
+                    _goalType = goal; 
+                }
+                else
                 {
                     _goalObject.transform.position = transform.position;
                 }
                 break;
             case GoalType.Drink:
-                zone = StartCoroutine(WaitForZoneAssignment(Ressources.RessourceType.Drink));
-                break;
+                zone = GetRandomZoneByDistance(ressource: Ressources.RessourceType.Drink, checkTaken: true, distanceMax: _endurance);
+                if (zone != null)
+                {
+                    zone.Accessible = true;
+                    zone.Taken = true;
+                    _goalObject.transform.position = zone.Center;
+                    _goalType = goal;
+                }
+                else
+                {
+                    zone = GetZoneByRessourceInList(_knownZones, ressource: Ressources.RessourceType.Drink, checkTaken: true);
+                    if (zone != null)
+                    {
+                        zone.Accessible = true;
+                        zone.Taken = true;
+                        _goalObject.transform.position = zone.Center;
+                        _goalType = goal;
+                    }
+                    else
+                    {
+                        SetDestination(GoalType.Wander); // Or create conflict !!
+                    }
+                }
+            break;
             case GoalType.Eat:
                 zone = GetRandomZoneByDistance(ressource: Ressources.RessourceType.Food, checkTaken: true, distanceMax: _endurance);
                 if (zone != null)
                 {
-                    Debug.Log("Food zone found");
                     zone.Accessible = true;
                     zone.Taken = true;
                     _goalObject.transform.position = zone.Center;
+                    _goalType = goal;
+
                 }
                 else
                 {
-                    Debug.Log("Food zone not found :(");
-                    SetDestination(GoalType.Wander); // Or create conflict !!
+                    zone = GetZoneByRessourceInList(_knownZones, ressource: Ressources.RessourceType.Food, checkTaken: true);
+                    if (zone != null)
+                    {
+                        zone.Accessible = true;
+                        zone.Taken = true;
+                        _goalObject.transform.position = zone.Center;
+                        _goalType = goal;
+                    }
+                    else
+                    {
+                        SetDestination(GoalType.Wander); // Or create conflict !!
+                    }
                 }
                 break;
         }
 
-        
         _goalObject.transform.parent = P.transform;
         _arrival.SetArrival();
         _pathFinder.FindPath();
+        _state = State.Walking;
 
     }
 
@@ -427,7 +469,7 @@ public class Twippie : DraggableObjet {
     {
         while (_thirst > 0)
         {
-            _thirst -= 1;
+            _thirst -= Time.deltaTime;
             yield return null;
         }
         _thirst = 0;
@@ -437,13 +479,13 @@ public class Twippie : DraggableObjet {
 
     private IEnumerator Eat(IConsumable consumable)
     {
-        Debug.Log("A taaable");
-        while (consumable.Consuming())
+        Debug.Log(_zone.Ressource.ressourceType + " " +_zone.Ressource.consumableObject);
+        while (consumable.Consuming(_hunger))
         {
+            _hunger -= Time.deltaTime;
             yield return null;
         }
         consumable.Consume();
-        _hunger -= 50;
         SetDestination(DefineGoal());
         _eat = null;
         
@@ -456,27 +498,5 @@ public class Twippie : DraggableObjet {
         _r.AddForce((transform.position - _p.transform.position).normalized, ForceMode.Impulse);
         _om.allObjects.Remove(this);
         Destroy(this);
-    }
-
-    private IEnumerator WaitForZoneAssignment(Ressources.RessourceType r)
-    {
-        Zone zone;
-        while (_zManager.AssigningZone)
-        {
-            yield return null;
-        }
-
-        zone = GetRandomZoneByDistance(ressource: r, checkTaken: true, distanceMax: _endurance);
-        if (zone != null)
-        {
-            zone.Accessible = true;
-            zone.Taken = true;
-            _goalObject.transform.position = zone.Center;
-        }
-        else
-        {
-            SetDestination(GoalType.Wander); // Or create conflict !!
-        }
-        yield return zone;
     }
 }

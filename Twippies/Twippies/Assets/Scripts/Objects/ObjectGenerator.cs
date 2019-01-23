@@ -33,6 +33,15 @@ public class ObjectGenerator : MonoBehaviour {
             _zm = _om.ActivePlanet.ZManager;
             yield return null;
         }
+        List<Zone> z = new List<Zone>();
+        for (int b = 0; b < _zm.Zones.Length; b++)
+        {
+            if (_zm.Zones[b].MaxHeight > 5.8f)
+            {
+                z.Add(_zm.Zones[b]);
+                _zm.Zones[b].Accessible = false;
+            }
+        }
 
         for (int a = 0; a < _nbTrees; a++)
         {
@@ -41,14 +50,23 @@ public class ObjectGenerator : MonoBehaviour {
                 if (_zm.Zones[b].Accessible)
                 {
                     GameObject tree = Instantiate(_tree, _zm.Zones[b].Center, Quaternion.identity, transform);
-                    _om.allObjects.Add(tree.GetComponent<ManageableObjet>());
+                    ManageableObjet mo = tree.GetComponent<ManageableObjet>();
+                    _om.allObjects.Add(mo);
+                    mo.Age = 5;
                     _zm.Zones[b].Accessible = false;
                     break;
                 }
             }
         }
 
-        List<Zone> z = new List<Zone>();
+        foreach (Zone zone in z)
+        {
+            zone.Accessible = true;
+        }
+        z = null;
+
+
+        z = new List<Zone>();
         for (int a = 0; a < _nbTwippies; a++)
         {
             for (int b = 0; b < _zm.Zones.Length; b++)

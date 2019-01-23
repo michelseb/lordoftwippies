@@ -1,6 +1,6 @@
 ﻿public interface IConsumable {
 
-    bool Consuming();
+    bool Consuming(float hunger);
     void Consume();
 
 }
