@@ -21,7 +21,7 @@ public class Zone : MonoBehaviour {
     private List<PathCost> _pathCosts;
     private bool _accessible;
     private bool _taken;
-    private Ressources _ressources;
+    private List<Ressource> _ressources;
 
 
     public enum DisplayMode
@@ -44,7 +44,7 @@ public class Zone : MonoBehaviour {
         _neighbours = new List<Zone>();
         _om = ObjetManager.Instance;
         _pathCosts = new List<PathCost>();
-        _ressources = new Ressources(Ressources.RessourceType.None, null, 0);
+        _ressources = new List<Ressource>();
     }
 
     private void Update()
@@ -115,7 +115,7 @@ public class Zone : MonoBehaviour {
                     break;
 
                 case DisplayMode.Water:
-                    if (_ressources.ressourceType == Ressources.RessourceType.Drink)
+                    if (_ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Drink))
                     {
                         _renderer.material.color = new Color(0, .8f, 1, .6f);
                     }
@@ -126,7 +126,7 @@ public class Zone : MonoBehaviour {
                     break;
 
                 case DisplayMode.Food:
-                    if (_ressources.ressourceType == Ressources.RessourceType.Food)
+                    if (_ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Food))
                     {
                         _renderer.material.color = new Color(0, 1, 0, .6f);
                     }
@@ -138,6 +138,20 @@ public class Zone : MonoBehaviour {
                
             }
         }
+    }
+
+    public bool CheckRessourceInNeighbours(Ressource.RessourceType ressourceType)
+    {
+        if (_ressources.Exists(x => x.ressourceType == ressourceType))
+            return true;
+
+        foreach (Zone neighbour in Neighbours)
+        {
+            if (neighbour._ressources.Exists(x => x.ressourceType == ressourceType))
+                return true;
+        }
+
+        return false;
     }
 
     public void SetMinHeight(Vector3 center)
@@ -374,7 +388,7 @@ public class Zone : MonoBehaviour {
             _id = value;
         }
     }
-    public Ressources Ressource
+    public List<Ressource> Ressources
     {
         get
         {

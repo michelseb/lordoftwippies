@@ -2,23 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Ressources {
+public class Ressource {
 
     public enum RessourceType
     {
         Food,
-        Drink,
-        None
+        Drink
     }
     public RessourceType ressourceType;
     public IConsumable consumableObject;
     public float quantity;
 
-    public Ressources(RessourceType rType, IConsumable cObject, float q)
+    public Ressource(RessourceType rType, IConsumable cObject, float q)
     {
         ressourceType = rType;
         consumableObject = cObject;
         quantity = q;
     }
+    public Ressource(RessourceType rType)
+    {
+        ressourceType = rType;
+        consumableObject = null;
+    }
+
 
 }

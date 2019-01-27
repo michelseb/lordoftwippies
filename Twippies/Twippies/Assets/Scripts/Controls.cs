@@ -257,12 +257,11 @@ public class Controls : MonoBehaviour {
                         if (_focusedObject is DraggableObjet)
                         {
                             DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
-                            draggableObjet.Zone = draggableObjet.GetZone(false);
+                            draggableObjet.Zone = draggableObjet.ZoneManager.GetZone(false, draggableObjet.Zone, draggableObjet.transform);
                             if (draggableObjet is IConsumable)
                             {
                                 IConsumable consumable = (IConsumable)draggableObjet;
-                                draggableObjet.Zone.Ressource.ressourceType = Ressources.RessourceType.Food;
-                                draggableObjet.Zone.Ressource.consumableObject = consumable;
+                                draggableObjet.Zone.Ressources.Add(new Ressource(Ressource.RessourceType.Food, draggableObjet.GetComponent<IConsumable>(), 0));
                             }
                         }
                     }
@@ -291,7 +290,7 @@ public class Controls : MonoBehaviour {
                         if (_focusedObject is DraggableObjet && (_focusedObject is AerialObjet) == false &&(_focusedObject is Twippie) == false)
                         {
                             DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
-                            draggableObjet.Zone = draggableObjet.GetZone(true);
+                            draggableObjet.Zone = draggableObjet.ZoneManager.GetZone(true, draggableObjet.Zone, draggableObjet.transform);
                         }
                     }
 

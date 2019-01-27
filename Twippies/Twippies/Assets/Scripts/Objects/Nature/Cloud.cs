@@ -41,6 +41,16 @@ public class Cloud : AerialObjet {
         {
             _ps.Play();
         }
+
+        if (_raining)
+        {
+            Ressource water = _zone.Ressources.Find(x => x.ressourceType == Ressource.RessourceType.Drink);
+            if (water != null)
+            {
+                _zone.Ressources.Add(water);
+            }
+
+        }
     }
 
 }

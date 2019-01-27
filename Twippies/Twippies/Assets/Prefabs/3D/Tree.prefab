@@ -162,6 +162,9 @@ MonoBehaviour:
   _stats: {fileID: 114676468888186190}
   _p: {fileID: 0}
   _childTree: {fileID: 1872517987282830}
+  _mask:
+    serializedVersion: 2
+    m_Bits: 2305
 --- !u!114 &114676468888186190
 MonoBehaviour:
   m_ObjectHideFlags: 1

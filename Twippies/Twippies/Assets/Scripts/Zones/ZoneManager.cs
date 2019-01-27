@@ -193,6 +193,150 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
+    public Zone GetZoneByRessourceInList(List<Zone> list, Ressource.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false)
+    {
+        List<Zone> zones = new List<Zone>();
+        Zone zone = null;
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i].Ressources.Exists(x => x.ressourceType == ressource))
+            {
+                zones.Add(list[i]);
+            }
+        }
+
+        for (int i = 0; i < zones.Count; i++)
+        {
+            Zone temp = zones[i];
+            int randomIndex = Random.Range(i, zones.Count);
+            zones[i] = zones[randomIndex];
+            zones[randomIndex] = temp;
+        }
+
+        float dist = float.MaxValue;
+        foreach (Zone z in zones)
+        {
+            float distToZone = (transform.position - z.Center).sqrMagnitude;
+            if ((checkAccessible && z.Accessible) || checkAccessible == false)
+            {
+                if (distToZone < dist)
+                {
+                    if ((checkTaken && z.Taken == false) || checkTaken == false)
+                    {
+                        dist = distToZone;
+                        zone = z;
+                    }
+                }
+            }
+        }
+        return zone;
+    }
+
+    public Zone GetRandomZoneByDistance(bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
+    {
+        Zone[] zones = _zones;
+
+        for (int i = 0; i < zones.Length; i++)
+        {
+            Zone temp = zones[i];
+            int randomIndex = Random.Range(i, zones.Length);
+            zones[i] = zones[randomIndex];
+            zones[randomIndex] = temp;
+        }
+
+
+        foreach (Zone z in zones)
+        {
+            float dist = (transform.position - z.Center).sqrMagnitude;
+            if ((checkAccessible && z.Accessible) || checkAccessible == false)
+            {
+                if (dist < distanceMax)
+                {
+                    if ((checkTaken && z.Taken == false) || checkTaken == false)
+                    {
+                        return z;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
+
+    public Zone GetRessourceZoneByDistance(Ressource.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
+    {
+        List<Zone> zones = new List<Zone>();
+        for (int i = 0; i < _zones.Length; i++)
+        {
+            if (_zones[i].Ressources.Exists(x => x.ressourceType == ressource))
+            {
+                zones.Add(_zones[i]);
+            }
+        }
+
+        for (int i = 0; i < zones.Count; i++)
+        {
+            Zone temp = zones[i];
+            int randomIndex = Random.Range(i, zones.Count);
+            zones[i] = zones[randomIndex];
+            zones[randomIndex] = temp;
+        }
+
+
+        foreach (Zone z in zones)
+        {
+            float dist = (transform.position - z.Center).sqrMagnitude;
+            if ((checkAccessible && z.Accessible) || checkAccessible == false)
+            {
+                if (dist < distanceMax)
+                {
+                    if ((checkTaken && z.Taken == false) || checkTaken == false)
+                    {
+                        return z;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
+
+    public virtual Zone GetZone(bool take, Zone current, Transform t)
+    {
+        if (current != null && take)
+            current.Accessible = true;
+        float distMin = Mathf.Infinity;
+        Zone tempZone = null;
+        Zone[] zones;
+
+        zones = _zones;
+
+        foreach (Zone z in zones)
+        {
+            float dist = (t.position - z.Center).sqrMagnitude;
+            if (z.Accessible)
+            {
+                if (dist < distMin)
+                {
+                    distMin = dist;
+                    tempZone = z;
+                }
+            }
+        }
+
+        if (take)
+            tempZone.Accessible = false;
+        return tempZone;
+    }
+
+
+
+
+
+
+
     public void GetZoneInfo()
     {
         float radius = 0;
@@ -212,9 +356,10 @@ public class ZoneManager : MonoBehaviour {
         for (int a = 0; a < _zones.Length; a++)
         {
             Zone zone = _zones[a];
-            if (zone.Ressource.ressourceType == Ressources.RessourceType.Drink)
+            Ressource water = zone.Ressources.Find(x => x.ressourceType == Ressource.RessourceType.Drink);
+            if (water != null)
             {
-                zone.Ressource.ressourceType = Ressources.RessourceType.None;
+                zone.Ressources.Remove(water);
             }
             zone.SetMaxHeight(transform.position);
             zone.SetMinHeight(transform.position);
@@ -223,7 +368,7 @@ public class ZoneManager : MonoBehaviour {
 
             if (zone.MinHeight < (radius / 2) + .7f && zone.MaxHeight > (radius / 2) + .7f)
             {
-                zone.Ressource.ressourceType = Ressources.RessourceType.Drink;
+                zone.Ressources.Add(new Ressource(Ressource.RessourceType.Drink));
             }
             if (zone.MeanHeight < (radius / 2) + .7f || zone.DeltaHeight > .5f)
             {

@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TreeObjet : StaticObjet, IConsumable {
+public class TreeObjet : StaticObjet, IConsumable, ILightnable {
 
     private bool _spread;
     [SerializeField]
     private GameObject _childTree;
-
+    protected float _sunAmount;
+    protected float _waterAmount;
+    [SerializeField]
+    private LayerMask _mask;
     protected override void Awake()
     {
         base.Awake();
@@ -19,19 +22,33 @@ public class TreeObjet : StaticObjet, IConsumable {
         base.Start();
         _outline.color = 1;
         _woodCost = 5;
-        _zone.Ressource.ressourceType = Ressources.RessourceType.Food;
-        _zone.Ressource.consumableObject = this as IConsumable;
+        _zone.Ressources.Add(new Ressource(Ressource.RessourceType.Food, this as IConsumable, 0));
     }
 
     protected override void Update()
     {
         base.Update();
         transform.localScale = _currentSize;
-        if (_age > 0.1f && !_spread)
+        if (_age > 1f && _currentSize.x > 2 && !_spread)
         {
             Spread();
         }
-        _currentSize = UpdateVector(_currentSize, (100-_age)/100 * .2f, 10);
+
+        if (GetLight())
+        {
+            _sunAmount = UpdateValue(_sunAmount, 2f);
+        }
+        if (_zManager.GetZoneByRessourceInList(_zone.Neighbours, Ressource.RessourceType.Drink) != null)
+        {
+            _waterAmount = UpdateValue(_waterAmount);
+        }
+        if (_waterAmount > 0 && _sunAmount > 0)
+        {
+            Grow();
+        }
+        
+        _stats.StatToValue(_stats.StatsList[3]).Value = _waterAmount;
+        _stats.StatToValue(_stats.StatsList[4]).Value = _sunAmount;
     }
 
     public bool Consuming(float hunger)
@@ -46,7 +63,11 @@ public class TreeObjet : StaticObjet, IConsumable {
     {
         if (_currentSize.x <= 0)
         {
-            _zone.Ressource.ressourceType = Ressources.RessourceType.None;
+            Ressource food = _zone.Ressources.Find(x => x.ressourceType == Ressource.RessourceType.Food);
+            if (food != null)
+            {
+                _zone.Ressources.Remove(food);
+            }
             Debug.Log("Arbre mangé");
             _om.allObjects.Remove(this);
             Destroy(gameObject);
@@ -57,16 +78,43 @@ public class TreeObjet : StaticObjet, IConsumable {
     {
         foreach(Zone zone in _zone.Neighbours)
         {
-            if (zone.Accessible && zone.Ressource.ressourceType == Ressources.RessourceType.None && CoinFlip() && zone.MaxHeight < 5.8f)
+            if (zone.Accessible && CoinFlip() && zone.MaxHeight < 5.8f)
             {
-                zone.Ressource.ressourceType = Ressources.RessourceType.Food;
                 var tree = Instantiate(_childTree, zone.Center, Quaternion.identity);
+                zone.Ressources.Add(new Ressource(Ressource.RessourceType.Food, tree.GetComponent<IConsumable>(), 0));
                 tree.transform.localScale = Vector3.zero;
-                zone.Ressource.consumableObject = tree.GetComponent<IConsumable>();
                 _om.allObjects.Add(tree.GetComponent<ManageableObjet>());
             }
             
         }
         _spread = true;
+    }
+
+    public void Grow()
+    {
+        _sunAmount = UpdateValue(_sunAmount, -1);
+        _waterAmount = UpdateValue(_waterAmount, -1);
+        _currentSize = UpdateVector(_currentSize, (100 - _age) / 100 * .2f, 10);
+    }
+
+    protected override void GenerateStats()
+    {
+        base.GenerateStats();
+
+        _stats.StatsList[3] = new ValueStat(0, 0, 100, "Water Amount", true);
+        _stats.StatsList[4] = new ValueStat(30, 0, 100, "Sun Amount", true);
+    }
+
+    public bool GetLight()
+    {
+        RaycastHit hit;
+        if (_planetSun != null)
+        {
+            if (Physics.Linecast(_planetSun.transform.position, transform.position + transform.up / 2, out hit, _mask))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -103,6 +103,7 @@
     <Compile Include="Assets\Scripts\IA\Feeling.cs" />
     <Compile Include="Assets\Scripts\IA\PathFinder.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IConsumable.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\ILightnable.cs" />
     <Compile Include="Assets\Scripts\KdTree.cs" />
     <Compile Include="Assets\Scripts\Objects\Nature\Cloud.cs" />
     <Compile Include="Assets\Scripts\Objects\Nature\Planete.cs" />

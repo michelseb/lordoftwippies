@@ -43,16 +43,16 @@ public abstract class DraggableObjet : ManageableObjet {
         {
             if ((this is Twippie) == false)
             {
-                _zone = GetZone(true);
+                _zone = _zManager.GetZone(true, _zone, transform);
             }
             else
             {
-                _zone = GetZone(false);
+                _zone = _zManager.GetZone(false, _zone, transform);
             }
         }
         else
         {
-            _zone = GetZone(false);
+            _zone = _zManager.GetZone(false, _zone, transform);
         }
 
     }
@@ -155,112 +155,7 @@ public abstract class DraggableObjet : ManageableObjet {
         }
     }
 
-    public Zone GetZoneByRessourceInList(List<Zone> list, Ressources.RessourceType ressource = Ressources.RessourceType.None, bool checkTaken = false, bool checkAccessible = false)
-    {
-        List<Zone> zones = new List<Zone>();
-        Zone zone = null;
-        for (int i = 0; i < list.Count; i++)
-        {
-            if (list[i].Ressource.ressourceType == ressource)
-            {
-                zones.Add(list[i]);
-            }
-        }
-
-        for (int i = 0; i < zones.Count; i++)
-        {
-            Zone temp = zones[i];
-            int randomIndex = Random.Range(i, zones.Count);
-            zones[i] = zones[randomIndex];
-            zones[randomIndex] = temp;
-        }
-
-        float dist = float.MaxValue;
-        foreach (Zone z in zones)
-        {
-            float distToZone = (transform.position - z.Center).sqrMagnitude;
-            if ((checkAccessible && z.Accessible) || checkAccessible == false)
-            {
-                if (distToZone < dist)
-                {
-                    if ((checkTaken && z.Taken == false) || checkTaken == false)
-                    {
-                        dist = distToZone;
-                        zone = z;
-                    }
-                }
-            }
-        }
-        return zone;
-    }
-
-    public Zone GetRandomZoneByDistance(Ressources.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
-    {
-        List<Zone> zones = new List<Zone>();
-        for (int i = 0; i < _zManager.Zones.Length; i++)
-        {
-            if (_zManager.Zones[i].Ressource.ressourceType == ressource)
-            {
-                zones.Add(_zManager.Zones[i]);
-            }
-        }
-
-        for (int i = 0; i < zones.Count; i++)
-        {
-            Zone temp = zones[i];
-            int randomIndex = Random.Range(i, zones.Count);
-            zones[i] = zones[randomIndex];
-            zones[randomIndex] = temp;
-        }
-
-
-        foreach (Zone z in zones)
-        {
-            float dist = (transform.position - z.Center).sqrMagnitude;
-            if ((checkAccessible && z.Accessible) || checkAccessible == false)
-            {
-                if (dist < distanceMax)
-                {
-                    if ((checkTaken && z.Taken == false) || checkTaken == false)
-                    {
-                        return z;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-
-
-    public virtual Zone GetZone(bool take)
-    {
-        if (_zone != null && take)
-            _zone.Accessible = true;
-        float distMin = Mathf.Infinity;
-        Zone tempZone = null;
-        Zone[] zones;
-
-        zones = _zManager.Zones;
-
-        foreach (Zone z in zones)
-        {
-            float dist = (transform.position - z.Center).sqrMagnitude;
-            if (z.Accessible)
-            {
-                if (dist < distMin)
-                {
-                    distMin = dist;
-                    tempZone = z;
-                }
-            }
-        }
-
-        if (take)
-            tempZone.Accessible = false;
-
-        return tempZone;
-    }
+   
 
     public Planete P
     {
@@ -284,6 +179,13 @@ public abstract class DraggableObjet : ManageableObjet {
         set
         {
             _zone = value;
+        }
+    }
+    public ZoneManager ZoneManager
+    {
+        get
+        {
+            return _zManager;
         }
     }
 

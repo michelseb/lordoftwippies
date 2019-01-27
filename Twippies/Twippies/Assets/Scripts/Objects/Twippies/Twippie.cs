@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 
-public class Twippie : DraggableObjet {
+public class Twippie : DraggableObjet, ILightnable {
 
     protected enum State
     {
@@ -214,7 +214,7 @@ public class Twippie : DraggableObjet {
             {
                 _knownZones.Add(_zone);
             }
-            _zone = GetZone(false);
+            _zone = _zManager.GetZone(false, _zone, transform);
         }
     }
 
@@ -237,7 +237,7 @@ public class Twippie : DraggableObjet {
                 Debug.Log("On va pouvoir manger !");
                 if (_eat == null)
                 {
-                    _eat = StartCoroutine(Eat(_arrival.FinishZone.Ressource.consumableObject)); 
+                    _eat = StartCoroutine(Eat(_arrival.FinishZone.Ressources.Find(x=>x.ressourceType == Ressource.RessourceType.Food).consumableObject)); 
                 }
                 break;
             case State.Contemplating:
@@ -266,32 +266,28 @@ public class Twippie : DraggableObjet {
     {
         while (true)
         {
-            RaycastHit hit;
-            if (_planetSun != null)
-            {
-                if (Physics.Linecast(_planetSun.transform.position, transform.position + transform.up/2, out hit, _mask))
-                {
-                    if (_state != State.Sleeping)
-                    {
-                        if (_basicNeed == BasicNeed.Sleep)
-                        {
-                            ChangeState(State.Sleeping);
-                        }
-                    }
-                    yield return new WaitForSeconds(2);
-                }
-                else
-                {
-                    
-                    if (_state == State.Sleeping)
-                    {
-                        ChangeState(_previousState);
-                    }
+            if (GetLight())
+            { 
 
-                    yield return new WaitForSeconds(2);
+                if (_state != State.Sleeping)
+                {
+                    if (_basicNeed == BasicNeed.Sleep)
+                    {
+                        ChangeState(State.Sleeping);
+                    }
                 }
+                yield return new WaitForSeconds(2);
             }
-            
+            else
+            {
+                    
+                if (_state == State.Sleeping)
+                {
+                    ChangeState(_previousState);
+                }
+
+                yield return new WaitForSeconds(2);
+            }
         }
         
     }
@@ -357,11 +353,11 @@ public class Twippie : DraggableObjet {
         switch (goal)
         {
             case GoalType.Wander:
-                zone = GetRandomZoneByDistance(ressource: Ressources.RessourceType.None, checkAccessible: true, distanceMax: _endurance);
+                zone = _zManager.GetRandomZoneByDistance(checkAccessible: true, distanceMax: _endurance);
                 if (zone != null)
                 {
                     _goalObject.transform.position = zone.Center;
-                    _goalType = goal; 
+                    _goalType = goal;
                 }
                 else
                 {
@@ -369,7 +365,7 @@ public class Twippie : DraggableObjet {
                 }
                 break;
             case GoalType.Drink:
-                zone = GetRandomZoneByDistance(ressource: Ressources.RessourceType.Drink, checkTaken: true, distanceMax: _endurance);
+                zone = _zManager.GetRessourceZoneByDistance(ressource: Ressource.RessourceType.Drink, checkTaken: true, distanceMax: _endurance);
                 if (zone != null)
                 {
                     zone.Accessible = true;
@@ -379,7 +375,7 @@ public class Twippie : DraggableObjet {
                 }
                 else
                 {
-                    zone = GetZoneByRessourceInList(_knownZones, ressource: Ressources.RessourceType.Drink, checkTaken: true);
+                    zone = _zManager.GetZoneByRessourceInList(_knownZones, ressource: Ressource.RessourceType.Drink, checkTaken: true);
                     if (zone != null)
                     {
                         zone.Accessible = true;
@@ -394,7 +390,7 @@ public class Twippie : DraggableObjet {
                 }
             break;
             case GoalType.Eat:
-                zone = GetRandomZoneByDistance(ressource: Ressources.RessourceType.Food, checkTaken: true, distanceMax: _endurance);
+                zone = _zManager.GetRessourceZoneByDistance(ressource: Ressource.RessourceType.Food, checkTaken: true, distanceMax: _endurance);
                 if (zone != null)
                 {
                     zone.Accessible = true;
@@ -405,7 +401,7 @@ public class Twippie : DraggableObjet {
                 }
                 else
                 {
-                    zone = GetZoneByRessourceInList(_knownZones, ressource: Ressources.RessourceType.Food, checkTaken: true);
+                    zone = _zManager.GetZoneByRessourceInList(_knownZones, ressource: Ressource.RessourceType.Food, checkTaken: true);
                     if (zone != null)
                     {
                         zone.Accessible = true;
@@ -479,7 +475,6 @@ public class Twippie : DraggableObjet {
 
     private IEnumerator Eat(IConsumable consumable)
     {
-        Debug.Log(_zone.Ressource.ressourceType + " " +_zone.Ressource.consumableObject);
         while (consumable.Consuming(_hunger))
         {
             _hunger -= Time.deltaTime;
@@ -498,5 +493,18 @@ public class Twippie : DraggableObjet {
         _r.AddForce((transform.position - _p.transform.position).normalized, ForceMode.Impulse);
         _om.allObjects.Remove(this);
         Destroy(this);
+    }
+
+    public bool GetLight()
+    {
+        RaycastHit hit;
+        if (_planetSun != null)
+        {
+            if (Physics.Linecast(_planetSun.transform.position, transform.position + transform.up / 2, out hit, _mask))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }
