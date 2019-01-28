@@ -23,6 +23,22 @@ public class Ressource {
     {
         ressourceType = rType;
         consumableObject = null;
+        quantity = float.MaxValue;
+    }
+    public Ressource(RessourceType rType, float q)
+    {
+        ressourceType = rType;
+        consumableObject = null;
+        quantity = q;
+    }
+
+    public void Consume(Zone z, float amount = 1)
+    {
+        quantity -= amount;
+        if (quantity <= 0)
+        {
+            z.Ressources.Remove(this);
+        }
     }
 
 

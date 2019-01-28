@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class TreeObjet : StaticObjet, IConsumable, ILightnable {
 
@@ -22,7 +23,6 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
         base.Start();
         _outline.color = 1;
         _woodCost = 5;
-        _zone.Ressources.Add(new Ressource(Ressource.RessourceType.Food, this as IConsumable, 0));
     }
 
     protected override void Update()
@@ -31,16 +31,19 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
         transform.localScale = _currentSize;
         if (_age > 1f && _currentSize.x > 2 && !_spread)
         {
+            _zone.Ressources.Add(new Ressource(Ressource.RessourceType.Food, this as IConsumable, 0));
             Spread();
         }
 
         if (GetLight())
         {
-            _sunAmount = UpdateValue(_sunAmount, 2f);
+            _sunAmount = UpdateValue(_sunAmount, 3f);
         }
-        if (_zManager.GetZoneByRessourceInList(_zone.Neighbours, Ressource.RessourceType.Drink) != null)
+        Zone waterZone = _zManager.GetZoneByRessourceInList(_zone.Neighbours, Ressource.RessourceType.Drink);
+        if (waterZone != null)
         {
-            _waterAmount = UpdateValue(_waterAmount);
+            waterZone.Ressources.FirstOrDefault(x=>x.ressourceType == Ressource.RessourceType.Drink).Consume(waterZone);
+            _waterAmount = UpdateValue(_waterAmount, 2f);
         }
         if (_waterAmount > 0 && _sunAmount > 0)
         {
@@ -94,7 +97,7 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
     {
         _sunAmount = UpdateValue(_sunAmount, -1);
         _waterAmount = UpdateValue(_waterAmount, -1);
-        _currentSize = UpdateVector(_currentSize, (100 - _age) / 100 * .2f, 10);
+        _currentSize = UpdateVector(_currentSize, (100 - _age) / 100 * .05f, 10);
     }
 
     protected override void GenerateStats()
