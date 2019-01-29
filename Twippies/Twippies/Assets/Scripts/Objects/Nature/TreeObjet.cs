@@ -38,7 +38,7 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
         {
             _sunAmount = UpdateValue(_sunAmount, 2f);
         }
-        if (_zManager.GetZoneByRessourceInList(_zone.Neighbours, Ressource.RessourceType.Drink) != null)
+        if (_zManager.GetZoneByRessourceInList(transform, _zone.Neighbours, Ressource.RessourceType.Drink) != null)
         {
             _waterAmount = UpdateValue(_waterAmount);
         }

@@ -61,6 +61,8 @@ public class Twippie : DraggableObjet, ILightnable {
     protected BasicNeed _basicNeed;
     protected AdvancedNeed _advancedNeed;
     protected GoalType _goalType;
+    private LineRenderer _lineRenderer;
+
     [SerializeField]
     private LayerMask _mask;
 
@@ -100,6 +102,8 @@ public class Twippie : DraggableObjet, ILightnable {
         _previousState = State.None;
         _goalType = GoalType.Wander;
         _knownZones = new List<Zone>();
+        _lineRenderer = GetComponent<LineRenderer>();
+        //_lineRenderer.enabled = false;
         _initSpeed = _speed;
         _outline.color = 3;
         _waterCost = 1;
@@ -150,6 +154,10 @@ public class Twippie : DraggableObjet, ILightnable {
                 {
                     if (_pathFinder.Steps.Count > 0)
                     {
+                        for (int a = 0; a < _pathFinder.Steps.Count; a++)
+                        {
+                            _lineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center);
+                        }
                         Vector3 direction = _pathFinder.Steps[_pathFinder.Steps.Count-1].Zone.Center - transform.position;
                         Quaternion rotation = Quaternion.FromToRotation(transform.forward, direction);
                         transform.rotation = Quaternion.Slerp(transform.rotation, rotation * transform.rotation, Time.deltaTime * 10);
@@ -160,6 +168,7 @@ public class Twippie : DraggableObjet, ILightnable {
                             if (_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go != null)
                                 Destroy(_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go);
                             _pathFinder.Steps.RemoveAt(_pathFinder.Steps.Count - 1);
+                            _lineRenderer.positionCount--;
                         }
                     }
                     else
@@ -353,7 +362,7 @@ public class Twippie : DraggableObjet, ILightnable {
         switch (goal)
         {
             case GoalType.Wander:
-                zone = _zManager.GetRandomZoneByDistance(checkAccessible: true, distanceMax: _endurance);
+                zone = _zManager.GetRandomZoneByDistance(transform, checkAccessible: true, distanceMax: _endurance);
                 if (zone != null)
                 {
                     _goalObject.transform.position = zone.Center;
@@ -365,7 +374,7 @@ public class Twippie : DraggableObjet, ILightnable {
                 }
                 break;
             case GoalType.Drink:
-                zone = _zManager.GetRessourceZoneByDistance(ressource: Ressource.RessourceType.Drink, checkTaken: true, distanceMax: _endurance);
+                zone = _zManager.GetRessourceZoneByDistance(transform, ressource: Ressource.RessourceType.Drink, checkTaken: true, distanceMax: _endurance);
                 if (zone != null)
                 {
                     zone.Accessible = true;
@@ -375,7 +384,7 @@ public class Twippie : DraggableObjet, ILightnable {
                 }
                 else
                 {
-                    zone = _zManager.GetZoneByRessourceInList(_knownZones, ressource: Ressource.RessourceType.Drink, checkTaken: true);
+                    zone = _zManager.GetZoneByRessourceInList(transform, _knownZones, ressource: Ressource.RessourceType.Drink, checkTaken: true);
                     if (zone != null)
                     {
                         zone.Accessible = true;
@@ -390,7 +399,7 @@ public class Twippie : DraggableObjet, ILightnable {
                 }
             break;
             case GoalType.Eat:
-                zone = _zManager.GetRessourceZoneByDistance(ressource: Ressource.RessourceType.Food, checkTaken: true, distanceMax: _endurance);
+                zone = _zManager.GetRessourceZoneByDistance(transform, ressource: Ressource.RessourceType.Food, checkTaken: true, distanceMax: _endurance);
                 if (zone != null)
                 {
                     zone.Accessible = true;
@@ -401,7 +410,7 @@ public class Twippie : DraggableObjet, ILightnable {
                 }
                 else
                 {
-                    zone = _zManager.GetZoneByRessourceInList(_knownZones, ressource: Ressource.RessourceType.Food, checkTaken: true);
+                    zone = _zManager.GetZoneByRessourceInList(transform, _knownZones, ressource: Ressource.RessourceType.Food, checkTaken: true);
                     if (zone != null)
                     {
                         zone.Accessible = true;
@@ -420,6 +429,7 @@ public class Twippie : DraggableObjet, ILightnable {
         _goalObject.transform.parent = P.transform;
         _arrival.SetArrival();
         _pathFinder.FindPath();
+        _lineRenderer.positionCount = _pathFinder.Steps.Count;
         _state = State.Walking;
 
     }
@@ -506,5 +516,13 @@ public class Twippie : DraggableObjet, ILightnable {
             }
         }
         return true;
+    }
+
+    public LineRenderer LineRenderer
+    {
+        get
+        {
+            return _lineRenderer;
+        }
     }
 }

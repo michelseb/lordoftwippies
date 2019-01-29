@@ -113,6 +113,11 @@ public class Controls : MonoBehaviour {
                 }
                 if ((Input.GetMouseButtonUp(0)|| Input.GetMouseButtonUp(1)) && _focusedObject != null)
                 {
+                    if (_focusedObject is Twippie)
+                    {
+                        Twippie t = (Twippie)_focusedObject;
+                        t.LineRenderer.enabled = true;
+                    }
                     _focusedObject.Stats.enabled = true;
                     _ui.SetPreviewCam(_focusedObject);
                     _ui.InfoGUI = true;
@@ -143,8 +148,7 @@ public class Controls : MonoBehaviour {
                     {
                         if (d.Zone != null)
                         {
-                            //d.Zone.Ressource.ressourceType = Ressources.RessourceType.None;
-                            //d.Zone.Accessible = true;
+                            d.Zone.Accessible = true;
                         }
                     }
                 }
@@ -321,6 +325,11 @@ public class Controls : MonoBehaviour {
                     }
                     if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition)))
                     {
+                        if (_focusedObject is Twippie)
+                        {
+                            Twippie t = (Twippie)_focusedObject;
+                            t.LineRenderer.enabled = false;
+                        }
                         _focusedObject = null;
                         ctrl = ControlMode.Waiting;
                     }

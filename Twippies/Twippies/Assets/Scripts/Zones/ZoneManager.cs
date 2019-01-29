@@ -193,7 +193,7 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
-    public Zone GetZoneByRessourceInList(List<Zone> list, Ressource.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false)
+    public Zone GetZoneByRessourceInList(Transform t, List<Zone> list, Ressource.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false)
     {
         List<Zone> zones = new List<Zone>();
         Zone zone = null;
@@ -216,7 +216,7 @@ public class ZoneManager : MonoBehaviour {
         float dist = float.MaxValue;
         foreach (Zone z in zones)
         {
-            float distToZone = (transform.position - z.Center).sqrMagnitude;
+            float distToZone = (t.position - z.Center).sqrMagnitude;
             if ((checkAccessible && z.Accessible) || checkAccessible == false)
             {
                 if (distToZone < dist)
@@ -232,7 +232,7 @@ public class ZoneManager : MonoBehaviour {
         return zone;
     }
 
-    public Zone GetRandomZoneByDistance(bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
+    public Zone GetRandomZoneByDistance(Transform t, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
     {
         Zone[] zones = _zones;
 
@@ -247,7 +247,7 @@ public class ZoneManager : MonoBehaviour {
 
         foreach (Zone z in zones)
         {
-            float dist = (transform.position - z.Center).sqrMagnitude;
+            float dist = (t.position - z.Center).sqrMagnitude;
             if ((checkAccessible && z.Accessible) || checkAccessible == false)
             {
                 if (dist < distanceMax)
@@ -264,7 +264,7 @@ public class ZoneManager : MonoBehaviour {
 
 
 
-    public Zone GetRessourceZoneByDistance(Ressource.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
+    public Zone GetRessourceZoneByDistance(Transform t, Ressource.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
     {
         List<Zone> zones = new List<Zone>();
         for (int i = 0; i < _zones.Length; i++)
@@ -286,7 +286,7 @@ public class ZoneManager : MonoBehaviour {
 
         foreach (Zone z in zones)
         {
-            float dist = (transform.position - z.Center).sqrMagnitude;
+            float dist = (t.position - z.Center).sqrMagnitude;
             if ((checkAccessible && z.Accessible) || checkAccessible == false)
             {
                 if (dist < distanceMax)
