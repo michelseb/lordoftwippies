@@ -203,7 +203,7 @@ public class Twippie : DraggableObjet, ILightnable {
             _sleepiness = UpdateValue(_sleepiness);
         }
         _thirst = UpdateValue(_thirst, ((100 -_thirst+1)/100));
-        _hunger = UpdateValue(_hunger, ((100 - _hunger+1)/200));
+        _hunger = UpdateValue(_hunger, ((100 - _hunger+1)/50));
         
         _stats.StatToValue(_stats.StatsList[2]).Value = _age;
         _stats.StatToValue(_stats.StatsList[3]).Value = _hunger;
