@@ -154,6 +154,10 @@ public class Twippie : DraggableObjet, ILightnable {
                 {
                     if (_pathFinder.Steps.Count > 0)
                     {
+                        for (int a = 0; a < _pathFinder.Steps.Count; a++)
+                        {
+                            _lineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center + (_pathFinder.Steps[a].Zone.Center - _p.transform.position).normalized);
+                        }
                         _lineRenderer.SetPosition(_pathFinder.Steps.Count, transform.position+transform.up/2);
                         Vector3 direction = _pathFinder.Steps[_pathFinder.Steps.Count-1].Zone.Center - transform.position;
                         Quaternion rotation = Quaternion.FromToRotation(transform.forward, direction);
@@ -166,10 +170,6 @@ public class Twippie : DraggableObjet, ILightnable {
                                 Destroy(_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go);
                             _pathFinder.Steps.RemoveAt(_pathFinder.Steps.Count - 1);
                             _lineRenderer.positionCount--;
-                            for (int a = 0; a < _pathFinder.Steps.Count; a++)
-                            {
-                                _lineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center + transform.up / 2);
-                            }
                         }
                     }
                     else
