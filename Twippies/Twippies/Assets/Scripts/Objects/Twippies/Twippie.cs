@@ -73,6 +73,8 @@ public class Twippie : DraggableObjet, ILightnable {
     [SerializeField]
     private float _thirst;
 
+    [SerializeField]
+    private float _health;
     private float _ageSize;
     private float _endurance;
     [SerializeField]
@@ -108,6 +110,7 @@ public class Twippie : DraggableObjet, ILightnable {
         _outline.color = 3;
         _waterCost = 1;
         _endurance = 25+Random.value;
+        _health = 100;
         _goalObject = new GameObject();
         _arrival = _goalObject.AddComponent<Arrival>();
         _arrival.ZoneManager = _zManager;
@@ -156,13 +159,13 @@ public class Twippie : DraggableObjet, ILightnable {
                     {
                         for (int a = 0; a < _pathFinder.Steps.Count; a++)
                         {
-                            _lineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center + (_pathFinder.Steps[a].Zone.Center - _p.transform.position).normalized);
+                            _lineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center + ((_pathFinder.Steps[a].Zone.Center - _p.transform.position).normalized)/2);
                         }
                         _lineRenderer.SetPosition(_pathFinder.Steps.Count, transform.position+transform.up/2);
                         Vector3 direction = _pathFinder.Steps[_pathFinder.Steps.Count-1].Zone.Center - transform.position;
                         Quaternion rotation = Quaternion.FromToRotation(transform.forward, direction);
-                        transform.rotation = Quaternion.Slerp(transform.rotation, rotation * transform.rotation, Time.deltaTime * 10);
-                        Vector3 newPos = _r.position + transform.TransformDirection(new Vector3(0, 0, _speed * Time.deltaTime));
+                        transform.rotation = Quaternion.Slerp(transform.rotation, rotation * transform.rotation, Mathf.Clamp(Time.deltaTime * _timeReference * 5, .3f, 1));
+                        Vector3 newPos = _r.position + transform.TransformDirection(new Vector3(0, 0, _speed * _timeReference *Time.deltaTime));
                         _r.MovePosition(newPos); 
                         if (direction.magnitude < .3f)
                         {
@@ -272,6 +275,22 @@ public class Twippie : DraggableObjet, ILightnable {
         _speed = _initSpeed;
     }
 
+    private void UpdateHealth()
+    {
+        if (_hunger >= 100 || _thirst >= 100 || _sleepiness >= 100)
+        {
+            _health = UpdateValue(_health, -1);
+        }
+        else if (_hunger < 50 && _thirst < 50 && _sleepiness < 50)
+        {
+            _health = UpdateValue(_health);
+        }
+        if (_health <= 0)
+        {
+            Die();
+        }
+    }
+
     private IEnumerator CheckSleepNeed()
     {
         while (true)
@@ -307,24 +326,18 @@ public class Twippie : DraggableObjet, ILightnable {
         while (true)
         {
 
-            if (_thirst >= 50)
+            if (_thirst >= 50 && _thirst > _hunger - 10 && _thirst > _sleepiness - 20)
             {
-                if (_thirst >= 100)
-                    Die();
                 _renderer.material.color = Color.blue;
                 _basicNeed = BasicNeed.Drink;
             }
-            else if (_hunger >= 50)
+            else if (_hunger >= 50 && _hunger > _sleepiness - 10)
             {
-                if (_hunger >= 100)
-                    Die();
                 _renderer.material.color = Color.green;
                 _basicNeed = BasicNeed.Eat;
             }
             else if (_sleepiness >= 50)
             {
-                if (_sleepiness >= 100)
-                    Die();
                 _renderer.material.color = Color.red;
                 _basicNeed = BasicNeed.Sleep;
             }
@@ -467,7 +480,7 @@ public class Twippie : DraggableObjet, ILightnable {
 
     private IEnumerator Contemplate(float temps)
     {
-        yield return new WaitForSeconds(temps);
+        yield return new WaitForSeconds(temps/_timeReference);
         SetDestination(DefineGoal());
         _contemplation = null;
     }
@@ -476,7 +489,7 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         while (_thirst > 0)
         {
-            _thirst -= Time.deltaTime;
+            _thirst -= Time.deltaTime*_timeReference;
             yield return null;
         }
         _thirst = 0;
@@ -488,7 +501,7 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         while (consumable.Consuming(_hunger))
         {
-            _hunger -= Time.deltaTime;
+            _hunger -= Time.deltaTime*_timeReference;
             yield return null;
         }
         consumable.Consume();

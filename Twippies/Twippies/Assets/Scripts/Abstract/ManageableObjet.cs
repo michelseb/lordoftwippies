@@ -205,7 +205,7 @@ public abstract class ManageableObjet : Objet {
 
     protected float UpdateValue(float value, float factor = 1)
     {
-        value += Time.deltaTime * factor;
+        value += Time.deltaTime * factor * _timeReference;
         if (value < 0)
             value = 0;
         if (value > 100)
@@ -216,7 +216,7 @@ public abstract class ManageableObjet : Objet {
 
     protected Vector3 UpdateVector(Vector3 value, float factor = 1, float maxSize = 100)
     {
-        value += Vector3.one * Time.deltaTime * factor;
+        value += Vector3.one * Time.deltaTime * factor * _timeReference;
         if (value.x < 0)
             value = Vector3.zero;
         if (value.x > maxSize)
