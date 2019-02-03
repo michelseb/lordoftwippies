@@ -105,7 +105,7 @@ public class Twippie : DraggableObjet, ILightnable {
         _goalType = GoalType.Wander;
         _knownZones = new List<Zone>();
         _lineRenderer = GetComponent<LineRenderer>();
-        //_lineRenderer.enabled = false;
+        _lineRenderer.enabled = false;
         _initSpeed = _speed;
         _outline.color = 3;
         _waterCost = 1;
@@ -125,7 +125,7 @@ public class Twippie : DraggableObjet, ILightnable {
     protected override void Update()
     {
         base.Update();
-
+        UpdateHealth();
         _ageSize = _age / 40;
         if (!_mouseOver)
         {
@@ -295,7 +295,7 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         while (true)
         {
-            if (GetLight())
+            if (!GetLight())
             { 
 
                 if (_state != State.Sleeping)
@@ -325,8 +325,21 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         while (true)
         {
-
-            if (_thirst >= 50 && _thirst > _hunger - 10 && _thirst > _sleepiness - 20)
+            if (_thirst > 90)
+            {
+                _renderer.material.color = Color.blue;
+                _basicNeed = BasicNeed.Drink;
+            }else if (_hunger > 90)
+            {
+                _renderer.material.color = Color.green;
+                _basicNeed = BasicNeed.Eat;
+            }
+            else if (_sleepiness > 90)
+            {
+                _renderer.material.color = Color.red;
+                _basicNeed = BasicNeed.Sleep;
+            }
+            else if (_thirst >= 50 && _thirst > _hunger - 10 && _thirst > _sleepiness - 20)
             {
                 _renderer.material.color = Color.blue;
                 _basicNeed = BasicNeed.Drink;
@@ -487,12 +500,13 @@ public class Twippie : DraggableObjet, ILightnable {
 
     private IEnumerator Drink()
     {
-        while (_thirst > 0)
+        while (_thirst > 5)
         {
-            _thirst -= Time.deltaTime*_timeReference;
+            _thirst = UpdateValue(_thirst, -3);
             yield return null;
         }
         _thirst = 0;
+        _zone.Taken = false;
         SetDestination(DefineGoal());
         _drink = null;
     }
@@ -501,7 +515,7 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         while (consumable.Consuming(_hunger))
         {
-            _hunger -= Time.deltaTime*_timeReference;
+            _hunger = UpdateValue(_hunger, -10);
             yield return null;
         }
         consumable.Consume();
@@ -537,6 +551,18 @@ public class Twippie : DraggableObjet, ILightnable {
         get
         {
             return _lineRenderer;
+        }
+    }
+
+    public float Health
+    {
+        get
+        {
+            return _health;
+        }
+        set
+        {
+            _health = value;
         }
     }
 }

@@ -64,6 +64,7 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
 
     public void Consume()
     {
+        _zone.Taken = false;
         if (_currentSize.x <= 0)
         {
             Ressource food = _zone.Ressources.Find(x => x.ressourceType == Ressource.RessourceType.Food);

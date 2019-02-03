@@ -115,6 +115,7 @@
     <Compile Include="Assets\Scripts\Objects\Twippies\Twippie.cs" />
     <Compile Include="Assets\Scripts\ObjetManager.cs" />
     <Compile Include="Assets\Scripts\Triangulator.cs" />
+    <Compile Include="Assets\Scripts\UI\3D\HealthBar.cs" />
     <Compile Include="Assets\Scripts\UI\Resources\Mask.cs" />
     <Compile Include="Assets\Scripts\UI\Resources\UIObject.cs" />
     <Compile Include="Assets\Scripts\UI\Resources\UIResources.cs" />

@@ -80,7 +80,7 @@ public class ObjectGenerator : MonoBehaviour {
                     break;
                 }
             }
-
+            yield return new WaitForSeconds(1);
         }
         foreach (Zone zone in z)
         {
