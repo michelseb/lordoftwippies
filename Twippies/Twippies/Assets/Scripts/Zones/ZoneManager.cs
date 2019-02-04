@@ -370,7 +370,7 @@ public class ZoneManager : MonoBehaviour {
             {
                 zone.Ressources.Add(new Ressource(Ressource.RessourceType.Drink));
             }
-            if (zone.MeanHeight < (radius / 2) + .7f || zone.DeltaHeight > .5f)
+            if (zone.MeanHeight < (radius / 2) + .7f || zone.DeltaHeight > .3f)
             {
                 zone.Accessible = false;
             }

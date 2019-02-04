@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.Linq;
 
 
 public class Twippie : DraggableObjet, ILightnable {
@@ -109,7 +109,7 @@ public class Twippie : DraggableObjet, ILightnable {
         _initSpeed = _speed;
         _outline.color = 3;
         _waterCost = 1;
-        _endurance = 25+Random.value;
+        _endurance = 5;// +Random.value * 10;
         _health = 100;
         _goalObject = new GameObject();
         _arrival = _goalObject.AddComponent<Arrival>();
@@ -136,6 +136,12 @@ public class Twippie : DraggableObjet, ILightnable {
             _currentSize = _initSize * _sizeMultiplier + Vector3.one * _ageSize;
         }
 
+        for (int a = 0; a < _pathFinder.Steps.Count; a++)
+        {
+            _lineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center + ((_pathFinder.Steps[a].Zone.Center - _p.transform.position).normalized) / 2);
+        }
+        _lineRenderer.SetPosition(_pathFinder.Steps.Count, transform.position + transform.up / 2);
+
 
         if (_state != State.Walking && _state != State.Sleeping)
         {
@@ -148,20 +154,17 @@ public class Twippie : DraggableObjet, ILightnable {
         switch (_state)
         {
             case State.Sleeping:
+                _r.velocity = Vector3.zero;
+                _r.angularVelocity = Vector3.zero;
                 _sleepiness = UpdateValue(_sleepiness, -3);
                 break;
-
 
             case State.Walking:
                 if (_pathFinder.Steps != null)
                 {
                     if (_pathFinder.Steps.Count > 0)
                     {
-                        for (int a = 0; a < _pathFinder.Steps.Count; a++)
-                        {
-                            _lineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center + ((_pathFinder.Steps[a].Zone.Center - _p.transform.position).normalized)/2);
-                        }
-                        _lineRenderer.SetPosition(_pathFinder.Steps.Count, transform.position+transform.up/2);
+                        
                         Vector3 direction = _pathFinder.Steps[_pathFinder.Steps.Count-1].Zone.Center - transform.position;
                         Quaternion rotation = Quaternion.FromToRotation(transform.forward, direction);
                         transform.rotation = Quaternion.Slerp(transform.rotation, rotation * transform.rotation, Mathf.Clamp(Time.deltaTime * _timeReference * 5, .3f, 1));
@@ -247,7 +250,6 @@ public class Twippie : DraggableObjet, ILightnable {
                 }
                 break;
             case State.Eating:
-                Debug.Log("On va pouvoir manger !");
                 if (_eat == null)
                 {
                     _eat = StartCoroutine(Eat(_arrival.FinishZone.Ressources.Find(x=>x.ressourceType == Ressource.RessourceType.Food).consumableObject)); 
@@ -295,7 +297,7 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         while (true)
         {
-            if (!GetLight())
+            if (!GetLight() && _sleepiness > 30)
             { 
 
                 if (_state != State.Sleeping)
@@ -404,6 +406,7 @@ public class Twippie : DraggableObjet, ILightnable {
                 zone = _zManager.GetRessourceZoneByDistance(transform, ressource: Ressource.RessourceType.Drink, checkTaken: true, distanceMax: _endurance);
                 if (zone != null)
                 {
+                    Debug.Log("Drink at close zone");
                     zone.Accessible = true;
                     zone.Taken = true;
                     _goalObject.transform.position = zone.Center;
@@ -414,6 +417,7 @@ public class Twippie : DraggableObjet, ILightnable {
                     zone = _zManager.GetZoneByRessourceInList(transform, _knownZones, ressource: Ressource.RessourceType.Drink, checkTaken: true);
                     if (zone != null)
                     {
+                        Debug.Log("Drink at known zone");
                         zone.Accessible = true;
                         zone.Taken = true;
                         _goalObject.transform.position = zone.Center;
@@ -421,6 +425,7 @@ public class Twippie : DraggableObjet, ILightnable {
                     }
                     else
                     {
+                        Debug.Log("Can't drink");
                         SetDestination(GoalType.Wander); // Or create conflict !!
                     }
                 }
@@ -429,6 +434,8 @@ public class Twippie : DraggableObjet, ILightnable {
                 zone = _zManager.GetRessourceZoneByDistance(transform, ressource: Ressource.RessourceType.Food, checkTaken: true, distanceMax: _endurance);
                 if (zone != null)
                 {
+                    Debug.Log("Eat at close zone");
+                    zone.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Food).consumableObject.Reserve();
                     zone.Accessible = true;
                     zone.Taken = true;
                     _goalObject.transform.position = zone.Center;
@@ -440,6 +447,7 @@ public class Twippie : DraggableObjet, ILightnable {
                     zone = _zManager.GetZoneByRessourceInList(transform, _knownZones, ressource: Ressource.RessourceType.Food, checkTaken: true);
                     if (zone != null)
                     {
+                        Debug.Log("Eat at known zone");
                         zone.Accessible = true;
                         zone.Taken = true;
                         _goalObject.transform.position = zone.Center;
@@ -447,6 +455,7 @@ public class Twippie : DraggableObjet, ILightnable {
                     }
                     else
                     {
+                        Debug.Log("Can't eat");
                         SetDestination(GoalType.Wander); // Or create conflict !!
                     }
                 }
@@ -503,6 +512,8 @@ public class Twippie : DraggableObjet, ILightnable {
         while (_thirst > 5)
         {
             _thirst = UpdateValue(_thirst, -3);
+            _r.velocity = Vector3.zero;
+            _r.angularVelocity = Vector3.zero;
             yield return null;
         }
         _thirst = 0;
@@ -515,7 +526,9 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         while (consumable.Consuming(_hunger))
         {
-            _hunger = UpdateValue(_hunger, -10);
+            _hunger = UpdateValue(_hunger, -20);
+            _r.velocity = Vector3.zero;
+            _r.angularVelocity = Vector3.zero;
             yield return null;
         }
         consumable.Consume();

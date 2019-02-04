@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Linq;
 
 public class TreeObjet : StaticObjet, IConsumable, ILightnable {
@@ -40,7 +38,7 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
             _sunAmount = UpdateValue(_sunAmount, 3f);
         }
         Zone waterZone = _zManager.GetZoneByRessourceInList(transform, _zone.Neighbours, Ressource.RessourceType.Drink);
-        if (waterZone != null)
+        if (waterZone != null || _zone.Ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Drink)) // Check currzone + neighbours for water
         {
             waterZone.Ressources.FirstOrDefault(x=>x.ressourceType == Ressource.RessourceType.Drink).Consume(waterZone);
             _waterAmount = UpdateValue(_waterAmount, 2f);
@@ -65,7 +63,7 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
     public void Consume()
     {
         _zone.Taken = false;
-        if (_currentSize.x <= 0)
+        if (_currentSize.x <= .1f)
         {
             Ressource food = _zone.Ressources.Find(x => x.ressourceType == Ressource.RessourceType.Food);
             if (food != null)
@@ -76,6 +74,20 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
             _om.allObjects.Remove(this);
             Destroy(gameObject);
         }
+        else
+        {
+            Liberate();
+        }
+    }
+
+    public void Reserve()
+    {
+        _renderer.material.color = Color.blue;
+    }
+
+    public void Liberate()
+    {
+        _renderer.material.color = Color.white;
     }
 
     public void Spread()
@@ -98,7 +110,7 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
     {
         _sunAmount = UpdateValue(_sunAmount, -1);
         _waterAmount = UpdateValue(_waterAmount, -1);
-        _currentSize = UpdateVector(_currentSize, (100 - _age) / 100 * .05f, 10);
+        _currentSize = UpdateVector(_currentSize, (100 - _age) / 100 * .01f, 10);
     }
 
     protected override void GenerateStats()
