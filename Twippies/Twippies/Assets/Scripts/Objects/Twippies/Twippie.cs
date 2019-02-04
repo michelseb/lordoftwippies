@@ -111,7 +111,8 @@ public class Twippie : DraggableObjet, ILightnable {
         _waterCost = 1;
         _endurance = 5;// +Random.value * 10;
         _health = 100;
-        _goalObject = new GameObject();
+        _goalObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        _goalObject.GetComponent<SphereCollider>().isTrigger = true;
         _arrival = _goalObject.AddComponent<Arrival>();
         _arrival.ZoneManager = _zManager;
         _pathFinder.Destination = _arrival;
@@ -391,7 +392,7 @@ public class Twippie : DraggableObjet, ILightnable {
         switch (goal)
         {
             case GoalType.Wander:
-                zone = _zManager.GetRandomZoneByDistance(transform, checkAccessible: true, distanceMax: _endurance);
+                zone = _zManager.GetRandomZoneByDistance(transform, _pathFinder, checkAccessible: true, distanceMax: _endurance);
                 if (zone != null)
                 {
                     _goalObject.transform.position = zone.Center;
@@ -403,7 +404,7 @@ public class Twippie : DraggableObjet, ILightnable {
                 }
                 break;
             case GoalType.Drink:
-                zone = _zManager.GetRessourceZoneByDistance(transform, ressource: Ressource.RessourceType.Drink, checkTaken: true, distanceMax: _endurance);
+                zone = _zManager.GetRessourceZoneByDistance(transform, _pathFinder, ressource: Ressource.RessourceType.Drink, checkTaken: true, distanceMax: _endurance);
                 if (zone != null)
                 {
                     Debug.Log("Drink at close zone");
@@ -414,7 +415,7 @@ public class Twippie : DraggableObjet, ILightnable {
                 }
                 else
                 {
-                    zone = _zManager.GetZoneByRessourceInList(transform, _knownZones, ressource: Ressource.RessourceType.Drink, checkTaken: true);
+                    zone = _zManager.GetZoneByRessourceInList(transform, _knownZones, ressource: Ressource.RessourceType.Drink, p: _pathFinder, checkTaken: true);
                     if (zone != null)
                     {
                         Debug.Log("Drink at known zone");
@@ -431,7 +432,7 @@ public class Twippie : DraggableObjet, ILightnable {
                 }
             break;
             case GoalType.Eat:
-                zone = _zManager.GetRessourceZoneByDistance(transform, ressource: Ressource.RessourceType.Food, checkTaken: true, distanceMax: _endurance);
+                zone = _zManager.GetRessourceZoneByDistance(transform, _pathFinder, ressource: Ressource.RessourceType.Food, checkTaken: true, distanceMax: _endurance);
                 if (zone != null)
                 {
                     Debug.Log("Eat at close zone");
@@ -444,7 +445,7 @@ public class Twippie : DraggableObjet, ILightnable {
                 }
                 else
                 {
-                    zone = _zManager.GetZoneByRessourceInList(transform, _knownZones, ressource: Ressource.RessourceType.Food, checkTaken: true);
+                    zone = _zManager.GetZoneByRessourceInList(transform, _knownZones, ressource: Ressource.RessourceType.Food, p:_pathFinder, checkTaken: true);
                     if (zone != null)
                     {
                         Debug.Log("Eat at known zone");
@@ -464,7 +465,11 @@ public class Twippie : DraggableObjet, ILightnable {
 
         _goalObject.transform.parent = P.transform;
         _arrival.SetArrival();
-        _pathFinder.FindPath();
+        if (!_pathFinder.FindPath())
+        {
+            Debug.Log("Can't access sorry");
+            SetDestination(GoalType.Wander);
+        }
         _lineRenderer.positionCount = _pathFinder.Steps.Count+1;
         _state = State.Walking;
 

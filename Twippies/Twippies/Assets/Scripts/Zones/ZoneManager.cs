@@ -193,7 +193,7 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
-    public Zone GetZoneByRessourceInList(Transform t, List<Zone> list, Ressource.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false)
+    public Zone GetZoneByRessourceInList(Transform t, List<Zone> list, Ressource.RessourceType ressource, PathFinder p = null, bool checkTaken = false, bool checkAccessible = false)
     {
         List<Zone> zones = new List<Zone>();
         Zone zone = null;
@@ -213,26 +213,28 @@ public class ZoneManager : MonoBehaviour {
             zones[randomIndex] = temp;
         }
 
-        float dist = float.MaxValue;
         foreach (Zone z in zones)
         {
-            float distToZone = (t.position - z.Center).sqrMagnitude;
-            if ((checkAccessible && z.Accessible) || checkAccessible == false)
+            
+            if ((checkTaken && z.Taken == false) || checkTaken == false)
             {
-                if (distToZone < dist)
+                Zone goZone = null;
+                if (p != null)
+                    goZone = p.FindPath();
+                if ((checkAccessible && goZone != null) || checkAccessible == false)
                 {
-                    if ((checkTaken && z.Taken == false) || checkTaken == false)
-                    {
-                        dist = distToZone;
-                        zone = z;
-                    }
+                    if (goZone != null)
+                        p.CreatePath(goZone);
+                    zone = z;
                 }
             }
+            
         }
+
         return zone;
     }
 
-    public Zone GetRandomZoneByDistance(Transform t, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
+    public Zone GetRandomZoneByDistance(Transform t, PathFinder p, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
     {
         Zone[] zones = _zones;
 
@@ -248,23 +250,27 @@ public class ZoneManager : MonoBehaviour {
         foreach (Zone z in zones)
         {
             float dist = (t.position - z.Center).sqrMagnitude;
-            if ((checkAccessible && z.Accessible) || checkAccessible == false)
+            
+            if (dist < distanceMax)
             {
-                if (dist < distanceMax)
+                if ((checkTaken && z.Taken == false) || checkTaken == false)
                 {
-                    if ((checkTaken && z.Taken == false) || checkTaken == false)
+                    Zone goZone = p.FindPath();
+                    if ((checkAccessible && goZone != null) || checkAccessible == false)
                     {
+                        p.CreatePath(goZone);
                         return z;
                     }
                 }
             }
+            
         }
         return null;
     }
 
 
 
-    public Zone GetRessourceZoneByDistance(Transform t, Ressource.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
+    public Zone GetRessourceZoneByDistance(Transform t, PathFinder p, Ressource.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
     {
         List<Zone> zones = new List<Zone>();
         for (int i = 0; i < _zones.Length; i++)
@@ -287,17 +293,21 @@ public class ZoneManager : MonoBehaviour {
         foreach (Zone z in zones)
         {
             float dist = (t.position - z.Center).sqrMagnitude;
-            if ((checkAccessible && z.Accessible) || checkAccessible == false)
+            
+            if (dist < distanceMax)
             {
-                if (dist < distanceMax)
+                if ((checkTaken && z.Taken == false) || checkTaken == false)
                 {
-                    if ((checkTaken && z.Taken == false) || checkTaken == false)
+                    Zone goZone = p.FindPath();
+                    if ((checkAccessible && goZone != null) || checkAccessible == false)
                     {
+                        p.CreatePath(goZone);
                         return z;
                     }
                 }
             }
         }
+        
         return null;
     }
 

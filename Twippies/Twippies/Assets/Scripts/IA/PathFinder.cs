@@ -131,7 +131,7 @@ public class PathFinder : MonoBehaviour {
         }
     }
 
-    public void FindPath()
+    public Zone FindPath()
     {
         _openList = new List<Zone>();
         _closeList = new List<Zone>();
@@ -185,10 +185,8 @@ public class PathFinder : MonoBehaviour {
                 {
                     if (a == currentZone.Neighbours.Count - 1 && possibilities == 0)
                     {
-                        List<Zone> result = SetPath(currentZone);
-                        DisplaySteps(result, false);
                         ClearPath();
-                        return;
+                        return null;
                     }
                     continue;
                 }
@@ -236,11 +234,16 @@ public class PathFinder : MonoBehaviour {
             }
             
         }
+        return currentZone;
+    }
 
-        List<Zone> res = SetPath(currentZone);
-        DisplaySteps(res, false);
+    public void CreatePath(Zone zone)
+    {
+        List<Zone> res = SetPath(zone);
+        DisplaySteps(res, true);
         ClearPath();
     }
+
     private void ClearPath()
     {
         foreach (Zone z in _openList)
@@ -304,6 +307,7 @@ public class PathFinder : MonoBehaviour {
             if (obj)
             {
                 GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                go.transform.localScale = Vector3.one * .3f;
                 go.GetComponent<MeshRenderer>().material.color = col;
                 go.transform.position = z.Center;
                 go.GetComponent<SphereCollider>().isTrigger = true;
