@@ -18,14 +18,14 @@ public class HealthBar : MonoBehaviour {
     {
         if (_twippie.Health > 50)
         {
-            _health.material.color = Color.green;
+            _health.color = Color.green;
         }else if (_twippie.Health <= 50 && _twippie.Health > 20)
         {
-            _health.material.color = new Color(1, 1, 0);
+            _health.color = new Color(1, 1, 0);
         }
         else
         {
-            _health.material.color = Color.red;
+            _health.color = Color.red;
         }
     }
 
@@ -34,10 +34,6 @@ public class HealthBar : MonoBehaviour {
         transform.LookAt(_camPos);
         _health.rectTransform.sizeDelta = new Vector2(_twippie.Health, _health.rectTransform.sizeDelta.y);
         _health.rectTransform.localPosition = new Vector3(50-_twippie.Health/ 2, 0, 0);
-
-        //Vector3 relative = transform.InverseTransformPoint(_camPos.position);
-        //float angle = Mathf.Atan2(relative.x, relative.y) * Mathf.Rad2Deg;
-        //transform.rotation = Quaternion.Euler(0, 0, -angle);
     }
 
 }

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ObjectGenerator : MonoBehaviour {
-
+    [SerializeField]
+    private float _spawnTime;
     [SerializeField]
     private GameObject _twippie;
     [SerializeField]
@@ -80,7 +81,8 @@ public class ObjectGenerator : MonoBehaviour {
                     break;
                 }
             }
-            yield return new WaitForSeconds(.4f);
+            if (_spawnTime > 0)
+                yield return new WaitForSeconds(_spawnTime);
         }
         foreach (Zone zone in z)
         {

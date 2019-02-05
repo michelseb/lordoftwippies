@@ -102,26 +102,14 @@ public struct PathCost
 
 public class PathFinder : MonoBehaviour {
 
+    [SerializeField]
+    private bool _displayPath;
     private Twippie _twippie;
     private List<Zone> _openList, _closeList;
-    private Arrival _destination;
     private List<Step> _steps;
     private void Awake () {
         _twippie = gameObject.GetComponent<Twippie>();
 	}
-	
-
-    public Arrival Destination
-    {
-        get
-        {
-            return _destination;
-        }
-        set
-        {
-            _destination = value;
-        }
-    }
 
     public List<Step> Steps
     {
@@ -131,13 +119,13 @@ public class PathFinder : MonoBehaviour {
         }
     }
 
-    public Zone FindPath()
+    public Zone FindPath(Zone destination)
     {
         _openList = new List<Zone>();
         _closeList = new List<Zone>();
         Zone currentZone = _twippie.Zone; // Set zone de début = zone du twippie
         _openList.Add(currentZone);
-        currentZone.PathCosts.Add(new PathCost(_twippie, 0, (int)Vector3.Distance(_destination.FinishZone.Center, currentZone.Center)));
+        currentZone.PathCosts.Add(new PathCost(_twippie, 0, (int)Vector3.Distance(destination.Center, currentZone.Center)));
         
         while (true) //Tant que la zone trouvée est trop loin de la zone finale
         {
@@ -174,7 +162,7 @@ public class PathFinder : MonoBehaviour {
             }
             _openList.Remove(currentZone);
             _closeList.Add(currentZone);
-            if (currentZone == _destination.FinishZone)
+            if (currentZone == destination)
             {
                 break;
             }
@@ -225,7 +213,7 @@ public class PathFinder : MonoBehaviour {
                             continue;
                         }
                         int gCost = currentZone.PathCosts[b].GCost + (int)Vector3.Distance(currentZone.Center, currentZone.Neighbours[a].Center);
-                        int hCost = (int)Vector3.Distance(_destination.FinishZone.Center, currentZone.Neighbours[a].Center);
+                        int hCost = (int)Vector3.Distance(destination.Center, currentZone.Neighbours[a].Center);
                         PathCost pathCost = new PathCost(_twippie, gCost, hCost, currentZone);
                         currentZone.Neighbours[a].PathCosts.Add(pathCost);
                         _openList.Add(currentZone.Neighbours[a]);
@@ -240,7 +228,7 @@ public class PathFinder : MonoBehaviour {
     public void CreatePath(Zone zone)
     {
         List<Zone> res = SetPath(zone);
-        DisplaySteps(res, true);
+        DisplaySteps(res, _displayPath);
         ClearPath();
     }
 

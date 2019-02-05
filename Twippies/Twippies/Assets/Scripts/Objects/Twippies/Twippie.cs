@@ -109,13 +109,12 @@ public class Twippie : DraggableObjet, ILightnable {
         _initSpeed = _speed;
         _outline.color = 3;
         _waterCost = 1;
-        _endurance = 5;// +Random.value * 10;
+        _endurance = 10;// +Random.value * 10;
         _health = 100;
-        _goalObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        _goalObject.GetComponent<SphereCollider>().isTrigger = true;
+        _goalObject = new GameObject();
+        //_goalObject.GetComponent<SphereCollider>().isTrigger = true;
         _arrival = _goalObject.AddComponent<Arrival>();
         _arrival.ZoneManager = _zManager;
-        _pathFinder.Destination = _arrival;
         SetDestination(GoalType.Wander);
         StartCoroutine(CheckSleepNeed());
         StartCoroutine(CheckBasicNeeds());
@@ -137,12 +136,14 @@ public class Twippie : DraggableObjet, ILightnable {
             _currentSize = _initSize * _sizeMultiplier + Vector3.one * _ageSize;
         }
 
-        for (int a = 0; a < _pathFinder.Steps.Count; a++)
+        if (_pathFinder.Steps != null && _pathFinder.Steps.Count > 0)
         {
-            _lineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center + ((_pathFinder.Steps[a].Zone.Center - _p.transform.position).normalized) / 2);
+            for (int a = 0; a < _pathFinder.Steps.Count; a++)
+            {
+                _lineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center + ((_pathFinder.Steps[a].Zone.Center - _p.transform.position).normalized) / 2);
+            }
+            _lineRenderer.SetPosition(_pathFinder.Steps.Count, transform.position + transform.up / 2);
         }
-        _lineRenderer.SetPosition(_pathFinder.Steps.Count, transform.position + transform.up / 2);
-
 
         if (_state != State.Walking && _state != State.Sleeping)
         {
@@ -428,6 +429,7 @@ public class Twippie : DraggableObjet, ILightnable {
                     {
                         Debug.Log("Can't drink");
                         SetDestination(GoalType.Wander); // Or create conflict !!
+                        return;
                     }
                 }
             break;
@@ -458,6 +460,7 @@ public class Twippie : DraggableObjet, ILightnable {
                     {
                         Debug.Log("Can't eat");
                         SetDestination(GoalType.Wander); // Or create conflict !!
+                        return;
                     }
                 }
                 break;
@@ -465,12 +468,15 @@ public class Twippie : DraggableObjet, ILightnable {
 
         _goalObject.transform.parent = P.transform;
         _arrival.SetArrival();
-        if (!_pathFinder.FindPath())
+        /*if (!_pathFinder.FindPath())
         {
             Debug.Log("Can't access sorry");
             SetDestination(GoalType.Wander);
+        }*/
+        if (_pathFinder.Steps != null)
+        {
+            _lineRenderer.positionCount = _pathFinder.Steps.Count + 1;
         }
-        _lineRenderer.positionCount = _pathFinder.Steps.Count+1;
         _state = State.Walking;
 
     }

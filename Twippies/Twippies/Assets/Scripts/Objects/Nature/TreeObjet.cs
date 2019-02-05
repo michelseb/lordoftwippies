@@ -27,7 +27,7 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
     {
         base.Update();
         transform.localScale = _currentSize;
-        if (_age > 1f && _currentSize.x > 2 && !_spread)
+        if (_age > .5f && _currentSize.x > 1 && !_spread)
         {
             _zone.Ressources.Add(new Ressource(Ressource.RessourceType.Food, this as IConsumable, 0));
             Spread();
@@ -65,7 +65,7 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
         _zone.Taken = false;
         if (_currentSize.x <= .1f)
         {
-            Ressource food = _zone.Ressources.Find(x => x.ressourceType == Ressource.RessourceType.Food);
+            Ressource food = _zone.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Food);
             if (food != null)
             {
                 _zone.Ressources.Remove(food);
@@ -76,6 +76,8 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
         }
         else
         {
+            _zone.Accessible = false;
+            Debug.Log("Arbre goûté");
             Liberate();
         }
     }
