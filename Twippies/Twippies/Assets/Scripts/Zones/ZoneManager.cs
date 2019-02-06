@@ -220,23 +220,26 @@ public class ZoneManager : MonoBehaviour {
             
             if ((checkTaken && z.Taken == false) || checkTaken == false)
             {
-                Zone goZone = null;
-                if (p != null)
+                if (!checkAccessible)
+                    return z;
+
+                bool tempAccess = false;
+                if (!z.Accessible)
                 {
-                    goZone = p.FindPath(z);
+                    tempAccess = true;
+                    z.Accessible = true;
+                }
+                Zone goZone = p.FindPath(z);
+                if (goZone == null)
+                {
+                    if (tempAccess)
+                        z.Accessible = false;
+                    continue;
                 }
 
-                if (checkAccessible)
-                {
-                    if (goZone == null)
-                        continue;
-                    p.CreatePath(goZone);
-                    return z;
-                }
-                else
-                {
-                    return z;
-                }
+                p.CreatePath(goZone);
+                z.Taken = true;
+                return z;
             }
             
         }
@@ -246,12 +249,20 @@ public class ZoneManager : MonoBehaviour {
 
     public Zone GetRandomZoneByDistance(Transform t, PathFinder p, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
     {
-        Zone[] zones = _zones;
+        List<Zone> zones = new List<Zone>();
+        for (int i = 0; i < _zones.Length; i++)
+        {
+            float dist = (t.position - _zones[i].Center).sqrMagnitude;
+            if (dist < distanceMax)
+            {
+                zones.Add(_zones[i]);
+            }
+        }
 
-        for (int i = 0; i < zones.Length; i++)
+        for (int i = 0; i < zones.Count; i++)
         {
             Zone temp = zones[i];
-            int randomIndex = Random.Range(i, zones.Length);
+            int randomIndex = Random.Range(i, zones.Count);
             zones[i] = zones[randomIndex];
             zones[randomIndex] = temp;
         }
@@ -259,25 +270,15 @@ public class ZoneManager : MonoBehaviour {
 
         foreach (Zone z in zones)
         {
-            float dist = (t.position - z.Center).sqrMagnitude;
-            
-            if (dist < distanceMax)
+            if ((checkTaken && z.Taken == false) || checkTaken == false)
             {
-                if ((checkTaken && z.Taken == false) || checkTaken == false)
-                {
-                    Zone goZone = p.FindPath(z);
-                    if (checkAccessible)
-                    {
-                        if (goZone == null)
-                            continue;
-                        p.CreatePath(goZone);
-                        return z;
-                    }
-                    else
-                    {
-                        return z;
-                    }
-                }
+                if (!checkAccessible)
+                    return z;
+                Zone goZone = p.FindPath(z);
+                if (goZone == null)
+                    continue;
+                p.CreatePath(goZone);
+                return z;
             }
             
         }
@@ -320,9 +321,20 @@ public class ZoneManager : MonoBehaviour {
                 if (!checkAccessible)
                     return z;
 
+                bool tempAccess = false;
+                if (!z.Accessible)
+                {
+                    tempAccess = true;
+                    z.Accessible = true;
+                }
                 Zone goZone = p.FindPath(z);
                 if (goZone == null)
+                {
+                    if (tempAccess)
+                        z.Accessible = false;
                     continue;
+                }
+                z.Taken = true;
                 p.CreatePath(goZone);
                 return z;
             }

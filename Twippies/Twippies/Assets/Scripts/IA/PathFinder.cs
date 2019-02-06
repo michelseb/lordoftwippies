@@ -169,7 +169,7 @@ public class PathFinder : MonoBehaviour {
             int possibilities = 0;
             for (int a = 0; a < currentZone.Neighbours.Count; a++) //Toutes les zones à proximité de la zone actuelle
             {
-                if (_closeList.Contains(currentZone.Neighbours[a]) || !currentZone.Neighbours[a].Accessible)
+                if (_closeList.Contains(currentZone.Neighbours[a]) || !currentZone.Neighbours[a].Accessible || currentZone.Neighbours[a].Taken)
                 {
                     if (a == currentZone.Neighbours.Count - 1 && possibilities == 0)
                     {
