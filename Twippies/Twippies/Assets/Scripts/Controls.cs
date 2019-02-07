@@ -331,7 +331,7 @@ public class Controls : MonoBehaviour {
                     {
                         m.Stats.enabled = false;
                     }
-                    if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~LayerMask.GetMask("Zone")))
+                    if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1<<16)))
                     {
                         if (_focusedObject is Twippie)
                         {

@@ -515,8 +515,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b60f2589c33d564ab8dd47b9fc2d3af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _zonePrefab: {fileID: 114338826418669768, guid: e84722a6820471b468bb9a479ec21111,
-    type: 2}
+  _zonePrefab: {fileID: 0}
+  _zoneSize: 0
 --- !u!114 &114205979466608698
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -528,8 +528,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c306f5d4afa0a6c489ea07a2e9b50fb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _spawnTime: 0
   _twippie: {fileID: 1491261447225362, guid: b514f5979457a9c499b47c90baede76f, type: 2}
-  _nbObjets: 100
+  _tree: {fileID: 0}
+  _nbTwippies: 0
+  _nbTrees: 0
 --- !u!114 &114310311304771704
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -563,6 +566,9 @@ MonoBehaviour:
   _objectDeplacementField: {fileID: 0}
   _water: {fileID: 114048212989039234}
   _sun: {fileID: 114310311304771704}
+  _layerMask:
+    serializedVersion: 2
+    m_Bits: 32551
 --- !u!114 &114501150488611440
 MonoBehaviour:
   m_ObjectHideFlags: 1

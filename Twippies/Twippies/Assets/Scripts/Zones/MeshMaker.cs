@@ -9,7 +9,7 @@ public class MeshMaker {
     public static GameObject CreateSelection(IEnumerable<Vector3> points, Transform t, Vector3 pos, Vector3 worldPos)
     {
         GameObject go = new GameObject("ZoneObject");
-        go.layer = 2;
+        go.layer = 16;
         go.transform.position = pos;
         MeshFilter mf = go.AddComponent(typeof(MeshFilter)) as MeshFilter;
         List<Vector3> newPoints = new List<Vector3>();

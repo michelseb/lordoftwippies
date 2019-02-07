@@ -12,6 +12,8 @@ public class Planete : ManageableObjet {
     private WaterObjet _water;
     [SerializeField]
     private Sun _sun;
+    [SerializeField]
+    private LayerMask _layerMask;
     private ZoneManager _zManager;
     private Mesh _mesh;
     private MeshCollider _meshCollider;
@@ -201,11 +203,11 @@ public class Planete : ManageableObjet {
                 Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
 
-                if (Physics.Raycast(inputRay, out hit, float.MaxValue, ~LayerMask.GetMask("Zone")) && Input.GetMouseButton(0))
+                if (Physics.Raycast(inputRay, out hit, float.MaxValue, _layerMask) && Input.GetMouseButton(0))
                 {
                     Deform(hit.point, 10);
                 }
-                else if (Physics.Raycast(inputRay, out hit, float.MaxValue, ~LayerMask.GetMask("Zone")) && Input.GetMouseButton(1))
+                else if (Physics.Raycast(inputRay, out hit, float.MaxValue, _layerMask) && Input.GetMouseButton(1))
                 {
                     Deform(hit.point, -10);
                 }

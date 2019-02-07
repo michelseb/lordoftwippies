@@ -377,10 +377,9 @@ public class ZoneManager : MonoBehaviour {
     public Zone GetAerialZone(Transform t)
     {
         RaycastHit hit;
-        if (Physics.Linecast(t.position, _planete.transform.position, out hit))
-        {
-            Debug.Log("Zone : " + hit.collider.gameObject.name);
-            return hit.collider.gameObject.GetComponent<Zone>();
+        if (Physics.Linecast(t.position, _planete.transform.position, out hit, 1 << 16, QueryTriggerInteraction.Collide))
+        { 
+            return hit.collider.transform.parent.GetComponent<Zone>();
         }
         return null;
     }
