@@ -201,11 +201,11 @@ public class Planete : ManageableObjet {
                 Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
 
-                if (Physics.Raycast(inputRay, out hit) && Input.GetMouseButton(0))
+                if (Physics.Raycast(inputRay, out hit, float.MaxValue, ~LayerMask.GetMask("Zone")) && Input.GetMouseButton(0))
                 {
                     Deform(hit.point, 10);
                 }
-                else if (Physics.Raycast(inputRay, out hit) && Input.GetMouseButton(1))
+                else if (Physics.Raycast(inputRay, out hit, float.MaxValue, ~LayerMask.GetMask("Zone")) && Input.GetMouseButton(1))
                 {
                     Deform(hit.point, -10);
                 }

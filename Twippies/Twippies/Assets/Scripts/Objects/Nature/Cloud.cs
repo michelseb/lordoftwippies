@@ -6,6 +6,8 @@ public class Cloud : AerialObjet {
 
     [SerializeField]
     private bool _raining;
+    private bool _auto;
+    private Coroutine _isAuto;
     [SerializeField]
     private ParticleSystem _ps;
 
@@ -13,6 +15,7 @@ public class Cloud : AerialObjet {
     {
         base.GenerateStats();
         _stats.StatsList[3] = new BoolStat(true, "Wet/Dry");
+        _stats.StatsList[4] = new BoolStat(true, "Auto");
     }
     protected override void Awake()
     {
@@ -32,8 +35,10 @@ public class Cloud : AerialObjet {
     {
         base.Update();
         BoolStat active = (BoolStat)_stats.StatsList[3];
+        BoolStat auto = (BoolStat)_stats.StatsList[4];
         _raining = active.Value;
-        
+        _auto = auto.Value;
+
         if (_ps.isPlaying && !_raining)
         {
             _ps.Stop();
@@ -50,6 +55,31 @@ public class Cloud : AerialObjet {
             }
 
         }
+
+        if (_auto)
+        {
+            if (_isAuto == null)
+            {
+                _isAuto = StartCoroutine(AutoRain(10));
+            }
+        }
     }
 
+
+    private IEnumerator AutoRain(float seconds)
+    {
+        while (true)
+        {
+            if (!_auto)
+            {
+                _isAuto = null;
+                yield break;
+            }
+            
+            BoolStat active = (BoolStat)_stats.StatsList[3];
+            active.Value = CoinFlip();
+            _stats.StatsList[3] = active;
+            yield return new WaitForSeconds(seconds / _timeReference);
+        }
+    }
 }

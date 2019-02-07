@@ -52,6 +52,7 @@ public class ObjectGenerator : MonoBehaviour {
                 {
                     GameObject tree = Instantiate(_tree, _zm.Zones[b].Center, Quaternion.identity, transform);
                     ManageableObjet mo = tree.GetComponent<ManageableObjet>();
+                    mo.Age = 1;
                     _om.allObjects.Add(mo);
                     mo.Age = 5;
                     _zm.Zones[b].Accessible = false;

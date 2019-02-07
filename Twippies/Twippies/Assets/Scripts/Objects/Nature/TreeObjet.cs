@@ -39,12 +39,23 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
         {
             _sunAmount = UpdateValue(_sunAmount, 3f);
         }
-        Zone waterZone = _zManager.GetZoneByRessourceInList(transform, _zone.Neighbours, Ressource.RessourceType.Drink);
-        if (waterZone != null || _zone.Ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Drink)) // Check currzone + neighbours for water
+
+        // Check currzone + neighbours for water
+        if (_zone.Ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Drink))
         {
-            waterZone.Ressources.FirstOrDefault(x=>x.ressourceType == Ressource.RessourceType.Drink).Consume(waterZone);
+            _zone.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Drink).Consume(_zone);
             _waterAmount = UpdateValue(_waterAmount, 2f);
         }
+        else
+        {
+            Zone waterZone = _zManager.GetZoneByRessourceInList(_zone.Neighbours, Ressource.RessourceType.Drink);
+            if (waterZone != null) 
+            {
+                waterZone.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Drink).Consume(waterZone);
+                _waterAmount = UpdateValue(_waterAmount, 2f);
+            }
+        }
+
         if (_waterAmount > 0 && _sunAmount > 0)
         {
             Grow();
@@ -115,7 +126,7 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
     {
         _sunAmount = UpdateValue(_sunAmount, -1);
         _waterAmount = UpdateValue(_waterAmount, -1);
-        _currentSize = UpdateVector(_currentSize, (100 - _age) / 100 * .01f, 10);
+        _currentSize = UpdateVector(_currentSize, (100 - _age) / 100 * .03f, 10);
     }
 
     protected override void GenerateStats()

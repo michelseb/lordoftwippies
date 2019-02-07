@@ -193,7 +193,7 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
-    public Zone GetZoneByRessourceInList(Transform t, List<Zone> list, Ressource.RessourceType ressource, PathFinder p = null, bool checkTaken = false, bool checkAccessible = false)
+    public Zone GetZoneByRessourceInList(List<Zone> list, Ressource.RessourceType ressource, PathFinder p = null, bool checkTaken = false, bool checkAccessible = false)
     {
         List<Zone> zones = new List<Zone>();
         for (int i = 0; i < list.Count; i++)
@@ -345,7 +345,7 @@ public class ZoneManager : MonoBehaviour {
 
 
 
-    public virtual Zone GetZone(bool take, Zone current, Transform t)
+    public Zone GetZone(bool take, Zone current, Transform t)
     {
         if (current != null && take)
             current.Accessible = true;
@@ -374,7 +374,16 @@ public class ZoneManager : MonoBehaviour {
     }
 
 
-
+    public Zone GetAerialZone(Transform t)
+    {
+        RaycastHit hit;
+        if (Physics.Linecast(t.position, _planete.transform.position, out hit))
+        {
+            Debug.Log("Zone : " + hit.collider.gameObject.name);
+            return hit.collider.gameObject.GetComponent<Zone>();
+        }
+        return null;
+    }
 
 
 

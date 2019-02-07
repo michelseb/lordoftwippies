@@ -77,6 +77,7 @@ public class Twippie : DraggableObjet, ILightnable {
     private float _health;
     private float _ageSize;
     private float _endurance;
+    private int _memory;
     [SerializeField]
     protected float _speed;
 
@@ -177,7 +178,7 @@ public class Twippie : DraggableObjet, ILightnable {
                             if (_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go != null)
                                 Destroy(_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go);
                             _pathFinder.Steps.RemoveAt(_pathFinder.Steps.Count - 1);
-                            _lineRenderer.positionCount--;
+                            _lineRenderer.positionCount = _pathFinder.Steps.Count + 1;
                         }
                     }
                     else
@@ -209,11 +210,11 @@ public class Twippie : DraggableObjet, ILightnable {
 
         if (_state != State.Sleeping)
         {
-            _sleepiness = UpdateValue(_sleepiness);
+            _sleepiness = UpdateValue(_sleepiness, _age / 50); // Le besoin en sommeil augmente avec l'age. Pas besoin de dormir à 0 ans
         }
-        _thirst = UpdateValue(_thirst, 3/(_age+1));
-        _hunger = UpdateValue(_hunger, 3/(_age+1));
-        
+        _thirst = UpdateValue(_thirst, 3/(_age+1)); // Le besoin en eau diminue avec l'age
+        _hunger = UpdateValue(_hunger, 3/(_age+1)); // Le besoin en nourriture diminue avec l'age
+        _memory = 100 - Mathf.FloorToInt(_age); // La mémoire diminue avec l'âge. Alzeimer à 100 ans
         _stats.StatToValue(_stats.StatsList[2]).Value = _age;
         _stats.StatToValue(_stats.StatsList[3]).Value = _hunger;
         _stats.StatToValue(_stats.StatsList[4]).Value = _thirst;
@@ -228,9 +229,19 @@ public class Twippie : DraggableObjet, ILightnable {
 
         if (Time.frameCount % _displayIntervals == 0)
         {
+            if (_knownZones.Count > _memory)
+            {
+                _knownZones.RemoveAt(0); //Oubli d'une zone lorsque la mémoire est saturée
+            }
+            if (_knownZones.Contains(_zone))
+            {
+                if (_knownZones.IndexOf(_zone) < _knownZones.Count -1)
+                _knownZones.Remove(_zone);
+                _knownZones.Add(_zone); //Rafraichissement de mémoire sur une zone déjà visitée
+            }
             if (!_knownZones.Contains(_zone))
             {
-                _knownZones.Add(_zone);
+                _knownZones.Add(_zone); //Découverte d'une nouvelle zone
             }
             _zone = _zManager.GetZone(false, _zone, transform);
         }
@@ -403,7 +414,7 @@ public class Twippie : DraggableObjet, ILightnable {
                 }
                 else
                 {
-                    zone = _zManager.GetZoneByRessourceInList(transform, _knownZones, ressource: Ressource.RessourceType.Drink, p: _pathFinder, checkTaken: true, checkAccessible: true);
+                    zone = _zManager.GetZoneByRessourceInList(_knownZones, ressource: Ressource.RessourceType.Drink, p: _pathFinder, checkTaken: true, checkAccessible: true);
                     if (zone != null)
                     {
                         Debug.Log("Drink at known zone");
@@ -425,7 +436,7 @@ public class Twippie : DraggableObjet, ILightnable {
                 }
                 else
                 {
-                    zone = _zManager.GetZoneByRessourceInList(transform, _knownZones, ressource: Ressource.RessourceType.Food, p:_pathFinder, checkTaken: true, checkAccessible: true);
+                    zone = _zManager.GetZoneByRessourceInList(_knownZones, ressource: Ressource.RessourceType.Food, p:_pathFinder, checkTaken: true, checkAccessible: true);
                     if (zone != null)
                     {
                         Debug.Log("Eat at known zone");

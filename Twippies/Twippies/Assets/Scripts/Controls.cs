@@ -260,12 +260,20 @@ public class Controls : MonoBehaviour {
                     {
                         if (_focusedObject is DraggableObjet)
                         {
-                            DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
-                            draggableObjet.Zone = draggableObjet.ZoneManager.GetZone(false, draggableObjet.Zone, draggableObjet.transform);
-                            if (draggableObjet is IConsumable)
+                            if (_focusedObject is AerialObjet)
                             {
-                                IConsumable consumable = (IConsumable)draggableObjet;
-                                draggableObjet.Zone.Ressources.Add(new Ressource(Ressource.RessourceType.Food, draggableObjet.GetComponent<IConsumable>(), 0));
+                                AerialObjet aerialObjet = (AerialObjet)_focusedObject;
+                                aerialObjet.Zone = aerialObjet.ZoneManager.GetAerialZone(aerialObjet.transform);
+                            }
+                            else
+                            {
+                                DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
+                                draggableObjet.Zone = draggableObjet.ZoneManager.GetZone(false, draggableObjet.Zone, draggableObjet.transform);
+                                if (draggableObjet is IConsumable)
+                                {
+                                    IConsumable consumable = (IConsumable)draggableObjet;
+                                    draggableObjet.Zone.Ressources.Add(new Ressource(Ressource.RessourceType.Food, draggableObjet.GetComponent<IConsumable>(), 0));
+                                }
                             }
                         }
                     }
@@ -323,7 +331,7 @@ public class Controls : MonoBehaviour {
                     {
                         m.Stats.enabled = false;
                     }
-                    if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition)))
+                    if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~LayerMask.GetMask("Zone")))
                     {
                         if (_focusedObject is Twippie)
                         {
