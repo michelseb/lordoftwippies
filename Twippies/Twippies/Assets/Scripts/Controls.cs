@@ -336,7 +336,10 @@ public class Controls : MonoBehaviour {
                         if (_focusedObject is Twippie)
                         {
                             Twippie t = (Twippie)_focusedObject;
-                            t.LineRenderer.enabled = false;
+                            if (t != null)
+                            {
+                                t.LineRenderer.enabled = false;
+                            }
                         }
                         _focusedObject = null;
                         ctrl = ControlMode.Waiting;

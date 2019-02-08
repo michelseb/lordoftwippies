@@ -9,7 +9,7 @@ public class Zone : MonoBehaviour {
     private float _minHeight, _maxHeight, _meanHeight, _deltaHeight;
     private Color _color;
     private int _centerId;
-    private int _nbEntries;
+    private List<Twippie> _twippies;
     private MeshCollider _collider;
     private MeshRenderer _renderer;
     private ObjetManager _om;
@@ -45,6 +45,7 @@ public class Zone : MonoBehaviour {
         _om = ObjetManager.Instance;
         _pathCosts = new List<PathCost>();
         _ressources = new List<Ressource>();
+        _twippies = new List<Twippie>();
     }
 
     private void Update()
@@ -81,9 +82,9 @@ public class Zone : MonoBehaviour {
             {
                 case DisplayMode.Population:
 
-                    _renderer.material.color = new Color(Mathf.Lerp(_renderer.material.color.r, (_nbEntries * 50) / _om.allObjects.Count, Time.deltaTime * 2), 
+                    _renderer.material.color = new Color(Mathf.Lerp(_renderer.material.color.r, (_twippies.Count * 50) / _om.allObjects.Count, Time.deltaTime * 2), 
                                                         .3f, 
-                                                        Mathf.Lerp(_renderer.material.color.b, .3f + (_nbEntries * 100) / _om.allObjects.Count, Time.deltaTime * 2), 
+                                                        Mathf.Lerp(_renderer.material.color.b, .3f + (_twippies.Count * 100) / _om.allObjects.Count, Time.deltaTime * 2), 
                                                         .4f);
 
                     break;
@@ -185,8 +186,11 @@ public class Zone : MonoBehaviour {
     {
         if (other.tag == "Twippie")
         {
-            
-            _nbEntries++;
+            Twippie twippie = other.gameObject.GetComponent<Twippie>();
+            if (!_twippies.Contains(twippie))
+            {
+                _twippies.Add(twippie);
+            }
         }
     }
 
@@ -194,9 +198,11 @@ public class Zone : MonoBehaviour {
     {
         if (other.tag == "Twippie")
         {
-            
-            if (_nbEntries > 0)
-                _nbEntries--;
+            Twippie twippie = other.gameObject.GetComponent<Twippie>();
+            if (_twippies.Contains(twippie))
+            {
+                _twippies.Remove(twippie);
+            }
         }
     }
 
@@ -397,6 +403,14 @@ public class Zone : MonoBehaviour {
         set
         {
             _ressources = value;
+        }
+    }
+
+    public List<Twippie> Twippies
+    {
+        get
+        {
+            return _twippies;
         }
     }
 

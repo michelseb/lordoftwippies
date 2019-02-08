@@ -36,14 +36,6 @@ public class Twippie : DraggableObjet, ILightnable {
         None
     }
 
-    protected enum AdvancedNeed
-    {
-        Socialize,
-        Warmup,
-        Cooldown,
-        None
-    }
-
     protected enum GoalType
     {
         Wander,
@@ -52,14 +44,21 @@ public class Twippie : DraggableObjet, ILightnable {
         Socialize
     }
 
+    protected enum Gender
+    {
+        Male,
+        Female
+    }
+
     protected GameObject _goalObject;
     protected Arrival _arrival;
     protected List<Zone> _knownZones;
+    protected List<Twippie> _knownTwippies;
     [SerializeField]
     protected PathFinder _pathFinder;
+    protected Gender _gender;
     protected State _state, _previousState;
     protected BasicNeed _basicNeed;
-    protected AdvancedNeed _advancedNeed;
     protected GoalType _goalType;
     private LineRenderer _lineRenderer;
 
@@ -75,15 +74,17 @@ public class Twippie : DraggableObjet, ILightnable {
 
     [SerializeField]
     private float _health;
+    private IConsumable _consumable;
     private float _ageSize;
     private float _endurance;
-    private int _memory;
+    private int _placeMemory;
+    private int _peopleMemory;
     [SerializeField]
     protected float _speed;
 
     protected float _initSpeed;
 
-    protected Coroutine _contemplation, _drink, _eat;
+    protected Coroutine _contemplation, _drink, _eat, _reproduce;
     protected float _contemplateTime;
 
     private bool _reproducing;
@@ -93,7 +94,7 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         base.Awake();
         _type = "Twippie";
-        _name = "Petit twippie";
+        _name = "Twippie primitif";
     }
 
     protected override void Start()
@@ -101,12 +102,14 @@ public class Twippie : DraggableObjet, ILightnable {
         base.Start();
         _displayIntervals = 5;
         _basicNeed = BasicNeed.None;
-        _advancedNeed = AdvancedNeed.None;
         _previousState = State.None;
         _goalType = GoalType.Wander;
+        _gender = CoinFlip()?Gender.Male:Gender.Female;
+        _consumable = null;
         _knownZones = new List<Zone>();
+        _knownTwippies = new List<Twippie>();
         _lineRenderer = GetComponent<LineRenderer>();
-        //_lineRenderer.enabled = false;
+        _lineRenderer.enabled = false;
         _initSpeed = _speed;
         _outline.color = 3;
         _waterCost = 1;
@@ -214,11 +217,12 @@ public class Twippie : DraggableObjet, ILightnable {
         }
         _thirst = UpdateValue(_thirst, 3/(_age+1)); // Le besoin en eau diminue avec l'age
         _hunger = UpdateValue(_hunger, 3/(_age+1)); // Le besoin en nourriture diminue avec l'age
-        _memory = 100 - Mathf.FloorToInt(_age); // La mémoire diminue avec l'âge. Alzeimer à 100 ans
+        _placeMemory = 100 - Mathf.FloorToInt(_age); // La mémoire diminue avec l'âge. Alzeimer à 100 ans
+        _peopleMemory = 50 - Mathf.Abs(50 - Mathf.FloorToInt(_age)); // Mémoire des personnes maximale à la moitié de la vie
         _stats.StatToValue(_stats.StatsList[2]).Value = _age;
-        _stats.StatToValue(_stats.StatsList[3]).Value = _hunger;
-        _stats.StatToValue(_stats.StatsList[4]).Value = _thirst;
-        _stats.StatToValue(_stats.StatsList[5]).Value = _sleepiness;
+        _stats.StatToValue(_stats.StatsList[4]).Value = _hunger;
+        _stats.StatToValue(_stats.StatsList[5]).Value = _thirst;
+        _stats.StatToValue(_stats.StatsList[6]).Value = _sleepiness;
         
 
     }
@@ -229,21 +233,56 @@ public class Twippie : DraggableObjet, ILightnable {
 
         if (Time.frameCount % _displayIntervals == 0)
         {
-            if (_knownZones.Count > _memory)
-            {
-                _knownZones.RemoveAt(0); //Oubli d'une zone lorsque la mémoire est saturée
-            }
-            if (_knownZones.Contains(_zone))
-            {
-                if (_knownZones.IndexOf(_zone) < _knownZones.Count -1)
-                _knownZones.Remove(_zone);
-                _knownZones.Add(_zone); //Rafraichissement de mémoire sur une zone déjà visitée
-            }
-            if (!_knownZones.Contains(_zone))
-            {
-                _knownZones.Add(_zone); //Découverte d'une nouvelle zone
-            }
+            var oldZone = _zone;
             _zone = _zManager.GetZone(false, _zone, transform);
+            if (_zone != oldZone) // Si on a changé de zone
+            {
+                if (_knownZones.Contains(_zone))
+                {
+                    if (_knownZones.IndexOf(_zone) < _knownZones.Count - 1)
+                        _knownZones.Remove(_zone);
+                    _knownZones.Add(_zone); //Rafraichissement de mémoire sur une zone déjà visitée
+                }
+                if (!_knownZones.Contains(_zone))
+                {
+                    _knownZones.Add(_zone); //Découverte d'une nouvelle zone
+                }
+
+                while (_knownZones.Count > _placeMemory)
+                {
+                    _knownZones.RemoveAt(0); //Oubli d'une zone lorsque la mémoire est saturée
+                }
+               
+                foreach(Twippie twippie in _zone.Twippies)
+                {
+                    if (_knownTwippies.Contains(twippie))
+                    {
+                        if (_knownTwippies.IndexOf(twippie) < _knownTwippies.Count - 1)
+                            _knownTwippies.Remove(twippie);
+                        _knownTwippies.Add(twippie); //Rafraichissement de mémoire sur un twippie déjà rencontré
+                    }
+                    if (!_knownTwippies.Contains(twippie))
+                    {
+                        _knownTwippies.Add(twippie); //Rencontre d'un nouveau twippie
+                    }
+
+                    if (twippie.KnownTwippies.Contains(this))
+                    {
+                        if (twippie.KnownTwippies.IndexOf(this) < twippie.KnownTwippies.Count - 1)
+                            twippie.KnownTwippies.Remove(this);
+                        _knownTwippies.Add(this); //Rafraichissement de mémoire de l'autre twippie
+                    }
+                    if (!twippie.KnownTwippies.Contains(this))
+                    {
+                        twippie.KnownTwippies.Add(this); // Rencontre mutuelle
+                    }
+
+                }
+                while (_knownTwippies.Count > _peopleMemory)
+                {
+                    _knownTwippies.RemoveAt(0); //Oubli d'un twippie lorsque la mémoire est saturée
+                }
+            }
         }
     }
 
@@ -265,7 +304,18 @@ public class Twippie : DraggableObjet, ILightnable {
             case State.Eating:
                 if (_eat == null)
                 {
-                    _eat = StartCoroutine(Eat(_arrival.FinishZone.Ressources.Find(x=>x.ressourceType == Ressource.RessourceType.Food).consumableObject)); 
+                    Ressource ressource = _arrival.FinishZone.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Food);
+                    if (ressource != null)
+                    {
+                        if (ressource.consumableObject != null)
+                        {
+                            _eat = StartCoroutine(Eat(ressource.consumableObject));
+                        }
+                    }
+                    else
+                    {
+                        SetDestination(DefineGoal());
+                    }
                 }
                 break;
             case State.Contemplating:
@@ -388,13 +438,13 @@ public class Twippie : DraggableObjet, ILightnable {
     protected override void GenerateStats()
     {
         base.GenerateStats();
-        
-        _stats.StatsList[3] = new ValueStat(0, 0, 100, "hunger", true);
-        _stats.StatsList[4] = new ValueStat(0, 0, 100, "thirst", true);
-        _stats.StatsList[5] = new ValueStat(0, 0, 100, "fatigue", true);
-        _stats.StatsList[6] = new LabelStat("Need :");
-        _stats.StatsList[7] = new LabelStat("Emotion :");
-        _stats.StatsList[8] = new LabelStat("Action :");
+        _stats.StatsList[3] = new LabelStat(_gender.ToString());
+        _stats.StatsList[4] = new ValueStat(0, 0, 100, "hunger", true);
+        _stats.StatsList[5] = new ValueStat(0, 0, 100, "thirst", true);
+        _stats.StatsList[6] = new ValueStat(0, 0, 100, "fatigue", true);
+        _stats.StatsList[7] = new LabelStat("Need :");
+        _stats.StatsList[8] = new LabelStat("Emotion :");
+        _stats.StatsList[9] = new LabelStat("Action :");
     }
 
     private void SetDestination(GoalType goal)
@@ -431,16 +481,14 @@ public class Twippie : DraggableObjet, ILightnable {
                 zone = _zManager.GetRessourceZoneByDistance(transform, _pathFinder, ressource: Ressource.RessourceType.Food, checkAccessible: true, checkTaken: true, distanceMax: _endurance);
                 if (zone != null)
                 {
-                    Debug.Log("Eat at close zone");
-                    zone.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Food).consumableObject.Reserve();
+                    Debug.Log("Try eating at close zone");
                 }
                 else
                 {
                     zone = _zManager.GetZoneByRessourceInList(_knownZones, ressource: Ressource.RessourceType.Food, p:_pathFinder, checkTaken: true, checkAccessible: true);
                     if (zone != null)
                     {
-                        Debug.Log("Eat at known zone");
-                        zone.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Food).consumableObject.Reserve();
+                        Debug.Log("Try eating at known zone");
                     }
                     else
                     {
@@ -470,7 +518,7 @@ public class Twippie : DraggableObjet, ILightnable {
 
     }
 
-    private GoalType DefineGoal()
+    protected virtual GoalType DefineGoal()
     {
         switch (_basicNeed)
         {
@@ -478,11 +526,6 @@ public class Twippie : DraggableObjet, ILightnable {
                 return GoalType.Drink;
             case BasicNeed.Eat:
                 return GoalType.Eat;
-        }
-        switch (_advancedNeed)
-        {
-            case AdvancedNeed.Socialize:
-                return GoalType.Socialize;
         }
         return GoalType.Wander;
     }
@@ -509,6 +552,13 @@ public class Twippie : DraggableObjet, ILightnable {
 
     private IEnumerator Drink()
     {
+        if (_arrival.FinishZone.Taken)
+        {
+            SetDestination(DefineGoal());
+            _drink = null;
+            yield break;
+        }
+        _arrival.FinishZone.Taken = true;
         while (_thirst > 5)
         {
             _thirst = UpdateValue(_thirst, -3);
@@ -525,6 +575,15 @@ public class Twippie : DraggableObjet, ILightnable {
 
     private IEnumerator Eat(IConsumable consumable)
     {
+        if (_arrival.FinishZone.Taken)
+        {
+            SetDestination(DefineGoal());
+            _eat = null;
+            yield break;
+        }
+        _consumable = consumable;
+        _arrival.FinishZone.Taken = true;
+        consumable.Reserve();
         while (consumable.Consuming(_hunger))
         {
             _hunger = UpdateValue(_hunger, -20);
@@ -532,6 +591,7 @@ public class Twippie : DraggableObjet, ILightnable {
             _r.angularVelocity = Vector3.zero;
             yield return null;
         }
+        _consumable = null;
         consumable.Consume();
         SetDestination(DefineGoal());
         _eat = null;
@@ -545,7 +605,9 @@ public class Twippie : DraggableObjet, ILightnable {
         _r.AddForce((transform.position - _p.transform.position).normalized, ForceMode.Impulse);
         Debug.Log("Twippie mort :( thirst : " + Mathf.FloorToInt(_thirst) + " hunger : " + Mathf.FloorToInt(_hunger) + " _fatigue : " + Mathf.FloorToInt(_sleepiness));
         _om.allObjects.Remove(this);
+        _stats.enabled = false;
         Destroy(_lineRenderer);
+        _consumable?.Consume();
         Destroy(this);
     }
 
@@ -579,6 +641,18 @@ public class Twippie : DraggableObjet, ILightnable {
         set
         {
             _health = value;
+        }
+    }
+
+    public List<Twippie> KnownTwippies
+    {
+        get
+        {
+            return _knownTwippies;
+        }
+        set
+        {
+            _knownTwippies = value;
         }
     }
 }

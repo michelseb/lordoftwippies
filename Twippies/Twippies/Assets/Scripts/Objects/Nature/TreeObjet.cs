@@ -28,7 +28,7 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
     {
         base.Update();
         transform.localScale = _currentSize;
-        if (_age > 1 && _currentSize.x > 2 && !_spread)
+        if (_age > 1 && _currentSize.x > 1 && !_spread)
         {
             _zone.Accessible = false;
             _zone.Ressources.Add(new Ressource(Ressource.RessourceType.Food, this as IConsumable, 0));
@@ -83,15 +83,13 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
             {
                 _zone.Ressources.Remove(food);
             }
-            Debug.Log("Arbre mangé");
             _om.allObjects.Remove(this);
-            Destroy(gameObject);
+            _stats.enabled = false;
+            Destroy(this);
         }
         else
         {
-            _zone.Taken = false;
             _zone.Accessible = false;
-            Debug.Log("Arbre goûté");
             Liberate();
         }
     }

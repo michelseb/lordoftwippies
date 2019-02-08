@@ -238,7 +238,6 @@ public class ZoneManager : MonoBehaviour {
                 }
 
                 p.CreatePath(goZone);
-                z.Taken = true;
                 return z;
             }
             
@@ -334,7 +333,6 @@ public class ZoneManager : MonoBehaviour {
                         z.Accessible = false;
                     continue;
                 }
-                z.Taken = true;
                 p.CreatePath(goZone);
                 return z;
             }
