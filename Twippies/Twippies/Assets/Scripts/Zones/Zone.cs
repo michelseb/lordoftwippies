@@ -186,10 +186,14 @@ public class Zone : MonoBehaviour {
     {
         if (other.tag == "Twippie")
         {
-            Twippie twippie = other.gameObject.GetComponent<Twippie>();
-            if (!_twippies.Contains(twippie))
+            Twippie twippie = other.transform.parent.GetComponent<Twippie>();
+            if (twippie != null)
             {
-                _twippies.Add(twippie);
+                if (!_twippies.Contains(twippie))
+                {
+                    Debug.Log("twippie : " + twippie);
+                    _twippies.Add(twippie);
+                }
             }
         }
     }
@@ -198,10 +202,13 @@ public class Zone : MonoBehaviour {
     {
         if (other.tag == "Twippie")
         {
-            Twippie twippie = other.gameObject.GetComponent<Twippie>();
-            if (_twippies.Contains(twippie))
+            Twippie twippie = other.transform.parent.GetComponent<Twippie>();
+            if (twippie != null)
             {
-                _twippies.Remove(twippie);
+                if (_twippies.Contains(twippie))
+                {
+                    _twippies.Remove(twippie);
+                }
             }
         }
     }

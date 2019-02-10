@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 120654829472510606}
   m_Layer: 12
   m_Name: Twippie2
-  m_TagString: Twippie
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -444,6 +444,7 @@ MonoBehaviour:
   _sleepiness: 0
   _hunger: 0
   _thirst: 0
+  _initialStepsBeforeReproduce: 10
   _health: 0
   _speed: 0.8
 --- !u!114 &114685691731089880
@@ -482,6 +483,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 728f65454b8490644b0fb0f5b2b02833, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _displayPath: 0
 --- !u!114 &114937910060566446
 MonoBehaviour:
   m_ObjectHideFlags: 1

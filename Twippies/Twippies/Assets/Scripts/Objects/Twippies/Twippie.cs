@@ -44,7 +44,7 @@ public class Twippie : DraggableObjet, ILightnable {
         Socialize
     }
 
-    protected enum Gender
+    public enum Gender
     {
         Male,
         Female
@@ -71,14 +71,17 @@ public class Twippie : DraggableObjet, ILightnable {
     private float _hunger;
     [SerializeField]
     private float _thirst;
-
+    [SerializeField]
+    private int _initialStepsBeforeReproduce;
     [SerializeField]
     private float _health;
+    protected bool _healthy;
     private IConsumable _consumable;
     private float _ageSize;
     private float _endurance;
     private int _placeMemory;
     private int _peopleMemory;
+    private int _stepsBeforeReproduce;
     [SerializeField]
     protected float _speed;
 
@@ -95,6 +98,7 @@ public class Twippie : DraggableObjet, ILightnable {
         base.Awake();
         _type = "Twippie";
         _name = "Twippie primitif";
+        _gender = CoinFlip() ? Gender.Male : Gender.Female;
     }
 
     protected override void Start()
@@ -104,7 +108,8 @@ public class Twippie : DraggableObjet, ILightnable {
         _basicNeed = BasicNeed.None;
         _previousState = State.None;
         _goalType = GoalType.Wander;
-        _gender = CoinFlip()?Gender.Male:Gender.Female;
+        _stats.StatToLabel(_stats.StatsList[3]).Value = _gender.ToString();
+        _stepsBeforeReproduce = _initialStepsBeforeReproduce;
         _consumable = null;
         _knownZones = new List<Zone>();
         _knownTwippies = new List<Twippie>();
@@ -218,7 +223,7 @@ public class Twippie : DraggableObjet, ILightnable {
         _thirst = UpdateValue(_thirst, 3/(_age+1)); // Le besoin en eau diminue avec l'age
         _hunger = UpdateValue(_hunger, 3/(_age+1)); // Le besoin en nourriture diminue avec l'age
         _placeMemory = 100 - Mathf.FloorToInt(_age); // La mémoire diminue avec l'âge. Alzeimer à 100 ans
-        _peopleMemory = 50 - Mathf.Abs(50 - Mathf.FloorToInt(_age)); // Mémoire des personnes maximale à la moitié de la vie
+        _peopleMemory = 52 - Mathf.Abs(50 - Mathf.FloorToInt(_age)); // Mémoire des personnes maximale à la moitié de la vie
         _stats.StatToValue(_stats.StatsList[2]).Value = _age;
         _stats.StatToValue(_stats.StatsList[4]).Value = _hunger;
         _stats.StatToValue(_stats.StatsList[5]).Value = _thirst;
@@ -237,6 +242,31 @@ public class Twippie : DraggableObjet, ILightnable {
             _zone = _zManager.GetZone(false, _zone, transform);
             if (_zone != oldZone) // Si on a changé de zone
             {
+                if (_reproduce == null) { // S'ils ne sont pas déjà en train...
+                    if (_healthy) // Faut être en forme
+                    {
+                        if (_age > 18) // Faut être majeur hein !
+                        {
+                            _stepsBeforeReproduce--; //On recharge les batteries
+                            if (_stepsBeforeReproduce <= 0) // Si la marchandise est prête
+                            {
+                                if (CoinFlip(.2f)) // 20% de chances à chaque changement de zone
+                                {
+                                    Gender otherGender = (_gender == Gender.Male) ? Gender.Female : Gender.Male; // On fait ça avec le sexe opposé
+                                    if (_zone.Twippies.Count > 1)
+                                    {
+                                        Twippie twippie = _zone.Twippies.FirstOrDefault(x => x.GenderName == otherGender && x.Age > 18); // Il faut aussi qu'il y ait un twippie du genre opposé majeur dans la même zone !
+                                        if (twippie != null)
+                                        {
+                                            _reproduce = StartCoroutine(Reproduce(twippie));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if (_knownZones.Contains(_zone))
                 {
                     if (_knownZones.IndexOf(_zone) < _knownZones.Count - 1)
@@ -252,31 +282,34 @@ public class Twippie : DraggableObjet, ILightnable {
                 {
                     _knownZones.RemoveAt(0); //Oubli d'une zone lorsque la mémoire est saturée
                 }
-               
-                foreach(Twippie twippie in _zone.Twippies)
+                if (_zone.Twippies?.Count > 0)
                 {
-                    if (_knownTwippies.Contains(twippie))
+                    foreach (Twippie twippie in _zone.Twippies)
                     {
-                        if (_knownTwippies.IndexOf(twippie) < _knownTwippies.Count - 1)
-                            _knownTwippies.Remove(twippie);
-                        _knownTwippies.Add(twippie); //Rafraichissement de mémoire sur un twippie déjà rencontré
-                    }
-                    if (!_knownTwippies.Contains(twippie))
-                    {
-                        _knownTwippies.Add(twippie); //Rencontre d'un nouveau twippie
-                    }
+                        if (twippie == this || twippie == null)
+                            continue;
+                        if (_knownTwippies.Contains(twippie))
+                        {
+                            if (_knownTwippies.IndexOf(twippie) < _knownTwippies.Count - 1)
+                                _knownTwippies.Remove(twippie);
+                            _knownTwippies.Add(twippie); //Rafraichissement de mémoire sur un twippie déjà rencontré
+                        }
+                        if (!_knownTwippies.Contains(twippie))
+                        {
+                            _knownTwippies.Add(twippie); //Rencontre d'un nouveau twippie
+                        }
 
-                    if (twippie.KnownTwippies.Contains(this))
-                    {
-                        if (twippie.KnownTwippies.IndexOf(this) < twippie.KnownTwippies.Count - 1)
-                            twippie.KnownTwippies.Remove(this);
-                        _knownTwippies.Add(this); //Rafraichissement de mémoire de l'autre twippie
+                        if (twippie.KnownTwippies.Contains(this))
+                        {
+                            if (twippie.KnownTwippies.IndexOf(this) < twippie.KnownTwippies.Count - 1)
+                                twippie.KnownTwippies.Remove(this);
+                            _knownTwippies.Add(this); //Rafraichissement de mémoire de l'autre twippie
+                        }
+                        if (!twippie.KnownTwippies.Contains(this))
+                        {
+                            twippie.KnownTwippies.Add(this); // Rencontre mutuelle
+                        }
                     }
-                    if (!twippie.KnownTwippies.Contains(this))
-                    {
-                        twippie.KnownTwippies.Add(this); // Rencontre mutuelle
-                    }
-
                 }
                 while (_knownTwippies.Count > _peopleMemory)
                 {
@@ -345,10 +378,12 @@ public class Twippie : DraggableObjet, ILightnable {
         if (_hunger >= 100 || _thirst >= 100 || _sleepiness >= 100)
         {
             _health = UpdateValue(_health, -1);
+            _healthy = false;
         }
         else if (_hunger < 50 && _thirst < 50 && _sleepiness < 50)
         {
             _health = UpdateValue(_health);
+            _healthy = true;
         }
         if (_health <= 0)
         {
@@ -432,7 +467,31 @@ public class Twippie : DraggableObjet, ILightnable {
 
     private IEnumerator Reproduce(Twippie other)
     {
-        yield return null;
+        int count = 100;
+        Debug.Log("Making babies !");
+        while (count > 0)
+        {
+            _renderer.material.color = new Color(Random.value, Random.value, Random.value);
+            transform.LookAt(other.transform);
+            other.transform.LookAt(transform);
+            count--;
+            yield return null;
+        }
+        foreach(Zone zone in _zone.Neighbours)
+        {
+            if (CoinFlip()) //50% de chance de faire un bébé dans chaque zone voisine
+            {
+                GenerateBaby(zone);
+            }
+        }
+        _stepsBeforeReproduce = _initialStepsBeforeReproduce; // On réinitialise la durée avant prochaine aventure
+        _reproduce = null;
+    }
+
+    private void GenerateBaby(Zone zone)
+    {
+        Twippie baby = Instantiate(this, zone.Center, Quaternion.identity);
+        _om.allObjects.Add(baby);
     }
 
     protected override void GenerateStats()
@@ -653,6 +712,14 @@ public class Twippie : DraggableObjet, ILightnable {
         set
         {
             _knownTwippies = value;
+        }
+    }
+
+    public Gender GenderName
+    {
+        get
+        {
+            return _gender;
         }
     }
 }

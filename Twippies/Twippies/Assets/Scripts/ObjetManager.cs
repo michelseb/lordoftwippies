@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,6 +35,7 @@ public class ObjetManager : MonoBehaviour {
         result = allObjects.FindAll(o => o is T);
         return result;
     }
+
 
     public Planete ActivePlanet
     {
