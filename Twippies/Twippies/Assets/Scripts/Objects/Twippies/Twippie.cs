@@ -14,6 +14,7 @@ public class Twippie : DraggableObjet, ILightnable {
         Drinking,
         Eating,
         Contemplating,
+        Reproducing,
         None
     }
 
@@ -41,6 +42,7 @@ public class Twippie : DraggableObjet, ILightnable {
         Wander,
         Drink,
         Eat,
+        Reproduce,
         Socialize
     }
 
@@ -65,16 +67,15 @@ public class Twippie : DraggableObjet, ILightnable {
     [SerializeField]
     private LayerMask _mask;
 
-    [SerializeField]
     private float _sleepiness;
-    [SerializeField]
     private float _hunger;
-    [SerializeField]
     private float _thirst;
     [SerializeField]
     private int _initialStepsBeforeReproduce;
     [SerializeField]
     private float _health;
+    private float _sicknessDuration, _maxSicknessDuration;
+    private int _nbGeneration;
     protected bool _healthy;
     private IConsumable _consumable;
     private float _ageSize;
@@ -96,8 +97,8 @@ public class Twippie : DraggableObjet, ILightnable {
     protected override void Awake()
     {
         base.Awake();
-        _type = "Twippie";
-        _name = "Twippie primitif";
+        _type = "Twippie primitif";
+        _name = "Twippie sans défenses";
         _gender = CoinFlip() ? Gender.Male : Gender.Female;
     }
 
@@ -204,6 +205,9 @@ public class Twippie : DraggableObjet, ILightnable {
                             case GoalType.Eat:
                                 ChangeState(State.Eating);
                                 break;
+                            case GoalType.Reproduce:
+                                ChangeState(State.Reproducing);
+                                break;
 
                         }
                     }
@@ -250,7 +254,7 @@ public class Twippie : DraggableObjet, ILightnable {
                             _stepsBeforeReproduce--; //On recharge les batteries
                             if (_stepsBeforeReproduce <= 0) // Si la marchandise est prête
                             {
-                                if (CoinFlip(.2f)) // 20% de chances à chaque changement de zone
+                                if (CoinFlip(.15f)) // 15% de chances à chaque changement de zone
                                 {
                                     Gender otherGender = (_gender == Gender.Male) ? Gender.Female : Gender.Male; // On fait ça avec le sexe opposé
                                     if (_zone.Twippies.Count > 1)
@@ -258,6 +262,9 @@ public class Twippie : DraggableObjet, ILightnable {
                                         Twippie twippie = _zone.Twippies.FirstOrDefault(x => x.GenderName == otherGender && x.Age > 18); // Il faut aussi qu'il y ait un twippie du genre opposé majeur dans la même zone !
                                         if (twippie != null)
                                         {
+                                            _goalType = GoalType.Reproduce;
+                                            _goalObject.transform.position = twippie.transform.position;
+                                            _goalObject.transform.parent = twippie.transform;
                                             _reproduce = StartCoroutine(Reproduce(twippie));
                                         }
                                     }
@@ -378,13 +385,25 @@ public class Twippie : DraggableObjet, ILightnable {
         if (_hunger >= 100 || _thirst >= 100 || _sleepiness >= 100)
         {
             _health = UpdateValue(_health, -1);
+            _sicknessDuration = UpdateValue(_sicknessDuration);
             _healthy = false;
         }
         else if (_hunger < 50 && _thirst < 50 && _sleepiness < 50)
         {
             _health = UpdateValue(_health);
+            if (_sicknessDuration > 0)
+            {
+                if (_sicknessDuration > _maxSicknessDuration)
+                {
+                    _maxSicknessDuration = _sicknessDuration;
+                    _sicknessDuration = 0;
+                }
+            }
             _healthy = true;
         }
+
+
+
         if (_health <= 0)
         {
             Die();
@@ -471,27 +490,63 @@ public class Twippie : DraggableObjet, ILightnable {
         Debug.Log("Making babies !");
         while (count > 0)
         {
-            _renderer.material.color = new Color(Random.value, Random.value, Random.value);
-            transform.LookAt(other.transform);
-            other.transform.LookAt(transform);
-            count--;
-            yield return null;
-        }
-        foreach(Zone zone in _zone.Neighbours)
-        {
-            if (CoinFlip()) //50% de chance de faire un bébé dans chaque zone voisine
+            if (_renderer != null)
+                _renderer.material.color = new Color(Random.value, Random.value, Random.value);
+            if (other != null)
             {
-                GenerateBaby(zone);
+                transform.LookAt(other.transform);
+                other.transform.LookAt(transform);
+                count--;
+                yield return null;
+            }
+            else
+            {
+                _reproduce = null;
+                yield break;
             }
         }
+        int nbBabies = 0;
+        foreach(Zone zone in _zone.Neighbours)
+        {
+            if (CoinFlip(.5f/(nbBabies+1))) //% de chance de faire un bébé dans chaque zone voisine => diminue de moitié par twippie créé. Peu de chance d'avoir des triplets...
+            {
+                nbBabies++;
+                GenerateBaby(zone, this, other);
+            }
+        }
+        Debug.Log(nbBabies + " babies made !");
         _stepsBeforeReproduce = _initialStepsBeforeReproduce; // On réinitialise la durée avant prochaine aventure
+        SetDestination(DefineGoal());
         _reproduce = null;
     }
 
-    private void GenerateBaby(Zone zone)
+    private void GenerateBaby(Zone zone, Twippie papa, Twippie mama)
     {
-        Twippie baby = Instantiate(this, zone.Center, Quaternion.identity);
-        _om.allObjects.Add(baby);
+        GameObject twippieModel = null;
+        float wealth = (100 - ((papa.MaxSicknessDuration + mama.MaxSicknessDuration) / 2))/100;
+        int parentsMeanGeneration = Mathf.FloorToInt((papa.NbGeneration + mama.NbGeneration) / 2); // Papa et maman peuvent être à des générations différentes sur l'arbre généalogique
+        if (papa is AdvancedTwippie && mama is AdvancedTwippie)
+        {
+            twippieModel = _og.AdvancedTwippie;
+        }
+        else if ((papa is AdvancedTwippie || mama is AdvancedTwippie)&& CoinFlip())
+        {
+            twippieModel = _og.AdvancedTwippie;
+        }
+        else if (CoinFlip(wealth/5 * parentsMeanGeneration)) // Chances de devenir un twippie avancé selon le niveau de santé des parents et la génération en cours
+        {
+            twippieModel = _og.AdvancedTwippie;
+        }
+        else
+        {
+            twippieModel = _og.Twippie;
+        }
+        GameObject baby = Instantiate(twippieModel, zone.Center, Quaternion.identity);
+        Twippie twippie = baby.GetComponent<Twippie>();
+        twippie.NbGeneration = parentsMeanGeneration+1;
+        _om.allObjects.Add(twippie);
+        //TODO : Affecter les stats de papa / maman à l'enfant
+        //TODO : Calculer si évolution de twippie primitif à avancé
     }
 
     protected override void GenerateStats()
@@ -703,6 +758,18 @@ public class Twippie : DraggableObjet, ILightnable {
         }
     }
 
+    public float MaxSicknessDuration
+    {
+        get
+        {
+            return _maxSicknessDuration;
+        }
+        protected set
+        {
+            _maxSicknessDuration = value;
+        }
+    }
+
     public List<Twippie> KnownTwippies
     {
         get
@@ -720,6 +787,18 @@ public class Twippie : DraggableObjet, ILightnable {
         get
         {
             return _gender;
+        }
+    }
+
+    public int NbGeneration
+    {
+        get
+        {
+            return _nbGeneration;
+        }
+        protected set
+        {
+            _nbGeneration = value;
         }
     }
 }

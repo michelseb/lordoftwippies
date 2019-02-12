@@ -8,6 +8,10 @@ public class ObjectGenerator : MonoBehaviour {
     [SerializeField]
     private GameObject _twippie;
     [SerializeField]
+    private GameObject _advancedTwippie;
+    [SerializeField]
+    private GameObject _basicHouse;
+    [SerializeField]
     private GameObject _tree;
     [SerializeField]
     private int _nbTwippies;
@@ -15,6 +19,18 @@ public class ObjectGenerator : MonoBehaviour {
     private int _nbTrees;
     private ObjetManager _om;
     private ZoneManager _zm;
+
+    private static ObjectGenerator _instance;
+    public static ObjectGenerator Instance
+    {
+        get
+        {
+            if (_instance == null)
+                _instance = FindObjectOfType<ObjectGenerator>();
+
+            return _instance;
+        }
+    }
 
     private void Awake()
     {
@@ -91,5 +107,21 @@ public class ObjectGenerator : MonoBehaviour {
         }
         z = null;
 
+    }
+
+    public GameObject Twippie
+    {
+        get
+        {
+            return _twippie;
+        }
+    }
+
+    public GameObject AdvancedTwippie
+    {
+        get
+        {
+            return _advancedTwippie;
+        }
     }
 }
