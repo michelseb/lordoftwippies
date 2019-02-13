@@ -34,6 +34,8 @@ public class Twippie : DraggableObjet, ILightnable {
         Eat,
         Drink,
         Sleep,
+        Warmup,
+        Cooldown,
         None
     }
 
@@ -43,6 +45,7 @@ public class Twippie : DraggableObjet, ILightnable {
         Drink,
         Eat,
         Reproduce,
+        Build,
         Socialize
     }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class AdvancedTwippie : Twippie {
@@ -7,15 +8,15 @@ public class AdvancedTwippie : Twippie {
     {
         Socialize,
         Partnerize,
-        Warmup,
-        Cooldown,
+        Build,
         None
     }
-
+    protected float[] advancedNeedSensibilities;
     protected List<Ressource> _ressources;
     protected AdvancedNeed _advancedNeed;
     private Twippie _partner;
     protected House _house;
+    protected Coroutine _building;
 
     protected override void Awake()
     {
@@ -31,6 +32,7 @@ public class AdvancedTwippie : Twippie {
         _advancedNeed = AdvancedNeed.None;
         _ressources = new List<Ressource>();
         _house = null;
+
     }
 
 
@@ -48,11 +50,50 @@ public class AdvancedTwippie : Twippie {
         {
             case AdvancedNeed.Socialize:
                 return GoalType.Socialize;
+            case AdvancedNeed.Build:
+                return GoalType.Build;
         }
         return GoalType.Wander;
     }
 
-    protected virtual void Build(GameObject model)
+    private IEnumerator CheckAdvancedNeeds()
+    {
+        while (true)
+        {
+            if ()
+            yield return new WaitForSeconds(3);
+        }
+
+    }
+
+
+    protected virtual IEnumerator Build(GameObject model)
+    {
+        yield return null;
+    }
+
+    public List<Ressource> Ressources
+    {
+        get
+        {
+            return _ressources;
+        }
+        set
+        {
+            _ressources = value;
+        }
+    }
+    
+    private int SelectAdvancedNeed(float[] sensibilities)
+    {
+        List<float>
+        for (int a = 0; a < sensibilities.Length; a++)
+        {
+
+        }
+    }
+
+    private void SetSensibilities()
     {
 
     }

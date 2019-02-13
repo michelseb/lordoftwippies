@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Linq;
+using System.Collections;
 
-public class TreeObjet : StaticObjet, IConsumable, ILightnable {
+public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
 
     private bool _spread;
     [SerializeField]
@@ -102,6 +103,28 @@ public class TreeObjet : StaticObjet, IConsumable, ILightnable {
     public void Liberate()
     {
         _renderer.material.color = Color.white;
+    }
+
+    public IEnumerator Collecting(AdvancedTwippie twippie)
+    {
+        _r.isKinematic = false;
+        _r.AddTorque(Vector3.forward, ForceMode.Impulse);
+        yield return new WaitForSeconds(3);
+        Collect(twippie);
+    }
+    public void Collect(AdvancedTwippie twippie)
+    {
+        _zone.Taken = false;
+        Ressource ressource = twippie.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Food);
+        if (ressource != null)
+        {
+            ressource.quantity += _woodCost;
+        }
+        else
+        {
+            twippie.Ressources.Add(new Ressource(Ressource.RessourceType.Food, _woodCost));
+        }
+        Destroy(gameObject);
     }
 
     public void Spread()
