@@ -1,18 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ObjectGenerator : MonoBehaviour {
     [SerializeField]
     private float _spawnTime;
     [SerializeField]
-    private GameObject _twippie;
-    [SerializeField]
-    private GameObject _advancedTwippie;
-    [SerializeField]
-    private GameObject _basicHouse;
-    [SerializeField]
-    private GameObject _tree;
+    public List<ManageableObjet> ObjectFactory;
     [SerializeField]
     private int _nbTwippies;
     [SerializeField]
@@ -66,7 +61,7 @@ public class ObjectGenerator : MonoBehaviour {
             {
                 if (_zm.Zones[b].Accessible)
                 {
-                    GameObject tree = Instantiate(_tree, _zm.Zones[b].Center, Quaternion.identity, transform);
+                    GameObject tree = Instantiate(GetGO<TreeObjet>(), _zm.Zones[b].Center, Quaternion.identity, transform);
                     ManageableObjet mo = tree.GetComponent<ManageableObjet>();
                     mo.Age = 1;
                     _om.allObjects.Add(mo);
@@ -91,7 +86,7 @@ public class ObjectGenerator : MonoBehaviour {
             {
                 if (_zm.Zones[b].Accessible)
                 {
-                    GameObject twippie = Instantiate(_twippie, _zm.Zones[b].Center, Quaternion.identity, transform);
+                    GameObject twippie = Instantiate(GetGO<Twippie>(), _zm.Zones[b].Center, Quaternion.identity, transform);
                     _om.allObjects.Add(twippie.GetComponent<ManageableObjet>());
                     z.Add(_zm.Zones[b]);
                     _zm.Zones[b].Accessible = false;
@@ -109,19 +104,18 @@ public class ObjectGenerator : MonoBehaviour {
 
     }
 
-    public GameObject Twippie
+    public GameObject GetGO<T>() where T : ManageableObjet
     {
-        get
-        {
-            return _twippie;
-        }
+        ManageableObjet obj = ObjectFactory.FirstOrDefault(x => x is T);
+        if (obj != null)
+            return obj.gameObject;
+        return null;
     }
 
-    public GameObject AdvancedTwippie
+    public List<ManageableObjet> GetObjects<T>() where T : class
     {
-        get
-        {
-            return _advancedTwippie;
-        }
+        List<ManageableObjet> result = new List<ManageableObjet>();
+        result = ObjectFactory.FindAll(x => x is T);
+        return result;
     }
 }

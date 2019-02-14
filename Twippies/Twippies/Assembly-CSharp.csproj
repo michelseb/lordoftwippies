@@ -95,6 +95,7 @@
      <Compile Include="Assets\Scripts\IA\Arrival.cs" />
      <Compile Include="Assets\Scripts\IA\Feeling.cs" />
      <Compile Include="Assets\Scripts\IA\PathFinder.cs" />
+     <Compile Include="Assets\Scripts\Interfaces\IBuildable.cs" />
      <Compile Include="Assets\Scripts\Interfaces\ICollectable.cs" />
      <Compile Include="Assets\Scripts\Interfaces\IConsumable.cs" />
      <Compile Include="Assets\Scripts\Interfaces\ILightnable.cs" />

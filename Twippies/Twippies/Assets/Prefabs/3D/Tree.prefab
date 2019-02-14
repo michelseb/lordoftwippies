@@ -22,7 +22,6 @@ GameObject:
   - component: {fileID: 33470780770486796}
   - component: {fileID: 23718397124618680}
   - component: {fileID: 136604696652260050}
-  - component: {fileID: 114068653682758242}
   m_Layer: 13
   m_Name: puu2
   m_TagString: Untagged
@@ -132,21 +131,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &114068653682758242
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1569749299902388}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fbf3575480402db40813e763382412fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  color: 1
-  eraseRenderer: 0
-  originalLayer: 0
-  originalMaterials: []
 --- !u!114 &114200954049039872
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Objet : MonoBehaviour {
 
@@ -57,6 +55,18 @@ public class Objet : MonoBehaviour {
         get
         {
             return _icon;
+        }
+    }
+
+    public Vector3 CurrentSize
+    {
+        get
+        {
+            return _currentSize;
+        }
+        set
+        {
+            _currentSize = value;
         }
     }
 

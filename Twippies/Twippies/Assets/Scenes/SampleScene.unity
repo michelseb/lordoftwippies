@@ -386,6 +386,37 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 224083863679487284, guid: 3f3596c19db712c4ea77d700a59bd6db,
     type: 2}
   m_PrefabInternal: {fileID: 1559677305}
+--- !u!84 &136886395
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_Width: 911
+  m_Height: 512
+  m_AntiAliasing: 1
+  m_DepthFormat: 1
+  m_ColorFormat: 7
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 0
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1 &138881188
 GameObject:
   m_ObjectHideFlags: 0
@@ -432,7 +463,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 0
   m_RenderingPath: 1
-  m_TargetTexture: {fileID: 262242605}
+  m_TargetTexture: {fileID: 136886395}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 0
@@ -619,37 +650,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!84 &262242605
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_Width: 930
-  m_Height: 523
-  m_AntiAliasing: 1
-  m_DepthFormat: 1
-  m_ColorFormat: 7
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 0
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!20 &265013994 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 20410745860015606, guid: 3f3596c19db712c4ea77d700a59bd6db,
@@ -1022,8 +1022,8 @@ MonoBehaviour:
   sourceCamera: {fileID: 534669904}
   outlineCamera: {fileID: 138881189}
   outlineShaderMaterial: {fileID: 0}
-  renderTexture: {fileID: 262242605}
-  extraRenderTexture: {fileID: 1766723904}
+  renderTexture: {fileID: 136886395}
+  extraRenderTexture: {fileID: 1615550334}
 --- !u!1 &549245930
 GameObject:
   m_ObjectHideFlags: 0
@@ -1576,11 +1576,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spawnTime: 0.1
-  _twippie: {fileID: 1953714432734514, guid: b00ca645c3d7f5a448fd93017afddcb2, type: 2}
-  _advancedTwippie: {fileID: 1098557606289364, guid: 0d98bba2673c10e4b9977dce1d32a316,
-    type: 2}
-  _basicHouse: {fileID: 0}
-  _tree: {fileID: 1872517987282830, guid: 415c3e3ede6341c45a639f8de4d8353f, type: 2}
+  ObjectFactory:
+  - {fileID: 114582063650703976, guid: b00ca645c3d7f5a448fd93017afddcb2, type: 2}
+  - {fileID: 114922808569114310, guid: 0d98bba2673c10e4b9977dce1d32a316, type: 2}
+  - {fileID: 114200954049039872, guid: 415c3e3ede6341c45a639f8de4d8353f, type: 2}
+  - {fileID: 114756768802590268, guid: 38fd773339338d847afcdb09284accec, type: 2}
   _nbTwippies: 30
   _nbTrees: 100
 --- !u!114 &1211291064
@@ -2330,6 +2330,37 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
+--- !u!84 &1615550334
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_Width: 911
+  m_Height: 512
+  m_AntiAliasing: 1
+  m_DepthFormat: 1
+  m_ColorFormat: 7
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1 &1625631670
 GameObject:
   m_ObjectHideFlags: 0
@@ -2557,37 +2588,6 @@ MonoBehaviour:
   _woodText: {fileID: 2089464483}
   _waterText: {fileID: 490500019}
   _stoneText: {fileID: 1903760022}
---- !u!84 &1766723904
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_Width: 930
-  m_Height: 523
-  m_AntiAliasing: 1
-  m_DepthFormat: 1
-  m_ColorFormat: 7
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!1 &1805439447
 GameObject:
   m_ObjectHideFlags: 0

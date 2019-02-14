@@ -28,7 +28,6 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
     protected override void Update()
     {
         base.Update();
-        transform.localScale = _currentSize;
         if (_age > 1 && _currentSize.x > 1 && !_spread)
         {
             _zone.Accessible = false;

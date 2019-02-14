@@ -11,6 +11,7 @@ public class Twippie : DraggableObjet, ILightnable {
         Walking,
         Sleeping,
         Building,
+        Collecting,
         Drinking,
         Eating,
         Contemplating,
@@ -46,6 +47,7 @@ public class Twippie : DraggableObjet, ILightnable {
         Eat,
         Reproduce,
         Build,
+        Collect,
         Socialize
     }
 
@@ -59,6 +61,7 @@ public class Twippie : DraggableObjet, ILightnable {
     protected Arrival _arrival;
     protected List<Zone> _knownZones;
     protected List<Twippie> _knownTwippies;
+    protected Twippie _papa, _maman;
     [SerializeField]
     protected PathFinder _pathFinder;
     protected Gender _gender;
@@ -211,6 +214,12 @@ public class Twippie : DraggableObjet, ILightnable {
                             case GoalType.Reproduce:
                                 ChangeState(State.Reproducing);
                                 break;
+                            case GoalType.Collect:
+                                ChangeState(State.Collecting);
+                                break;
+                            case GoalType.Build:
+                                ChangeState(State.Building);
+                                break;
 
                         }
                     }
@@ -257,7 +266,7 @@ public class Twippie : DraggableObjet, ILightnable {
                             _stepsBeforeReproduce--; //On recharge les batteries
                             if (_stepsBeforeReproduce <= 0) // Si la marchandise est prête
                             {
-                                if (CoinFlip(.15f)) // 15% de chances à chaque changement de zone
+                                if (CoinFlip(.5f)) // 50% de chances à chaque changement de zone
                                 {
                                     Gender otherGender = (_gender == Gender.Male) ? Gender.Female : Gender.Male; // On fait ça avec le sexe opposé
                                     if (_zone.Twippies.Count > 1)
@@ -329,7 +338,7 @@ public class Twippie : DraggableObjet, ILightnable {
         }
     }
 
-    private void OnStateChange()
+    protected virtual void OnStateChange()
     {
         switch (_state)
         {
@@ -509,12 +518,18 @@ public class Twippie : DraggableObjet, ILightnable {
             }
         }
         int nbBabies = 0;
-        foreach(Zone zone in _zone.Neighbours)
+
+        if (_gender == Gender.Female)// C'est la femme qui accouche
         {
-            if (CoinFlip(.5f/(nbBabies+1))) //% de chance de faire un bébé dans chaque zone voisine => diminue de moitié par twippie créé. Peu de chance d'avoir des triplets...
+            foreach (Zone zone in _zone.Neighbours)
             {
-                nbBabies++;
-                GenerateBaby(zone, this, other);
+             
+                if (CoinFlip(.5f / (nbBabies + 1))) //% de chance de faire un bébé dans chaque zone voisine => diminue de moitié par twippie créé. Peu de chance d'avoir des triplets...
+                {
+                    nbBabies++;
+                    GenerateBaby(zone, other, this); // Génère le bébé selon la maman et le papa
+                }
+            
             }
         }
         Debug.Log(nbBabies + " babies made !");
@@ -530,23 +545,25 @@ public class Twippie : DraggableObjet, ILightnable {
         int parentsMeanGeneration = Mathf.FloorToInt((papa.NbGeneration + mama.NbGeneration) / 2); // Papa et maman peuvent être à des générations différentes sur l'arbre généalogique
         if (papa is AdvancedTwippie && mama is AdvancedTwippie)
         {
-            twippieModel = _og.AdvancedTwippie;
+            twippieModel = _og.GetGO<AdvancedTwippie>();
         }
         else if ((papa is AdvancedTwippie || mama is AdvancedTwippie)&& CoinFlip())
         {
-            twippieModel = _og.AdvancedTwippie;
+            twippieModel = _og.GetGO<AdvancedTwippie>();
         }
         else if (CoinFlip(wealth/5 * parentsMeanGeneration)) // Chances de devenir un twippie avancé selon le niveau de santé des parents et la génération en cours
         {
-            twippieModel = _og.AdvancedTwippie;
+            twippieModel = _og.GetGO<AdvancedTwippie>();
         }
         else
         {
-            twippieModel = _og.Twippie;
+            twippieModel = _og.GetGO<Twippie>();
         }
         GameObject baby = Instantiate(twippieModel, zone.Center, Quaternion.identity);
         Twippie twippie = baby.GetComponent<Twippie>();
         twippie.NbGeneration = parentsMeanGeneration+1;
+        twippie.Papa = papa;
+        twippie.Maman = mama;
         _om.allObjects.Add(twippie);
         //TODO : Affecter les stats de papa / maman à l'enfant
         //TODO : Calculer si évolution de twippie primitif à avancé
@@ -564,12 +581,13 @@ public class Twippie : DraggableObjet, ILightnable {
         _stats.StatsList[9] = new LabelStat("Action :");
     }
 
-    private void SetDestination(GoalType goal)
+    protected void SetDestination(GoalType goal)
     {
         _goalObject.transform.parent = null;
         Zone zone = null;
         switch (goal)
         {
+            case GoalType.Build:
             case GoalType.Wander:
                 zone = _zManager.GetRandomZoneByDistance(transform, _pathFinder, checkAccessible: true, checkTaken: true, distanceMax: _endurance);
                 break;
@@ -594,6 +612,7 @@ public class Twippie : DraggableObjet, ILightnable {
                     }
                 }
             break;
+            case GoalType.Collect:
             case GoalType.Eat:
                 zone = _zManager.GetRessourceZoneByDistance(transform, _pathFinder, ressource: Ressource.RessourceType.Food, checkAccessible: true, checkTaken: true, distanceMax: _endurance);
                 if (zone != null)
@@ -802,6 +821,30 @@ public class Twippie : DraggableObjet, ILightnable {
         protected set
         {
             _nbGeneration = value;
+        }
+    }
+
+    public Twippie Papa
+    {
+        get
+        {
+            return _papa;
+        }
+        protected set
+        {
+            _papa = value;
+        }
+    }
+
+    public Twippie Maman
+    {
+        get
+        {
+            return _maman;
+        }
+        protected set
+        {
+            _maman = value;
         }
     }
 }

@@ -12,7 +12,11 @@ public abstract class StaticObjet : DraggableObjet {
         _r.isKinematic = false;
     }
 
-
+    protected override void Update()
+    {
+        base.Update();
+        transform.localScale = _currentSize;
+    }
     protected virtual void FixedUpdate()
     {
         if (_grounded)
