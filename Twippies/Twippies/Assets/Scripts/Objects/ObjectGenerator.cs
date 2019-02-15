@@ -12,6 +12,8 @@ public class ObjectGenerator : MonoBehaviour {
     private int _nbTwippies;
     [SerializeField]
     private int _nbTrees;
+    [SerializeField]
+    private int _nbAdvancedTwippies;
     private ObjetManager _om;
     private ZoneManager _zm;
 
@@ -87,6 +89,22 @@ public class ObjectGenerator : MonoBehaviour {
                 if (_zm.Zones[b].Accessible)
                 {
                     GameObject twippie = Instantiate(GetGO<Twippie>(), _zm.Zones[b].Center, Quaternion.identity, transform);
+                    _om.allObjects.Add(twippie.GetComponent<ManageableObjet>());
+                    z.Add(_zm.Zones[b]);
+                    _zm.Zones[b].Accessible = false;
+                    break;
+                }
+            }
+            if (_spawnTime > 0)
+                yield return new WaitForSeconds(_spawnTime);
+        }
+        for (int a = 0; a < _nbAdvancedTwippies; a++)
+        {
+            for (int b = 0; b < _zm.Zones.Length; b++)
+            {
+                if (_zm.Zones[b].Accessible)
+                {
+                    GameObject twippie = Instantiate(GetGO<AdvancedTwippie>(), _zm.Zones[b].Center, Quaternion.identity, transform);
                     _om.allObjects.Add(twippie.GetComponent<ManageableObjet>());
                     z.Add(_zm.Zones[b]);
                     _zm.Zones[b].Accessible = false;

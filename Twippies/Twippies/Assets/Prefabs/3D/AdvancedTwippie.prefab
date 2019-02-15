@@ -327,6 +327,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 0}
+  WOODCOST: 0
+  WATERCOST: 3
+  STONECOST: 0
   _stats: {fileID: 114231794758156476}
   _p: {fileID: 0}
   _pathFinder: {fileID: 114810807935191006}

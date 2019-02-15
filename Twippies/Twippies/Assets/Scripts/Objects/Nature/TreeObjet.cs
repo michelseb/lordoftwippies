@@ -11,6 +11,7 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
     protected float _waterAmount;
     [SerializeField]
     private LayerMask _mask;
+
     protected override void Awake()
     {
         base.Awake();
@@ -21,7 +22,6 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
     {
         base.Start();
         _outline.color = 1;
-        _woodCost = 5;
         _zone.Accessible = true;
     }
 
@@ -107,23 +107,24 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
     public IEnumerator Collecting(AdvancedTwippie twippie)
     {
         _r.isKinematic = false;
-        _r.AddTorque(Vector3.forward, ForceMode.Impulse);
-        yield return new WaitForSeconds(3);
+        _r.AddTorque(Vector3.up, ForceMode.Impulse);
+        yield return new WaitForSeconds(1);
         Collect(twippie);
     }
     public void Collect(AdvancedTwippie twippie)
     {
+        twippie.Collecting = null;
         _zone.Taken = false;
         Ressource ressource = twippie.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Food);
         if (ressource != null)
         {
-            ressource.quantity += _woodCost;
+            ressource.quantity += WOODCOST;
         }
         else
         {
-            twippie.Ressources.Add(new Ressource(Ressource.RessourceType.Food, _woodCost));
+            twippie.Ressources.Add(new Ressource(Ressource.RessourceType.Food, WOODCOST));
         }
-        Destroy(gameObject);
+        Destroy(this);
     }
 
     public void Spread()

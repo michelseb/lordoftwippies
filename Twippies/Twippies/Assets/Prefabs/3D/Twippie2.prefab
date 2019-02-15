@@ -435,15 +435,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 21300000, guid: 519e67734db9a2b48a54ff80cffc3a1d, type: 3}
+  WOODCOST: 0
+  WATERCOST: 1
+  STONECOST: 0
   _stats: {fileID: 114701642900926098}
   _p: {fileID: 0}
   _pathFinder: {fileID: 114828306073754496}
   _mask:
     serializedVersion: 2
     m_Bits: 10497
-  _sleepiness: 0
-  _hunger: 0
-  _thirst: 0
   _initialStepsBeforeReproduce: 10
   _health: 0
   _speed: 0.8

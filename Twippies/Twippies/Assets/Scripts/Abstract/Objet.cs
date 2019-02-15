@@ -9,7 +9,8 @@ public class Objet : MonoBehaviour {
     protected ObjetManager _om;
     protected ObjectGenerator _og;
     protected float _posX, _posY;
-    protected int _woodCost, _waterCost, _stoneCost;
+    [SerializeField]
+    protected int WOODCOST, WATERCOST, STONECOST;
     
     protected Camera _cam;
 
@@ -30,7 +31,7 @@ public class Objet : MonoBehaviour {
     {
         get
         {
-            return _woodCost;
+            return WOODCOST;
         }
     }
 
@@ -38,7 +39,7 @@ public class Objet : MonoBehaviour {
     {
         get
         {
-            return _waterCost;
+            return WATERCOST;
         }
     }
 
@@ -46,7 +47,7 @@ public class Objet : MonoBehaviour {
     {
         get
         {
-            return _stoneCost;
+            return STONECOST;
         }
     }
 

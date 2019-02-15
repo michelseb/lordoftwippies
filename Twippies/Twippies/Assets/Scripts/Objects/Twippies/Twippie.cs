@@ -98,7 +98,7 @@ public class Twippie : DraggableObjet, ILightnable {
     protected float _contemplateTime;
 
     private bool _reproducing;
-    
+
 
     protected override void Awake()
     {
@@ -124,7 +124,6 @@ public class Twippie : DraggableObjet, ILightnable {
         _lineRenderer.enabled = false;
         _initSpeed = _speed;
         _outline.color = 3;
-        _waterCost = 1;
         _endurance = 10;// +Random.value * 10;
         _health = 100;
         _goalObject = new GameObject();
@@ -244,7 +243,8 @@ public class Twippie : DraggableObjet, ILightnable {
         _stats.StatToValue(_stats.StatsList[4]).Value = _hunger;
         _stats.StatToValue(_stats.StatsList[5]).Value = _thirst;
         _stats.StatToValue(_stats.StatsList[6]).Value = _sleepiness;
-        
+        _stats.StatToLabel(_stats.StatsList[7]).Value = "Need : "+_basicNeed.ToString();
+        _stats.StatToLabel(_stats.StatsList[9]).Value = "Action : " + _state.ToString();
 
     }
 
@@ -576,9 +576,9 @@ public class Twippie : DraggableObjet, ILightnable {
         _stats.StatsList[4] = new ValueStat(0, 0, 100, "hunger", true);
         _stats.StatsList[5] = new ValueStat(0, 0, 100, "thirst", true);
         _stats.StatsList[6] = new ValueStat(0, 0, 100, "fatigue", true);
-        _stats.StatsList[7] = new LabelStat("Need :");
-        _stats.StatsList[8] = new LabelStat("Emotion :");
-        _stats.StatsList[9] = new LabelStat("Action :");
+        _stats.StatsList[7] = new LabelStat("Need : "+_basicNeed.ToString());
+        _stats.StatsList[8] = new LabelStat("Emotion : ");
+        _stats.StatsList[9] = new LabelStat("Action : "+_state.ToString());
     }
 
     protected void SetDestination(GoalType goal)

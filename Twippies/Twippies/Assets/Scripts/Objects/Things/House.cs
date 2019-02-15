@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class House : StaticObjet, IBuildable
 {
+
     protected override void Awake()
     {
         base.Awake();
@@ -13,7 +14,6 @@ public class House : StaticObjet, IBuildable
     {
         base.Start();
         _outline.color = 1;
-        _woodCost = 50;
     }
 
     public IEnumerator Build()

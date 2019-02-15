@@ -11,6 +11,7 @@ public class Cloud : AerialObjet {
     [SerializeField]
     private ParticleSystem _ps;
 
+
     protected override void GenerateStats()
     {
         base.GenerateStats();
@@ -28,7 +29,6 @@ public class Cloud : AerialObjet {
     {
         base.Start();
         _outline.color = 4;
-        _waterCost = 3;
     }
 
     protected override void Update()

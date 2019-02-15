@@ -140,6 +140,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 21300000, guid: 3d7d8fb7fe6897d46b2dd242bffe5576, type: 3}
+  WOODCOST: 0
+  WATERCOST: 5
+  STONECOST: 0
   _stats: {fileID: 114010745275471244}
   _p: {fileID: 0}
   _raining: 0

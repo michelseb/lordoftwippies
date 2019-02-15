@@ -191,7 +191,6 @@ public class Zone : MonoBehaviour {
             {
                 if (!_twippies.Contains(twippie))
                 {
-                    Debug.Log("twippie : " + twippie);
                     _twippies.Add(twippie);
                 }
             }

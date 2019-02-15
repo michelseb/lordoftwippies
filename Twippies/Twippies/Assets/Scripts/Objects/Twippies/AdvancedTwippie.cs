@@ -45,6 +45,7 @@ public class AdvancedTwippie : Twippie {
         _partner = null;
         _advancedNeed = SkillType.None;
         SetSensibilities();
+        StartCoroutine(CheckAdvancedNeeds());
         _ressources = new List<Ressource> { new Ressource(Ressource.RessourceType.Drink, 0), new Ressource(Ressource.RessourceType.Food, 0) };
         _house = null;
 
@@ -68,10 +69,14 @@ public class AdvancedTwippie : Twippie {
             case SkillType.Build:
                 if (_og.GetObjects<IBuildable>().FirstOrDefault(x=>x.WoodCost <= _ressources[1].quantity) != null)
                 {
+                    Debug.Log("IBuildable : "+_og.GetObjects<IBuildable>().FirstOrDefault(x => x.WoodCost <= _ressources[1].quantity));
+                    Debug.Log("Ressources : " + _ressources[1].quantity);
+                    Debug.Log("Need to build");
                     return GoalType.Build;
                 }
                 else
                 {
+                    Debug.Log("Need to collect");
                     return GoalType.Collect;
                 }
                 
@@ -85,15 +90,18 @@ public class AdvancedTwippie : Twippie {
         switch (_state)
         {
             case State.Building:
+                Debug.Log("Should build");
                 if (_building == null)
                 {
                     ManageableObjet obj = _og.GetObjects<IBuildable>().FirstOrDefault(x => x.WoodCost <= _ressources[1].quantity);
                     if (obj != null)
                     {
                         GameObject house = Instantiate(obj.gameObject, _arrival.FinishZone.Center, Quaternion.identity);
+                        house.transform.localScale = Vector3.zero;
                         obj = house.GetComponent<ManageableObjet>();
                         obj.CurrentSize = Vector3.zero;
                         var buildable = (IBuildable)obj;
+                        Debug.Log("Building");
                         _building = StartCoroutine(buildable.Build());
                     }
                     else
@@ -103,6 +111,7 @@ public class AdvancedTwippie : Twippie {
                 }
                 break;
             case State.Collecting:
+                Debug.Log("Should collect");
                 if (_collecting == null)
                 {
                     Ressource ressource = _arrival.FinishZone.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Food);
@@ -113,6 +122,7 @@ public class AdvancedTwippie : Twippie {
                             if (ressource.consumableObject is ICollectable)
                             {
                                 ICollectable collectable = (ICollectable)ressource.consumableObject;
+                                Debug.Log("Collecting");
                                 _collecting = StartCoroutine(collectable.Collecting(this));
                             }
                         }
@@ -167,7 +177,6 @@ public class AdvancedTwippie : Twippie {
         }
         else
         {
-            Debug.Log("Skill choisi : " + skillList[0].SkillType);
             return skillList[0];
         }
     }
@@ -175,8 +184,8 @@ public class AdvancedTwippie : Twippie {
     private void SetSensibilities()
     {
         SkillType[] skillArray = (SkillType[])Enum.GetValues(typeof(SkillType));
-        _skills = new Skill[skillArray.Length];
-        for (int a = 0; a < skillArray.Length; a++)
+        _skills = new Skill[skillArray.Length-1];
+        for (int a = 0; a < skillArray.Length-1; a++)
         {
             _skills[a].SkillType = skillArray[a];
             _skills[a].SkillValue = UnityEngine.Random.Range(.1f, .3f);
@@ -187,7 +196,7 @@ public class AdvancedTwippie : Twippie {
             {
                 AdvancedTwippie aPapa = (AdvancedTwippie)_papa;
                 AdvancedTwippie aMaman = (AdvancedTwippie)_maman;
-                for (int a = 0; a < skillArray.Length; a++)
+                for (int a = 0; a < skillArray.Length-1; a++)
                 {
                     float ponderation = UnityEngine.Random.value;
                     _skills[a].SkillType = skillArray[a];
@@ -199,7 +208,7 @@ public class AdvancedTwippie : Twippie {
                 if (_papa is AdvancedTwippie)
                 {
                     AdvancedTwippie aPapa = (AdvancedTwippie)_papa;
-                    for (int a = 0; a < skillArray.Length; a++)
+                    for (int a = 0; a < skillArray.Length-1; a++)
                     {
                         float ponderation = UnityEngine.Random.value;
                         _skills[a].SkillType = skillArray[a];
@@ -209,7 +218,7 @@ public class AdvancedTwippie : Twippie {
                 else if (_maman is AdvancedTwippie)
                 {
                     AdvancedTwippie aMaman = (AdvancedTwippie)_maman;
-                    for (int a = 0; a < skillArray.Length; a++)
+                    for (int a = 0; a < skillArray.Length-1; a++)
                     {
                         float ponderation = UnityEngine.Random.value;
                         _skills[a].SkillType = skillArray[a];
@@ -218,7 +227,7 @@ public class AdvancedTwippie : Twippie {
                 }
                 else
                 {
-                    for (int a = 0; a < skillArray.Length; a++)
+                    for (int a = 0; a < skillArray.Length-1; a++)
                     {
                         _skills[a].SkillType = skillArray[a];
                         _skills[a].SkillValue = UnityEngine.Random.Range(.1f, .3f);
@@ -237,6 +246,18 @@ public class AdvancedTwippie : Twippie {
         set
         {
             _skills = value;
+        }
+    }
+
+    public Coroutine Collecting
+    {
+        get
+        {
+            return _collecting;
+        }
+        set
+        {
+            _collecting = value;
         }
     }
 }
