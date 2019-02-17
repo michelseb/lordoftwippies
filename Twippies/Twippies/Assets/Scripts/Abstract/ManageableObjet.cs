@@ -203,22 +203,22 @@ public abstract class ManageableObjet : Objet {
         _posY = Input.mousePosition.y - _dist.y;
     }
 
-    protected float UpdateValue(float value, float factor = 1)
+    protected float UpdateValue(float value, float factor = 1, int minVal = 0, int maxVal = 100)
     {
         value += Time.deltaTime * factor * _timeReference;
-        if (value < 0)
-            value = 0;
-        if (value > 100)
-            value = 100;
+        if (value < minVal)
+            value = minVal;
+        if (value > maxVal)
+            value = maxVal;
 
         return value;
     }
 
-    protected Vector3 UpdateVector(Vector3 value, float factor = 1, float maxSize = 100)
+    protected Vector3 UpdateVector(Vector3 value, float factor = 1,int minSize = 0, int maxSize = 100)
     {
         value += Vector3.one * Time.deltaTime * factor * _timeReference;
-        if (value.x < 0)
-            value = Vector3.zero;
+        if (value.x < minSize)
+            value = Vector3.one * minSize;
         if (value.x > maxSize)
             value = Vector3.one * maxSize;
 

@@ -5,31 +5,13 @@ using System.Linq;
 using UnityEngine;
 
 public class AdvancedTwippie : Twippie {
-
-    public struct Skill
-    {
-        public SkillType SkillType;
-        public float SkillValue;
-        public Skill(SkillType skillType, float skillValue)
-        {
-            SkillType = skillType;
-            SkillValue = skillValue;
-        }
-    }
-
-    public enum SkillType
-    {
-        Socialize,
-        Partnerize,
-        Build,
-        None
-    }
+    
     protected float[] advancedNeedSensibilities;
     protected List<Ressource> _ressources;
     private Twippie _partner;
     protected House _house;
     protected Coroutine _building, _collecting;
-    protected SkillType _advancedNeed;
+    protected Skill _advancedNeed;
     protected Skill[] _skills;
 
     protected override void Awake()
@@ -43,7 +25,7 @@ public class AdvancedTwippie : Twippie {
     {
         base.Start();
         _partner = null;
-        _advancedNeed = SkillType.None;
+        _advancedNeed = new Skill(SkillType.None, 0);
         SetSensibilities();
         StartCoroutine(CheckAdvancedNeeds());
         _ressources = new List<Ressource> { new Ressource(Ressource.RessourceType.Drink, 0), new Ressource(Ressource.RessourceType.Food, 0) };
@@ -51,6 +33,14 @@ public class AdvancedTwippie : Twippie {
 
     }
 
+    protected override void Update()
+    {
+        base.Update();
+        for(int a = 0; a < _skills.Length; a++)
+        {
+            _skills[a].SkillValue = UpdateValue(_skills[a].SkillValue, -.001f, 0, 1); //Perte de skill globale constante
+        }
+    }
 
 
     protected override GoalType DefineGoal()
@@ -62,7 +52,7 @@ public class AdvancedTwippie : Twippie {
             case BasicNeed.Eat:
                 return GoalType.Eat;
         }
-        switch (_advancedNeed)
+        switch (_advancedNeed.Type)
         {
             case SkillType.Socialize:
                 return GoalType.Socialize;
@@ -102,6 +92,8 @@ public class AdvancedTwippie : Twippie {
                         obj.CurrentSize = Vector3.zero;
                         var buildable = (IBuildable)obj;
                         Debug.Log("Building");
+                        Skill updatingSkill = _skills.FirstOrDefault(x => x.Type == SkillType.Build);
+                        updatingSkill.SkillValue = UpdateValue(updatingSkill.SkillValue + .2f, 0, 0, 1);
                         _building = StartCoroutine(buildable.Build());
                     }
                     else
@@ -141,7 +133,7 @@ public class AdvancedTwippie : Twippie {
         while (true)
         {
             Skill skill = SelectSkill(_skills.ToList());
-            _advancedNeed = skill.SkillType;
+            _advancedNeed = skill;
             yield return new WaitForSeconds(3);
         }
 
@@ -163,12 +155,13 @@ public class AdvancedTwippie : Twippie {
     {
         if (skillList == null || skillList.Count == 0)
             return new Skill(SkillType.None, 0);
-        
+
+        float skillsSum = skillList.Sum(x => x.SkillValue); // Somme des valeurs des skills
         for (int a = 0; a < skillList.Count; a++)
         {
-            if (CoinFlip(skillList[a].SkillValue))
+            if (!CoinFlip(skillList[a].SkillValue/skillsSum)) //Coinflip avec chance de la valeur du skill divisée par la somme des valeurs de tous les skills
             {
-                skillList.Remove(skillList[a]);
+                skillList.Remove(skillList[a]); //On enlève l'option si coinflip raté
             }
         }
         if (skillList.Count != 1)
@@ -177,7 +170,7 @@ public class AdvancedTwippie : Twippie {
         }
         else
         {
-            return skillList[0];
+            return skillList[0]; // Si une seule option restante, on la retourne. Sinon, indécis...
         }
     }
 
@@ -187,8 +180,7 @@ public class AdvancedTwippie : Twippie {
         _skills = new Skill[skillArray.Length-1];
         for (int a = 0; a < skillArray.Length-1; a++)
         {
-            _skills[a].SkillType = skillArray[a];
-            _skills[a].SkillValue = UnityEngine.Random.Range(.1f, .3f);
+            _skills[a] = new Skill(skillArray[a], UnityEngine.Random.Range(.1f, .3f));
         }
         if (_papa != null && _maman != null)
         {
@@ -199,8 +191,7 @@ public class AdvancedTwippie : Twippie {
                 for (int a = 0; a < skillArray.Length-1; a++)
                 {
                     float ponderation = UnityEngine.Random.value;
-                    _skills[a].SkillType = skillArray[a];
-                    _skills[a].SkillValue = aPapa.Skills[a].SkillValue * ponderation + aMaman.Skills[a].SkillValue * (1 - ponderation);
+                    _skills[a] = new Skill(skillArray[a], aPapa.Skills[a].SkillValue * ponderation + aMaman.Skills[a].SkillValue * (1 - ponderation));
                 }
             }
             else
@@ -211,8 +202,7 @@ public class AdvancedTwippie : Twippie {
                     for (int a = 0; a < skillArray.Length-1; a++)
                     {
                         float ponderation = UnityEngine.Random.value;
-                        _skills[a].SkillType = skillArray[a];
-                        _skills[a].SkillValue = aPapa.Skills[a].SkillValue * ponderation + UnityEngine.Random.Range(.1f, .3f) * (1 - ponderation);
+                        _skills[a] = new Skill(skillArray[a], aPapa.Skills[a].SkillValue * ponderation + UnityEngine.Random.Range(.1f, .3f) * (1 - ponderation));
                     }
                 }
                 else if (_maman is AdvancedTwippie)
@@ -221,16 +211,14 @@ public class AdvancedTwippie : Twippie {
                     for (int a = 0; a < skillArray.Length-1; a++)
                     {
                         float ponderation = UnityEngine.Random.value;
-                        _skills[a].SkillType = skillArray[a];
-                        _skills[a].SkillValue = aMaman.Skills[a].SkillValue * ponderation + UnityEngine.Random.Range(.1f, .3f) * (1 - ponderation);
+                        _skills[a] = new Skill(skillArray[a], aMaman.Skills[a].SkillValue * ponderation + UnityEngine.Random.Range(.1f, .3f) * (1 - ponderation));
                     }
                 }
                 else
                 {
                     for (int a = 0; a < skillArray.Length-1; a++)
                     {
-                        _skills[a].SkillType = skillArray[a];
-                        _skills[a].SkillValue = UnityEngine.Random.Range(.1f, .3f);
+                        _skills[a] = new Skill(skillArray[a], UnityEngine.Random.Range(.1f, .3f));
                     }
                 }
             }
