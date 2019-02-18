@@ -227,7 +227,7 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void GenerateStats()
     {
-        _stats.StatsList = new Stat[10];
+        _stats.StatsList = new Stat[15];
         _stats.StatsList[0] = new LabelStat(_type);
         _stats.StatsList[1] = new TextStat(_name, 20);
         _stats.StatsList[2] = new ValueStat(0, 0, 100, "age", false);

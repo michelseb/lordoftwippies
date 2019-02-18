@@ -284,7 +284,56 @@ public class ZoneManager : MonoBehaviour {
         return null;
     }
 
+    public Zone GetLargeZoneByDistance(Transform t, PathFinder p, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
+    {
+        List<Zone> zones = new List<Zone>();
+        for (int i = 0; i < _zones.Length; i++)
+        {
+            float dist = (t.position - _zones[i].Center).sqrMagnitude;
+            if (dist < distanceMax)
+            {
+                zones.Add(_zones[i]);
+            }
+        }
 
+        for (int i = 0; i < zones.Count; i++)
+        {
+            Zone temp = zones[i];
+            int randomIndex = Random.Range(i, zones.Count);
+            zones[i] = zones[randomIndex];
+            zones[randomIndex] = temp;
+        }
+
+
+        foreach (Zone z in zones)
+        {
+            if ((checkTaken && z.Taken == false) || checkTaken == false)
+            {
+                int count = 0;
+                foreach (Zone neighbour in z.Neighbours)
+                { 
+                    if (neighbour.Taken || !neighbour.Accessible)
+                        break;
+                    count++;
+                }
+                if (count < z.Neighbours.Count - 1)
+                    continue;
+                if (!checkAccessible)
+                    return z;
+                Zone goZone = p.FindPath(z);
+                if (goZone == null)
+                    continue;
+                foreach(Zone neighbour in z.Neighbours)
+                {
+                    neighbour.Taken = true;
+                }
+                p.CreatePath(goZone);
+                return z;
+            }
+
+        }
+        return null;
+    }
 
     public Zone GetRessourceZoneByDistance(Transform t, PathFinder p, Ressource.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
     {

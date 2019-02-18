@@ -60,7 +60,7 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
         {
             Grow();
         }
-        
+        WOODCOST = 5 * Mathf.FloorToInt(_currentSize.x);
         _stats.StatToValue(_stats.StatsList[3]).Value = _waterAmount;
         _stats.StatToValue(_stats.StatsList[4]).Value = _sunAmount;
     }
@@ -106,13 +106,18 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
 
     public IEnumerator Collecting(AdvancedTwippie twippie)
     {
-        _r.isKinematic = false;
-        _r.AddTorque(Vector3.up, ForceMode.Impulse);
+        if (_r != null)
+        {
+            _r.isKinematic = false;
+            _r.mass = 5;
+            _r.AddForce(transform.up * 10, ForceMode.Impulse);
+        }
         yield return new WaitForSeconds(1);
         Collect(twippie);
     }
     public void Collect(AdvancedTwippie twippie)
     {
+        Debug.Log("Tree collected");
         twippie.Collecting = null;
         _zone.Taken = false;
         Ressource ressource = twippie.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Food);
@@ -124,6 +129,10 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
         {
             twippie.Ressources.Add(new Ressource(Ressource.RessourceType.Food, WOODCOST));
         }
+        twippie.FinishExternalAction();
+        _om.allObjects.Remove(this);
+        _stats.enabled = false;
+        Destroy(_r);
         Destroy(this);
     }
 

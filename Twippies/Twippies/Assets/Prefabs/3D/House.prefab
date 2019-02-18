@@ -206,7 +206,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 0}
-  WOODCOST: 5
+  WOODCOST: 50
   WATERCOST: 0
   STONECOST: 0
   _stats: {fileID: 114598202303948340}

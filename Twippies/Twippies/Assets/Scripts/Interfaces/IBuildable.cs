@@ -2,5 +2,5 @@
 
 public interface IBuildable {
 
-    IEnumerator Build();
+    IEnumerator Build(int sizeFactor);
 }

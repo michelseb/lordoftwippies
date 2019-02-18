@@ -16,10 +16,10 @@ public class House : StaticObjet, IBuildable
         _outline.color = 1;
     }
 
-    public IEnumerator Build()
+    public IEnumerator Build(int sizeFactor)
     {
         _currentSize = Vector3.zero;
-        while (_currentSize.x < 1)
+        while (_currentSize.x < sizeFactor)
         {
             _currentSize = UpdateVector(_currentSize);
             yield return null;

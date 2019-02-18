@@ -9,7 +9,7 @@ public class AdvancedTwippie : Twippie {
     protected float[] advancedNeedSensibilities;
     protected List<Ressource> _ressources;
     private Twippie _partner;
-    protected House _house;
+    protected List<IBuildable> _builtStuff;
     protected Coroutine _building, _collecting;
     protected Skill _advancedNeed;
     protected Skill[] _skills;
@@ -29,7 +29,7 @@ public class AdvancedTwippie : Twippie {
         SetSensibilities();
         StartCoroutine(CheckAdvancedNeeds());
         _ressources = new List<Ressource> { new Ressource(Ressource.RessourceType.Drink, 0), new Ressource(Ressource.RessourceType.Food, 0) };
-        _house = null;
+        _builtStuff = new List<IBuildable>();
 
     }
 
@@ -40,8 +40,15 @@ public class AdvancedTwippie : Twippie {
         {
             _skills[a].SkillValue = UpdateValue(_skills[a].SkillValue, -.001f, 0, 1); //Perte de skill globale constante
         }
+
+        _stats.StatToLabel(_stats.StatsList[10]).Value = "Bois possédé : " + _ressources[1].quantity;
     }
 
+    protected override void GenerateStats()
+    {
+        base.GenerateStats();
+        _stats.StatsList[10] = new LabelStat("Bois possédé : ");
+    }
 
     protected override GoalType DefineGoal()
     {
@@ -59,8 +66,6 @@ public class AdvancedTwippie : Twippie {
             case SkillType.Build:
                 if (_og.GetObjects<IBuildable>().FirstOrDefault(x=>x.WoodCost <= _ressources[1].quantity) != null)
                 {
-                    Debug.Log("IBuildable : "+_og.GetObjects<IBuildable>().FirstOrDefault(x => x.WoodCost <= _ressources[1].quantity));
-                    Debug.Log("Ressources : " + _ressources[1].quantity);
                     Debug.Log("Need to build");
                     return GoalType.Build;
                 }
@@ -80,10 +85,9 @@ public class AdvancedTwippie : Twippie {
         switch (_state)
         {
             case State.Building:
-                Debug.Log("Should build");
                 if (_building == null)
                 {
-                    ManageableObjet obj = _og.GetObjects<IBuildable>().FirstOrDefault(x => x.WoodCost <= _ressources[1].quantity);
+                    ManageableObjet obj = _og.GetObjects<IBuildable>().FirstOrDefault(x => Mathf.Pow(x.WoodCost,(_builtStuff.Count+1)) <= _ressources[1].quantity); // Plus on possède de maisons plus elles sont chères
                     if (obj != null)
                     {
                         GameObject house = Instantiate(obj.gameObject, _arrival.FinishZone.Center, Quaternion.identity);
@@ -91,10 +95,16 @@ public class AdvancedTwippie : Twippie {
                         obj = house.GetComponent<ManageableObjet>();
                         obj.CurrentSize = Vector3.zero;
                         var buildable = (IBuildable)obj;
+                        _builtStuff.Add(buildable);
                         Debug.Log("Building");
+                        _arrival.FinishZone.Accessible = false;
+                        foreach (Zone z in _arrival.FinishZone.Neighbours)
+                        {
+                            z.Accessible = false;
+                        }
                         Skill updatingSkill = _skills.FirstOrDefault(x => x.Type == SkillType.Build);
                         updatingSkill.SkillValue = UpdateValue(updatingSkill.SkillValue + .2f, 0, 0, 1);
-                        _building = StartCoroutine(buildable.Build());
+                        _building = StartCoroutine(buildable.Build(_builtStuff.Count+1));
                     }
                     else
                     {
@@ -113,9 +123,17 @@ public class AdvancedTwippie : Twippie {
                         {
                             if (ressource.consumableObject is ICollectable)
                             {
-                                ICollectable collectable = (ICollectable)ressource.consumableObject;
-                                Debug.Log("Collecting");
-                                _collecting = StartCoroutine(collectable.Collecting(this));
+                                if (_arrival.FinishZone.Taken)
+                                {
+                                    SetDestination(DefineGoal());
+                                }
+                                else
+                                {
+                                    _arrival.FinishZone.Taken = true;
+                                    ICollectable collectable = (ICollectable)ressource.consumableObject;
+                                    Debug.Log("Collecting");
+                                    _collecting = StartCoroutine(collectable.Collecting(this));
+                                }
                             }
                         }
                     }

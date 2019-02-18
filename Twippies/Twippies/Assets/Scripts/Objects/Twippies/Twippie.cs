@@ -235,8 +235,8 @@ public class Twippie : DraggableObjet, ILightnable {
         {
             _sleepiness = UpdateValue(_sleepiness, _age / 50); // Le besoin en sommeil augmente avec l'age. Pas besoin de dormir à 0 ans
         }
-        _thirst = UpdateValue(_thirst, 3/(_age+1)); // Le besoin en eau diminue avec l'age
-        _hunger = UpdateValue(_hunger, 3/(_age+1)); // Le besoin en nourriture diminue avec l'age
+        _thirst = UpdateValue(_thirst, 2/(_age+1)); // Le besoin en eau diminue avec l'age
+        _hunger = UpdateValue(_hunger, 2/(_age+1)); // Le besoin en nourriture diminue avec l'age
         _placeMemory = 100 - Mathf.FloorToInt(_age); // La mémoire diminue avec l'âge. Alzeimer à 100 ans
         _peopleMemory = 52 - Mathf.Abs(50 - Mathf.FloorToInt(_age)); // Mémoire des personnes maximale à la moitié de la vie
         _stats.StatToValue(_stats.StatsList[2]).Value = _age;
@@ -245,7 +245,6 @@ public class Twippie : DraggableObjet, ILightnable {
         _stats.StatToValue(_stats.StatsList[6]).Value = _sleepiness;
         _stats.StatToLabel(_stats.StatsList[7]).Value = "Need : "+_basicNeed.ToString();
         _stats.StatToLabel(_stats.StatsList[9]).Value = "Action : " + _state.ToString();
-
     }
 
     protected override void LateUpdate()
@@ -588,8 +587,10 @@ public class Twippie : DraggableObjet, ILightnable {
         switch (goal)
         {
             case GoalType.Build:
+                zone = _zManager.GetLargeZoneByDistance(transform, _pathFinder, checkAccessible: true, checkTaken: true, distanceMax: _endurance);
+                break;
             case GoalType.Wander:
-                zone = _zManager.GetRandomZoneByDistance(transform, _pathFinder, checkAccessible: true, checkTaken: true, distanceMax: _endurance);
+                zone = _zManager.GetRandomZoneByDistance(transform, _pathFinder, checkAccessible: true, checkTaken: false, distanceMax: _endurance);
                 break;
             case GoalType.Drink:
                 zone = _zManager.GetRessourceZoneByDistance(transform, _pathFinder, ressource: Ressource.RessourceType.Drink, checkAccessible: true, checkTaken: true, distanceMax: _endurance);
@@ -611,7 +612,7 @@ public class Twippie : DraggableObjet, ILightnable {
                         return;
                     }
                 }
-            break;
+                break;
             case GoalType.Collect:
             case GoalType.Eat:
                 zone = _zManager.GetRessourceZoneByDistance(transform, _pathFinder, ressource: Ressource.RessourceType.Food, checkAccessible: true, checkTaken: true, distanceMax: _endurance);
@@ -697,7 +698,7 @@ public class Twippie : DraggableObjet, ILightnable {
         _arrival.FinishZone.Taken = true;
         while (_thirst > 5)
         {
-            _thirst = UpdateValue(_thirst, -3);
+            _thirst = UpdateValue(_thirst, -10);
             _r.velocity = Vector3.zero;
             _r.angularVelocity = Vector3.zero;
             yield return null;
@@ -846,5 +847,10 @@ public class Twippie : DraggableObjet, ILightnable {
         {
             _maman = value;
         }
+    }
+
+    public void FinishExternalAction()
+    {
+        SetDestination(DefineGoal());
     }
 }
