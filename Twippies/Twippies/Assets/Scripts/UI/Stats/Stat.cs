@@ -1,4 +1,6 @@
-﻿public enum StatType
+﻿using UnityEngine;
+
+public enum StatType
 {
     Label,
     Text,
@@ -7,9 +9,10 @@
     Value
 }
 
-public class Stat {
-
+public abstract class Stat {
+    protected StatManager _statManager;
     protected StatType _sType;
     protected string _name;
+    protected GameObject _stat;
 
 }

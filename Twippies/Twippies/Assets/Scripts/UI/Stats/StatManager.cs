@@ -10,6 +10,9 @@ public class StatManager : MonoBehaviour {
     [SerializeField]
     private Stat[] _statsList;
 
+    [SerializeField]
+    public GameObject BoolStat, ChoiceStat, ValueStat, LabelStat, TextStat;
+
     private ManageableObjet _mObjet;
 
     public int NbStats

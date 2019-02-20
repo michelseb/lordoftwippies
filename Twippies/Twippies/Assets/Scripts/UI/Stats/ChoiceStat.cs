@@ -1,14 +1,17 @@
-﻿public class ChoiceStat : Stat {
+﻿using UnityEngine;
+
+public class ChoiceStat : Stat {
 
     private string[] _values;
     private int _value;
 
-    public ChoiceStat(string[] values, int value)
+    public ChoiceStat(string[] values, int value, GameObject stat)
     {
         _sType = StatType.Choice;
         _name = "choice";
         _values = values;
         _value = value;
+        _stat = stat;
     }
 
     public string[] Values

@@ -1,15 +1,18 @@
-﻿public class TextStat : Stat {
+﻿using UnityEngine;
+
+public class TextStat : Stat {
 
     private string _value;
     private int _maxChar;
 
 
-    public TextStat(string value, int maxChar)
+    public TextStat(string value, int maxChar, GameObject stat)
     {
         _sType = StatType.Text;
         _name = "texte";
         _value = value;
         _maxChar = maxChar;
+        _stat = stat;
     }
 
     public string Value

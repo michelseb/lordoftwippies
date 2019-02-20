@@ -1,4 +1,6 @@
-﻿public class BoolStat : Stat {
+﻿using UnityEngine;
+
+public class BoolStat : Stat {
 
     private bool _value;
     private string _label;
@@ -9,6 +11,7 @@
         _name = "bool";
         _label = label;
         _value = value;
+        _stat = _statManager.BoolStat;
     }
 
     public bool Value

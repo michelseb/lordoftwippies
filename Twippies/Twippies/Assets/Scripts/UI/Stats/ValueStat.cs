@@ -1,4 +1,6 @@
-﻿public class ValueStat : Stat {
+﻿using UnityEngine;
+
+public class ValueStat : Stat {
 
     private float _value;
     private int _minValue;
@@ -6,7 +8,7 @@
     private string _label;
     private bool _readOnly;
 
-    public ValueStat(int value, int minValue, int maxValue, string label, bool readOnly)
+    public ValueStat(int value, int minValue, int maxValue, string label, bool readOnly, GameObject stat)
     {
         _sType = StatType.Value;
         _name = "value";
@@ -15,6 +17,7 @@
         _maxValue = maxValue;
         _label = label;
         _readOnly = readOnly;
+        _stat = stat;
     }
 
     public float Value
