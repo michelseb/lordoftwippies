@@ -8,12 +8,11 @@ public class StatManager : MonoBehaviour {
     private int _nbStats;
 
     [SerializeField]
-    private Stat[] _statsList;
+    private List<Stat> _statsList;
 
-    [SerializeField]
-    public GameObject BoolStat, ChoiceStat, ValueStat, LabelStat, TextStat;
-
+    private UIContent _panel;
     private ManageableObjet _mObjet;
+    private ObjectGenerator _og;
 
     public int NbStats
     {
@@ -28,7 +27,7 @@ public class StatManager : MonoBehaviour {
         }
     }
 
-    public Stat[] StatsList
+    public List<Stat> StatsList
     {
         get
         {
@@ -44,53 +43,55 @@ public class StatManager : MonoBehaviour {
     private void Awake()
     {
         _mObjet = GetComponent<ManageableObjet>();
+        _og = ObjectGenerator.Instance;
+        _panel = UIContent.Instance;
     }
 
     
-    private void OnGUI()
-    {
-        GUI.depth = 1;
-        //GUI.(new Rect(20, 20 + (Screen.height * 2 / 3), 100, 100), _mObjet.Icon);
-        for (int a = 0; a < _statsList.Length; a++)
-        {
-            Rect r = new Rect(Screen.width/5, 10+(Screen.height * 1/2)+(a * (Screen.height / 2) / _statsList.Length), Screen.width/3, (Screen.height/2)/_statsList.Length);
-            if (_statsList[a] is TextStat)
-            {
-                TextStat s = (TextStat)_statsList[a];
-                s.Value = GUI.TextField(r, s.Value);
-            }
-            else if (_statsList[a] is LabelStat)
-            {
-                LabelStat s = (LabelStat)_statsList[a];
-                GUI.Label(r, s.Value);
-            }
-            else if (_statsList[a] is ValueStat)
-            {
-                ValueStat s = (ValueStat)_statsList[a];
-                GUI.Label(r, s.Label);
-                r.position += new Vector2(100, 5);
-                if (s.ReadOnly)
-                {
-                    GUI.HorizontalSlider(r, s.Value, s.MinValue, s.MaxValue);
-                }
-                else
-                {
-                    s.Value = GUI.HorizontalSlider(r, s.Value, s.MinValue, s.MaxValue);
-                }
-            }
-            else if (_statsList[a] is BoolStat)
-            {
-                BoolStat s = (BoolStat)_statsList[a];
-                s.Value = GUI.Toggle(r, s.Value, s.Label);
-            }
-            else if (_statsList[a] is ChoiceStat)
-            {
-                r.size *= 2;
-                ChoiceStat s = (ChoiceStat)_statsList[a];
-                s.Value = GUI.SelectionGrid(r, s.Value, s.Values, 4);
-            }
-        }
-    }
+    //private void OnGUI()
+    //{
+    //    GUI.depth = 1;
+    //    //GUI.(new Rect(20, 20 + (Screen.height * 2 / 3), 100, 100), _mObjet.Icon);
+    //    for (int a = 0; a < _statsList.Count; a++)
+    //    {
+    //        Rect r = new Rect(Screen.width/5, 10+(Screen.height * 1/2)+(a * (Screen.height / 2) / _statsList.Count), Screen.width/3, (Screen.height/2)/_statsList.Count);
+    //        if (_statsList[a] is TextStat)
+    //        {
+    //            TextStat s = (TextStat)_statsList[a];
+    //            s.Value = GUI.TextField(r, s.Value);
+    //        }
+    //        else if (_statsList[a] is LabelStat)
+    //        {
+    //            LabelStat s = (LabelStat)_statsList[a];
+    //            GUI.Label(r, s.Value);
+    //        }
+    //        else if (_statsList[a] is ValueStat)
+    //        {
+    //            ValueStat s = (ValueStat)_statsList[a];
+    //            GUI.Label(r, s.Label);
+    //            r.position += new Vector2(100, 5);
+    //            if (s.ReadOnly)
+    //            {
+    //                GUI.HorizontalSlider(r, s.Value, s.MinValue, s.MaxValue);
+    //            }
+    //            else
+    //            {
+    //                s.Value = GUI.HorizontalSlider(r, s.Value, s.MinValue, s.MaxValue);
+    //            }
+    //        }
+    //        else if (_statsList[a] is BoolStat)
+    //        {
+    //            BoolStat s = (BoolStat)_statsList[a];
+    //            s.Value = GUI.Toggle(r, s.Value, s.Label);
+    //        }
+    //        else if (_statsList[a] is ChoiceStat)
+    //        {
+    //            r.size *= 2;
+    //            ChoiceStat s = (ChoiceStat)_statsList[a];
+    //            s.Value = GUI.SelectionGrid(r, s.Value, s.Values, 4);
+    //        }
+    //    }
+    //}
 
     public ValueStat StatToValue(Stat s)
     {
@@ -111,5 +112,26 @@ public class StatManager : MonoBehaviour {
     public ChoiceStat StatToChoice(Stat s)
     {
         return (ChoiceStat)s;
+    }
+
+    public T GenerateStat<T>(bool mainStat = false) where T:Stat
+    {
+        GameObject obj = Instantiate(_og.GetStat<T>(), mainStat?_panel.transform.parent.parent.transform:_panel.transform);
+        if (mainStat)
+        {
+            obj.transform.SetAsFirstSibling();
+        }
+        T stat = obj.GetComponent<T>();
+        _statsList.Add(stat);
+        return stat;
+    }
+
+    public void DestroyStats()
+    {
+        foreach (Stat stat in _statsList)
+        { 
+            Destroy(stat.gameObject);
+        }
+        _statsList = new List<Stat>();
     }
 }

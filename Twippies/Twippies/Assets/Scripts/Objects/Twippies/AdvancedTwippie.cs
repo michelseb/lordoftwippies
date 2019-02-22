@@ -40,14 +40,12 @@ public class AdvancedTwippie : Twippie {
         {
             _skills[a].SkillValue = UpdateValue(_skills[a].SkillValue, -.001f, 0, 1); //Perte de skill globale constante
         }
-
-        _stats.StatToLabel(_stats.StatsList[10]).Value = "Bois possédé : " + _ressources[1].quantity;
     }
 
-    protected override void GenerateStats()
+    public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.StatsList[10] = new LabelStat("Bois possédé : ");
+        _stats.GenerateStat<LabelStat>().Populate("Bois possédé : ");
     }
 
     protected override GoalType DefineGoal()
@@ -243,6 +241,11 @@ public class AdvancedTwippie : Twippie {
         }
     }
 
+    protected override void UpdateStats()
+    {
+        base.UpdateStats();
+        _stats.StatToLabel(_stats.StatsList[10]).Value = "Bois possédé : " + _ressources[1].quantity;
+    }
     public Skill[] Skills
     {
         get

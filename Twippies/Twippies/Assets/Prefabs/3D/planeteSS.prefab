@@ -478,6 +478,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 0}
+  WOODCOST: 0
+  WATERCOST: 0
+  STONECOST: 0
   _stats: {fileID: 114181216130622234}
   _planet: {fileID: 114418839681409838}
 --- !u!114 &114096340336135250
@@ -492,6 +495,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _nbStats: 0
+  _statsList: []
 --- !u!114 &114181216130622234
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -504,6 +508,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _nbStats: 0
+  _statsList: []
 --- !u!114 &114193364866869416
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -529,10 +534,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spawnTime: 0
-  _twippie: {fileID: 1491261447225362, guid: b514f5979457a9c499b47c90baede76f, type: 2}
-  _tree: {fileID: 0}
+  ObjectFactory: []
+  StatFactory: []
   _nbTwippies: 0
   _nbTrees: 0
+  _nbAdvancedTwippies: 0
 --- !u!114 &114310311304771704
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -545,9 +551,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 2800000, guid: a07a5bee67c3e0a41acebbaf8ff0e771, type: 3}
+  WOODCOST: 0
+  WATERCOST: 0
+  STONECOST: 0
   _stats: {fileID: 114854001498569816}
   _p: {fileID: 114418839681409838}
-  _speed: 0
+  _speed: 2
   _light: {fileID: 108593221924563582}
 --- !u!114 &114418839681409838
 MonoBehaviour:
@@ -561,6 +570,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 0}
+  WOODCOST: 0
+  WATERCOST: 0
+  STONECOST: 0
   _stats: {fileID: 114096340336135250}
   _gravity: 15
   _objectDeplacementField: {fileID: 0}
@@ -617,6 +629,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _nbStats: 0
+  _statsList: []
 --- !u!135 &135062748282142706
 SphereCollider:
   m_ObjectHideFlags: 1

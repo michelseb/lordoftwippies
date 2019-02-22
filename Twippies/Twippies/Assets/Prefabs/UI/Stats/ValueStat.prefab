@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224275537800462228}
   - component: {fileID: 114584262983151514}
+  - component: {fileID: 114011699035219790}
   m_Layer: 14
   m_Name: ValueStat
   m_TagString: Untagged
@@ -141,6 +142,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &114011699035219790
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1266020904912710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ab977d182c36ab4b9884cb40b3f0387, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _labelField: {fileID: 114176655697937622}
+  _slider: {fileID: 114720742630532582}
 --- !u!114 &114158467644699952
 MonoBehaviour:
   m_ObjectHideFlags: 1

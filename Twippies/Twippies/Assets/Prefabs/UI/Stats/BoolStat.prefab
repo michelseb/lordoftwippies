@@ -87,6 +87,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224997344279840788}
   - component: {fileID: 114385196959732582}
+  - component: {fileID: 114044865003694546}
   m_Layer: 14
   m_Name: BoolStat
   m_TagString: Untagged
@@ -94,6 +95,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &114044865003694546
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1889028156421374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27b6f1330b8e7f54b975d9a42dfc8bb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _labelField: {fileID: 114654683940896138}
+  _toggle: {fileID: 114923306546510464}
 --- !u!114 &114385196959732582
 MonoBehaviour:
   m_ObjectHideFlags: 1

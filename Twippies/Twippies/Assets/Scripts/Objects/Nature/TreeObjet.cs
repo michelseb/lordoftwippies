@@ -61,8 +61,6 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
             Grow();
         }
         WOODCOST = 5 * Mathf.FloorToInt(_currentSize.x);
-        _stats.StatToValue(_stats.StatsList[3]).Value = _waterAmount;
-        _stats.StatToValue(_stats.StatsList[4]).Value = _sunAmount;
     }
 
     public bool Consuming(float hunger)
@@ -159,12 +157,18 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
         _currentSize = UpdateVector(_currentSize, (100 - _age) / 100 * .03f, 0, 10);
     }
 
-    protected override void GenerateStats()
+    public override void GenerateStats()
     {
         base.GenerateStats();
+        _stats.GenerateStat<ValueStat>().Populate(0, 0, 100, "Water Amount", true);
+        _stats.GenerateStat<ValueStat>().Populate(30, 0, 100, "Sun Amount", true);
+    }
 
-        _stats.StatsList[3] = new ValueStat(0, 0, 100, "Water Amount", true);
-        _stats.StatsList[4] = new ValueStat(30, 0, 100, "Sun Amount", true);
+    protected override void UpdateStats()
+    {
+        base.UpdateStats();
+        _stats.StatToValue(_stats.StatsList[3]).Value = _waterAmount;
+        _stats.StatToValue(_stats.StatsList[4]).Value = _sunAmount;
     }
 
     public bool GetLight()

@@ -20,6 +20,7 @@ public class Planete : ManageableObjet {
     private Vector3[] _originalVertices, _deformedVertices, _updatedVertices;
     private Vector3[] _vertexVelocities;
     private bool _shaping, _deforming;
+    private int _displayMode;
 
     protected override void Awake()
     {
@@ -61,10 +62,10 @@ public class Planete : ManageableObjet {
     {
         base.Update();
 
-        _shaping = _stats.StatToBool(_stats.StatsList[4]).Value;
+        
         if (_c.ctrl != Controls.ControlMode.Dragging)
         {
-            switch (_stats.StatToChoice(_stats.StatsList[5]).Value)
+            switch (_displayMode)
             {
                 case 0:
                     foreach (Zone z in _zManager.Zones)
@@ -147,15 +148,7 @@ public class Planete : ManageableObjet {
             }
         }
 
-        if (_stats.StatToBool(_stats.StatsList[3]).Value == false)
-        {
-            foreach (Transform child in transform)
-            {
-                if (child.GetComponent<Objet>() is WaterObjet == false)
-                    child.parent = null;
-            }
-            Destroy(gameObject);
-        }
+        
     }
 
     public void Attract(Transform t, Rigidbody r)
@@ -258,13 +251,29 @@ public class Planete : ManageableObjet {
     }
 
 
-    protected override void GenerateStats()
+    public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.StatsList[3] = new BoolStat(true, "Don't press this");
-        _stats.StatsList[4] = new BoolStat(false, "Shape mode");
-        _stats.StatsList[5] = new ChoiceStat(new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0);
-        //_stats.StatsList[4] = new ValueStat(0, -30, 30, "Shape strength", false);
+        _stats.GenerateStat<BoolStat>().Populate(true, "Don't press this");
+        _stats.GenerateStat<BoolStat>().Populate(false, "Shape mode");
+        _stats.GenerateStat<ChoiceStat>().Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0);
+
+    }
+
+    protected override void UpdateStats()
+    {
+        base.UpdateStats();
+        _shaping = _stats.StatToBool(_stats.StatsList[4]).Value;
+        _displayMode = _stats.StatToChoice(_stats.StatsList[5]).Value;
+        if (_stats.StatToBool(_stats.StatsList[3]).Value == false)
+        {
+            foreach (Transform child in transform)
+            {
+                if (child.GetComponent<Objet>() is WaterObjet == false)
+                    child.parent = null;
+            }
+            Destroy(gameObject);
+        }
 
     }
 

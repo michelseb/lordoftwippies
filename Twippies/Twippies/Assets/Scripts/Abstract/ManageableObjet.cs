@@ -74,7 +74,6 @@ public abstract class ManageableObjet : Objet {
     protected override void Start()
     {
         base.Start();
-        GenerateStats();
         _outline.enabled = false;
         _stats.enabled = false;
     }
@@ -97,7 +96,10 @@ public abstract class ManageableObjet : Objet {
         }
 
         _age = UpdateValue(_age, _timeReference * .01f);
-        _stats.StatToValue(_stats.StatsList[2]).Value = _age;
+        if (_stats.enabled)
+        {
+            UpdateStats();
+        }
 
     }
 
@@ -225,12 +227,18 @@ public abstract class ManageableObjet : Objet {
         return value;
     }
 
-    protected virtual void GenerateStats()
+    public virtual void GenerateStats()
     {
-        _stats.StatsList = new Stat[15];
-        _stats.StatsList[0] = new LabelStat(_type);
-        _stats.StatsList[1] = new TextStat(_name, 20);
-        _stats.StatsList[2] = new ValueStat(0, 0, 100, "age", false);
+        _stats.StatsList = new List<Stat>();
+        _stats.GenerateStat<ValueStat>(true).Populate(0, 0, 100, "age", false);
+        _stats.GenerateStat<TextStat>(true).Populate(_name, 20, 14);
+        _stats.GenerateStat<LabelStat>(true).Populate(_type);
+        
+        
     }
 
+    protected virtual void UpdateStats()
+    {
+        _stats.StatToValue(_stats.StatsList[2]).Value = _age;
+    }
 }

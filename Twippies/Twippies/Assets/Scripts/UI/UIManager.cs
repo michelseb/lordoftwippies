@@ -7,11 +7,7 @@ public class UIManager : MonoBehaviour {
     [SerializeField]
     private GameObject _eye;
     [SerializeField]
-    private Texture _infoGUITex;
-    [SerializeField]
-    private Texture _infoGUITexFont;
-    [SerializeField]
-    private GUIStyle _guiStyleInfo;
+    private GameObject _statPanel;
 
     private ManageableObjet _managedObject;
     private Renderer _managedRenderer;
@@ -40,10 +36,30 @@ public class UIManager : MonoBehaviour {
     {
         _cam = Camera.main;
         _previewCam.enabled = false;
+        _statPanel.SetActive(false);
     }
 
     private void Update()
     {
+
+        if (_infoGUI)
+        {
+            if (!_statPanel.activeSelf)
+            {
+                _statPanel.SetActive(true);
+            }
+            _previewCam.Render();
+            _UICam.Render();
+        }
+        else
+        {
+            if (_statPanel.activeSelf)
+            {
+                _statPanel.SetActive(false);
+            }
+        }
+
+
         if (_previewCam.enabled)
         {
             if (_managedRenderer != null)
@@ -68,6 +84,7 @@ public class UIManager : MonoBehaviour {
     {
         _previewCam.enabled = false;
         _eye.SetActive(true);
+
     }
 
     public void SetPreviewCam(ManageableObjet m)
@@ -83,25 +100,5 @@ public class UIManager : MonoBehaviour {
             }
         }
         
-    }
-
-    private void OnGUI()
-    {
-        if (_infoGUI)
-        {
-            GUI.depth = 5;
-            float screenSizeX = Screen.width;
-            float screenSizeY = Screen.height;
-            float yStart = Screen.height * 1 / 2;
-            float ySize = (Screen.height / 2) - 20f;
-            float xStart = 10;
-            float xSize = Screen.width - 20;
-            GUI.DrawTextureWithTexCoords(new Rect(xStart-5, yStart-5, xSize+10, ySize+10), _infoGUITexFont, new Rect((2 * (xStart-5)) / screenSizeX, (yStart-5) / screenSizeY, (xSize+10) / screenSizeX, (ySize+10) / screenSizeY));
-            GUI.DrawTextureWithTexCoords(new Rect(xStart, yStart, xSize, ySize), _infoGUITex, new Rect((2*xStart)/screenSizeX, yStart/screenSizeY, xSize/screenSizeX, ySize/screenSizeY));//Screen.height/(Screen.width*1/3)));
-            _previewCam.Render();
-            _UICam.Render();
-
-            
-        }
     }
 }

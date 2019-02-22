@@ -1,18 +1,19 @@
-﻿using UnityEngine;
-
-public class ChoiceStat : Stat {
+﻿public class ChoiceStat : Stat {
 
     private string[] _values;
     private int _value;
+    private string _label;
 
-    public ChoiceStat(string[] values, int value, GameObject stat)
-    {
-        _sType = StatType.Choice;
-        _name = "choice";
-        _values = values;
-        _value = value;
-        _stat = stat;
-    }
+    //[SerializeField]
+    //private TextMeshProUGUI _labelField;
+    //[SerializeField]
+    //private Slider _slider;
+
+    //private void Start()
+    //{
+    //    _slider.minValue = _minValue;
+    //    _slider.maxValue = _maxValue;
+    //}
 
     public string[] Values
     {
@@ -39,4 +40,12 @@ public class ChoiceStat : Stat {
         }
     }
 
+    public void Populate(string label, string[] values, int value)
+    {
+        _name = "choice";
+        _sType = StatType.Choice;
+        _label = label;
+        _values = values;
+        _value = value;
+    }
 }

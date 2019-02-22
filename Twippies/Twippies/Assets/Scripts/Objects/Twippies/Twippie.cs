@@ -72,7 +72,6 @@ public class Twippie : DraggableObjet, ILightnable {
 
     [SerializeField]
     private LayerMask _mask;
-
     private float _sleepiness;
     private float _hunger;
     private float _thirst;
@@ -115,7 +114,7 @@ public class Twippie : DraggableObjet, ILightnable {
         _basicNeed = BasicNeed.None;
         _previousState = State.None;
         _goalType = GoalType.Wander;
-        _stats.StatToLabel(_stats.StatsList[3]).Value = _gender.ToString();
+        
         _stepsBeforeReproduce = _initialStepsBeforeReproduce;
         _consumable = null;
         _knownZones = new List<Zone>();
@@ -239,12 +238,7 @@ public class Twippie : DraggableObjet, ILightnable {
         _hunger = UpdateValue(_hunger, 2/(_age+1)); // Le besoin en nourriture diminue avec l'age
         _placeMemory = 100 - Mathf.FloorToInt(_age); // La mémoire diminue avec l'âge. Alzeimer à 100 ans
         _peopleMemory = 52 - Mathf.Abs(50 - Mathf.FloorToInt(_age)); // Mémoire des personnes maximale à la moitié de la vie
-        _stats.StatToValue(_stats.StatsList[2]).Value = _age;
-        _stats.StatToValue(_stats.StatsList[4]).Value = _hunger;
-        _stats.StatToValue(_stats.StatsList[5]).Value = _thirst;
-        _stats.StatToValue(_stats.StatsList[6]).Value = _sleepiness;
-        _stats.StatToLabel(_stats.StatsList[7]).Value = "Need : "+_basicNeed.ToString();
-        _stats.StatToLabel(_stats.StatsList[9]).Value = "Action : " + _state.ToString();
+
     }
 
     protected override void LateUpdate()
@@ -568,16 +562,16 @@ public class Twippie : DraggableObjet, ILightnable {
         //TODO : Calculer si évolution de twippie primitif à avancé
     }
 
-    protected override void GenerateStats()
+    public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.StatsList[3] = new LabelStat(_gender.ToString());
-        _stats.StatsList[4] = new ValueStat(0, 0, 100, "hunger", true);
-        _stats.StatsList[5] = new ValueStat(0, 0, 100, "thirst", true);
-        _stats.StatsList[6] = new ValueStat(0, 0, 100, "fatigue", true);
-        _stats.StatsList[7] = new LabelStat("Need : "+_basicNeed.ToString());
-        _stats.StatsList[8] = new LabelStat("Emotion : ");
-        _stats.StatsList[9] = new LabelStat("Action : "+_state.ToString());
+        _stats.GenerateStat<LabelStat>().Populate(_gender.ToString());
+        _stats.GenerateStat<ValueStat>().Populate(0, 0, 100, "hunger", true);
+        _stats.GenerateStat<ValueStat>().Populate(0, 0, 100, "thirst", true);
+        _stats.GenerateStat<ValueStat>().Populate(0, 0, 100, "fatigue", true);
+        _stats.GenerateStat<LabelStat>().Populate("Need : " + _basicNeed.ToString());
+        _stats.GenerateStat<LabelStat>().Populate("Emotion : ");
+        _stats.GenerateStat<LabelStat>().Populate("Action : " + _state.ToString());
     }
 
     protected void SetDestination(GoalType goal)
@@ -759,6 +753,18 @@ public class Twippie : DraggableObjet, ILightnable {
             }
         }
         return true;
+    }
+
+    protected override void UpdateStats()
+    {
+        base.UpdateStats();
+        _stats.StatToValue(_stats.StatsList[2]).Value = _age;
+        _stats.StatToLabel(_stats.StatsList[3]).Value = _gender.ToString();
+        _stats.StatToValue(_stats.StatsList[4]).Value = _hunger;
+        _stats.StatToValue(_stats.StatsList[5]).Value = _thirst;
+        _stats.StatToValue(_stats.StatsList[6]).Value = _sleepiness;
+        _stats.StatToLabel(_stats.StatsList[7]).Value = "Need : " + _basicNeed.ToString();
+        _stats.StatToLabel(_stats.StatsList[9]).Value = "Action : " + _state.ToString();
     }
 
     public LineRenderer LineRenderer

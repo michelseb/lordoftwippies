@@ -9,6 +9,8 @@ public class ObjectGenerator : MonoBehaviour {
     [SerializeField]
     public List<ManageableObjet> ObjectFactory;
     [SerializeField]
+    public List<Stat> StatFactory;
+    [SerializeField]
     private int _nbTwippies;
     [SerializeField]
     private int _nbTrees;
@@ -127,6 +129,14 @@ public class ObjectGenerator : MonoBehaviour {
         ManageableObjet obj = ObjectFactory.FirstOrDefault(x => x is T);
         if (obj != null)
             return obj.gameObject;
+        return null;
+    }
+
+    public GameObject GetStat<T>() where T : Stat
+    {
+        Stat stat = StatFactory.FirstOrDefault(x => x is T);
+        if (stat != null)
+            return stat.gameObject;
         return null;
     }
 

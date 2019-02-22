@@ -1,15 +1,16 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 
 public class LabelStat : Stat {
 
     private string _value;
 
-    public LabelStat(string value, GameObject stat)
+    [SerializeField]
+    private TextMeshProUGUI _labelField;
+
+    private void Update()
     {
-        _sType = StatType.Label;
-        _name = "label";
-        _value = value;
-        _stat = stat;
+        _labelField.text = _value;
     }
 
     public string Value
@@ -23,5 +24,12 @@ public class LabelStat : Stat {
         {
             _value = value;
         }
+    }
+
+    public void Populate(string value)
+    {
+        _sType = StatType.Label;
+        _name = "label";
+        _value = value;
     }
 }

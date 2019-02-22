@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class ValueStat : Stat {
 
@@ -7,17 +9,21 @@ public class ValueStat : Stat {
     private int _maxValue;
     private string _label;
     private bool _readOnly;
+    [SerializeField]
+    private TextMeshProUGUI _labelField;
+    [SerializeField]
+    private Slider _slider;
 
-    public ValueStat(int value, int minValue, int maxValue, string label, bool readOnly, GameObject stat)
+    private void Start()
     {
-        _sType = StatType.Value;
-        _name = "value";
-        _value = value;
-        _minValue = minValue;
-        _maxValue = maxValue;
-        _label = label;
-        _readOnly = readOnly;
-        _stat = stat;
+        _slider.minValue = _minValue;
+        _slider.maxValue = _maxValue;
+    }
+
+    private void Update()
+    {
+        _labelField.text = _label;
+        _slider.value = _value;
     }
 
     public float Value
@@ -83,5 +89,16 @@ public class ValueStat : Stat {
         {
             _readOnly = value;
         }
+    }
+
+    public void Populate(int value, int minValue, int maxValue, string label, bool readOnly)
+    {
+        _sType = StatType.Value;
+        _name = "value";
+        _value = value;
+        _minValue = minValue;
+        _maxValue = maxValue;
+        _label = label;
+        _readOnly = readOnly;
     }
 }

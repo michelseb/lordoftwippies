@@ -8,11 +8,11 @@ public class WaterObjet : ManageableObjet {
     private Planete _planet;
     
 
-    protected override void GenerateStats()
+    public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.StatsList[3] = new BoolStat(true, "Hard/Soft");
-        _stats.StatsList[4] = new ValueStat(10, 0, 20, "niveau", false);
+        _stats.GenerateStat<BoolStat>().Populate(false, "hard/soft");
+        _stats.GenerateStat<ValueStat>().Populate(10, 0, 20, "niveau", false);
     }
     protected override void Awake()
     {
@@ -54,10 +54,16 @@ public class WaterObjet : ManageableObjet {
 
     private void SetRadius()
     {
-        float scale = _stats.StatToValue(_stats.StatsList[4]).Value;
-        transform.localScale = new Vector3(scale, scale, scale);
         SphereCollider s = (SphereCollider)_coll;
         _radius = s.radius * transform.lossyScale.magnitude;
+    }
+
+    protected override void UpdateStats()
+    {
+        base.UpdateStats();
+        float scale = _stats.StatToValue(_stats.StatsList[4]).Value;
+        transform.localScale = new Vector3(scale, scale, scale);
+
     }
 
 }

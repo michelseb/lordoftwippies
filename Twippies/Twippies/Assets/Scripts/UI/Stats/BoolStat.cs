@@ -1,17 +1,21 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class BoolStat : Stat {
 
     private bool _value;
     private string _label;
 
-    public BoolStat(bool value, string label)
+    [SerializeField]
+    private TextMeshProUGUI _labelField;
+    [SerializeField]
+    private Toggle _toggle;
+
+    private void Update()
     {
-        _sType = StatType.Bool;
-        _name = "bool";
-        _label = label;
-        _value = value;
-        _stat = _statManager.BoolStat;
+        _labelField.text = _label;
+        _toggle.isOn = _value;
     }
 
     public bool Value
@@ -38,5 +42,13 @@ public class BoolStat : Stat {
         {
             _label = value;
         }
+    }
+
+    public void Populate(bool value, string label)
+    {
+        _sType = StatType.Bool;
+        _name = "bool";
+        _label = label;
+        _value = value;
     }
 }
