@@ -15,8 +15,8 @@ public class Cloud : AerialObjet {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<BoolStat>().Populate(true, "Wet/Dry");
-        _stats.GenerateStat<BoolStat>().Populate(true, "Auto");
+        _stats.GenerateStat<BoolStat>(this).Populate(true, "Wet/Dry");
+        _stats.GenerateStat<BoolStat>(this).Populate(true, "Auto");
     }
     protected override void UpdateStats()
     {

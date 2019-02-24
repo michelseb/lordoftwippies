@@ -75,7 +75,10 @@ public abstract class ManageableObjet : Objet {
     {
         base.Start();
         _outline.enabled = false;
+        GenerateStats();
+        _stats.SetStatsActiveState(false);
         _stats.enabled = false;
+        
     }
 
 
@@ -230,15 +233,27 @@ public abstract class ManageableObjet : Objet {
     public virtual void GenerateStats()
     {
         _stats.StatsList = new List<Stat>();
-        _stats.GenerateStat<ValueStat>(true).Populate(0, 0, 100, "age", false);
-        _stats.GenerateStat<TextStat>(true).Populate(_name, 20, 14);
-        _stats.GenerateStat<LabelStat>(true).Populate(_type);
+        _stats.GenerateStat<ValueStat>(this, true).Populate(0, 0, 100, "Age", true);
+        _stats.GenerateStat<TextStat>(this, true).Populate(_name, 20, 14);
+        _stats.GenerateStat<LabelStat>(this, true).Populate(_type);
         
         
     }
 
     protected virtual void UpdateStats()
     {
-        _stats.StatToValue(_stats.StatsList[2]).Value = _age;
+        _stats.StatToValue(_stats.StatsList[0]).Value = _age;
+    }
+
+    public string Name
+    {
+        get
+        {
+            return _name;
+        }
+        set
+        {
+            _name = value;
+        }
     }
 }

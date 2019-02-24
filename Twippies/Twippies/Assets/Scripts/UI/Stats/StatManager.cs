@@ -114,7 +114,7 @@ public class StatManager : MonoBehaviour {
         return (ChoiceStat)s;
     }
 
-    public T GenerateStat<T>(bool mainStat = false) where T:Stat
+    public T GenerateStat<T>(ManageableObjet owner, bool mainStat = false) where T:Stat
     {
         GameObject obj = Instantiate(_og.GetStat<T>(), mainStat?_panel.transform.parent.parent.transform:_panel.transform);
         if (mainStat)
@@ -122,16 +122,19 @@ public class StatManager : MonoBehaviour {
             obj.transform.SetAsFirstSibling();
         }
         T stat = obj.GetComponent<T>();
+        stat.ManageableObjet = owner;
         _statsList.Add(stat);
         return stat;
     }
 
-    public void DestroyStats()
+    public void SetStatsActiveState(bool active)
     {
-        foreach (Stat stat in _statsList)
-        { 
-            Destroy(stat.gameObject);
+        if (_statsList != null && _statsList.Count > 0)
+        {
+            foreach (Stat stat in _statsList)
+            {
+                stat.gameObject.SetActive(active);
+            }
         }
-        _statsList = new List<Stat>();
     }
 }

@@ -18,12 +18,20 @@ public class ValueStat : Stat {
     {
         _slider.minValue = _minValue;
         _slider.maxValue = _maxValue;
+        _slider.value = _value;
     }
 
     private void Update()
     {
         _labelField.text = _label;
-        _slider.value = _value;
+        if (_readOnly)
+        {
+            _slider.value = _value;
+        }
+        else
+        {
+            _value = _slider.value;
+        }
     }
 
     public float Value

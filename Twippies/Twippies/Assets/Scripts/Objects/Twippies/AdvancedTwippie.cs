@@ -45,7 +45,7 @@ public class AdvancedTwippie : Twippie {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<LabelStat>().Populate("Bois possédé : ");
+        _stats.GenerateStat<LabelStat>(this).Populate("Bois possédé : ");
     }
 
     protected override GoalType DefineGoal()

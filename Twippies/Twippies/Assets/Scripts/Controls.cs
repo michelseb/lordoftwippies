@@ -119,7 +119,7 @@ public class Controls : MonoBehaviour {
                         t.LineRenderer.enabled = true;
                     }
                     _focusedObject.Stats.enabled = true;
-                    _focusedObject.GenerateStats();
+                    _focusedObject.Stats.SetStatsActiveState(true);
                     _ui.SetPreviewCam(_focusedObject);
                     _ui.InfoGUI = true;
                     ctrl = ControlMode.Checking;
@@ -324,12 +324,13 @@ public class Controls : MonoBehaviour {
                         return;
                     }
                 }
-                if ((Input.GetMouseButtonDown(0)||Input.GetMouseButtonDown(1)) && Input.mousePosition.x < Screen.height * 2/3)
+                if ((Input.GetMouseButtonDown(0)||Input.GetMouseButtonDown(1)) && Input.mousePosition.x < Screen.width * 2/3)
                 {
                     _ui.DisablePreviewCam();
                     _ui.InfoGUI = false;
                     foreach (ManageableObjet m in _om.AllObjects<ManageableObjet>())
                     {
+                        m.Stats.SetStatsActiveState(false);
                         m.Stats.enabled = false;
                     }
                     if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1<<16)))
@@ -342,7 +343,7 @@ public class Controls : MonoBehaviour {
                                 t.LineRenderer.enabled = false;
                             }
                         }
-                        _focusedObject.Stats.DestroyStats();
+                        
                         _focusedObject = null;
                         ctrl = ControlMode.Waiting;
                     }

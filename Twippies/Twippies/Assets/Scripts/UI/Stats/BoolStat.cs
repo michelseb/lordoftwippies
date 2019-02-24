@@ -12,10 +12,15 @@ public class BoolStat : Stat {
     [SerializeField]
     private Toggle _toggle;
 
+    private void Start()
+    {
+        _toggle.isOn = _value;
+    }
+
     private void Update()
     {
         _labelField.text = _label;
-        _toggle.isOn = _value;
+        _value = _toggle.isOn;
     }
 
     public bool Value

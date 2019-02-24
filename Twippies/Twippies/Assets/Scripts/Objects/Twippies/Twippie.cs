@@ -565,13 +565,13 @@ public class Twippie : DraggableObjet, ILightnable {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<LabelStat>().Populate(_gender.ToString());
-        _stats.GenerateStat<ValueStat>().Populate(0, 0, 100, "hunger", true);
-        _stats.GenerateStat<ValueStat>().Populate(0, 0, 100, "thirst", true);
-        _stats.GenerateStat<ValueStat>().Populate(0, 0, 100, "fatigue", true);
-        _stats.GenerateStat<LabelStat>().Populate("Need : " + _basicNeed.ToString());
-        _stats.GenerateStat<LabelStat>().Populate("Emotion : ");
-        _stats.GenerateStat<LabelStat>().Populate("Action : " + _state.ToString());
+        _stats.GenerateStat<LabelStat>(this).Populate(_gender.ToString());
+        _stats.GenerateStat<ValueStat>(this).Populate(0, 0, 100, "Hunger", true);
+        _stats.GenerateStat<ValueStat>(this).Populate(0, 0, 100, "Thirst", true);
+        _stats.GenerateStat<ValueStat>(this).Populate(0, 0, 100, "Fatigue", true);
+        _stats.GenerateStat<LabelStat>(this).Populate("Need : " + _basicNeed.ToString());
+        _stats.GenerateStat<LabelStat>(this).Populate("Emotion : ");
+        _stats.GenerateStat<LabelStat>(this).Populate("Action : " + _state.ToString());
     }
 
     protected void SetDestination(GoalType goal)
@@ -758,7 +758,7 @@ public class Twippie : DraggableObjet, ILightnable {
     protected override void UpdateStats()
     {
         base.UpdateStats();
-        _stats.StatToValue(_stats.StatsList[2]).Value = _age;
+        _stats.StatToValue(_stats.StatsList[0]).Value = _age;
         _stats.StatToLabel(_stats.StatsList[3]).Value = _gender.ToString();
         _stats.StatToValue(_stats.StatsList[4]).Value = _hunger;
         _stats.StatToValue(_stats.StatsList[5]).Value = _thirst;

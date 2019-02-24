@@ -160,8 +160,8 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<ValueStat>().Populate(0, 0, 100, "Water Amount", true);
-        _stats.GenerateStat<ValueStat>().Populate(30, 0, 100, "Sun Amount", true);
+        _stats.GenerateStat<ValueStat>(this).Populate(0, 0, 100, "Water Amount", true);
+        _stats.GenerateStat<ValueStat>(this).Populate(30, 0, 100, "Sun Amount", true);
     }
 
     protected override void UpdateStats()

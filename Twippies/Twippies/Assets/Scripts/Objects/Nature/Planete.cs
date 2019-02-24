@@ -254,9 +254,9 @@ public class Planete : ManageableObjet {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<BoolStat>().Populate(true, "Don't press this");
-        _stats.GenerateStat<BoolStat>().Populate(false, "Shape mode");
-        _stats.GenerateStat<ChoiceStat>().Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0);
+        _stats.GenerateStat<BoolStat>(this).Populate(true, "Don't press this");
+        _stats.GenerateStat<BoolStat>(this).Populate(false, "Shape mode");
+        _stats.GenerateStat<ChoiceStat>(this).Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0);
 
     }
 

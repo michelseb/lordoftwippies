@@ -10,15 +10,16 @@ public class Sun : AerialObjet {
     [SerializeField]
     private Light _light;
 
+    [SerializeField]
     private bool _on;
 
 
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<BoolStat>().Populate(true, "On/Off");
-        _stats.GenerateStat<ValueStat>().Populate(1, 0, 10, "brightness", false);
-        _stats.GenerateStat<ValueStat>().Populate(2, 0, 20, "rotation speed", false);
+        _stats.GenerateStat<BoolStat>(this).Populate(true, "On/Off");
+        _stats.GenerateStat<ValueStat>(this).Populate(1, 0, 10, "Brightness", false);
+        _stats.GenerateStat<ValueStat>(this).Populate(2, 0, 20, "Rotation speed", false);
     }
     protected override void Awake()
     {
@@ -44,7 +45,14 @@ public class Sun : AerialObjet {
     {
         base.UpdateStats();
         _on = _stats.StatToBool(_stats.StatsList[3]).Value;
-        _speed = _stats.StatToValue(_stats.StatsList[5]).Value;
+        if (_on)
+        {
+            _speed = _stats.StatToValue(_stats.StatsList[5]).Value;
+        }
+        else
+        {
+            _speed = 0;
+        }
         _light.enabled = _on;
         _light.intensity = _stats.StatToValue(_stats.StatsList[4]).Value;
     }

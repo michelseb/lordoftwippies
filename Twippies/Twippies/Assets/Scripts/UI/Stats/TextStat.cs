@@ -7,11 +7,16 @@ public class TextStat : Stat {
     private int _maxChar;
     private float _fontSize;
     [SerializeField]
-    private TextMeshProUGUI _labelField;
+    private TMP_InputField _textField;
+
+    private void Start()
+    {
+        _textField.text = _value;
+    }
 
     private void Update()
     {
-        _labelField.text = _value;
+        _value = _textField.text;
     }
 
     public string Value
