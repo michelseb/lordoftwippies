@@ -132,11 +132,16 @@ public class ObjectGenerator : MonoBehaviour {
         return null;
     }
 
-    public GameObject GetStat<T>() where T : Stat
+    public GameObject GetStat<T>(string statType = "") where T : Stat
     {
-        Stat stat = StatFactory.FirstOrDefault(x => x is T);
-        if (stat != null)
-            return stat.gameObject;
+        List<Stat> stats = StatFactory.FindAll(x => x is T);
+        if (stats != null)
+        {
+            if (stats.Count == 1 || statType == "")
+                return stats[0].gameObject;
+            return stats.FirstOrDefault(x => x.Name == statType).gameObject;
+        }
+            
         return null;
     }
 

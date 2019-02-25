@@ -29,7 +29,6 @@ public class LabelStat : Stat {
     public void Populate(string value)
     {
         _sType = StatType.Label;
-        _name = "label";
         _value = value;
     }
 }

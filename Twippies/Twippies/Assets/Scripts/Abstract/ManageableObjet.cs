@@ -234,8 +234,8 @@ public abstract class ManageableObjet : Objet {
     {
         _stats.StatsList = new List<Stat>();
         _stats.GenerateStat<ValueStat>(this, true).Populate(0, 0, 100, "Age", true);
-        _stats.GenerateStat<TextStat>(this, true).Populate(_name, 20, 14);
-        _stats.GenerateStat<LabelStat>(this, true).Populate(_type);
+        _stats.GenerateStat<DescriptionStat>(this, true).Populate(_icon, _name, 20, 14);
+        _stats.GenerateStat<LabelStat>(this, true, "Titre").Populate(_type);
         
         
     }

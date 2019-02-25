@@ -114,9 +114,9 @@ public class StatManager : MonoBehaviour {
         return (ChoiceStat)s;
     }
 
-    public T GenerateStat<T>(ManageableObjet owner, bool mainStat = false) where T:Stat
+    public T GenerateStat<T>(ManageableObjet owner, bool mainStat = false, string statType = "") where T:Stat
     {
-        GameObject obj = Instantiate(_og.GetStat<T>(), mainStat?_panel.transform.parent.parent.transform:_panel.transform);
+        GameObject obj = Instantiate(_og.GetStat<T>(statType != ""?statType:null), mainStat?_panel.transform.parent.parent.transform:_panel.transform);
         if (mainStat)
         {
             obj.transform.SetAsFirstSibling();

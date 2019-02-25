@@ -128,6 +128,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _nbStats: 0
+  _statsList: []
 --- !u!114 &114601244242570684
 MonoBehaviour:
   m_ObjectHideFlags: 1

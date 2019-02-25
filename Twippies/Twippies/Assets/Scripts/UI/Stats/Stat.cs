@@ -12,6 +12,7 @@ public enum StatType
 public abstract class Stat : MonoBehaviour {
     protected StatManager _statManager;
     protected StatType _sType;
+    [SerializeField]
     protected string _name;
     protected ManageableObjet _manageableObjet;
 
@@ -24,6 +25,13 @@ public abstract class Stat : MonoBehaviour {
         set
         {
             _manageableObjet = value;
+        }
+    }
+    public string Name
+    {
+        get
+        {
+            return _name;
         }
     }
 }

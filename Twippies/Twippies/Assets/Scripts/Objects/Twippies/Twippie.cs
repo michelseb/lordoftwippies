@@ -30,16 +30,6 @@ public class Twippie : DraggableObjet, ILightnable {
         None
     }
 
-    protected enum BasicNeed
-    {
-        Eat,
-        Drink,
-        Sleep,
-        Warmup,
-        Cooldown,
-        None
-    }
-
     protected enum GoalType
     {
         Wander,
@@ -66,7 +56,7 @@ public class Twippie : DraggableObjet, ILightnable {
     protected PathFinder _pathFinder;
     protected Gender _gender;
     protected State _state, _previousState;
-    protected BasicNeed _basicNeed;
+    protected List<Need> _needs;
     protected GoalType _goalType;
     private LineRenderer _lineRenderer;
 
@@ -105,13 +95,13 @@ public class Twippie : DraggableObjet, ILightnable {
         _type = "Twippie primitif";
         _name = "Twippie sans défenses";
         _gender = CoinFlip() ? Gender.Male : Gender.Female;
+        _needs = new List<Need> { new Need(NeedType.None) };
     }
 
     protected override void Start()
     {
         base.Start();
         _displayIntervals = 5;
-        _basicNeed = BasicNeed.None;
         _previousState = State.None;
         _goalType = GoalType.Wander;
         
@@ -424,7 +414,7 @@ public class Twippie : DraggableObjet, ILightnable {
 
                 if (_state != State.Sleeping)
                 {
-                    if (_basicNeed == BasicNeed.Sleep)
+                    if (_needs.Exists(x=>x.Type == NeedType.Sleep))
                     {
                         ChangeState(State.Sleeping);
                     }
@@ -452,37 +442,44 @@ public class Twippie : DraggableObjet, ILightnable {
             if (_thirst > 90)
             {
                 _renderer.material.color = Color.blue;
-                _basicNeed = BasicNeed.Drink;
+                Need thirst = _needs.FirstOrDefault(x => x.Type == NeedType.Drink);
+                SetCurrentNeed(thirst != null?thirst:new Need(NeedType.Drink));
+                
             }else if (_hunger > 90)
             {
                 _renderer.material.color = Color.green;
-                _basicNeed = BasicNeed.Eat;
+                Need hunger = _needs.FirstOrDefault(x => x.Type == NeedType.Eat);
+                SetCurrentNeed(hunger != null ? hunger : new Need(NeedType.Eat));
             }
             else if (_sleepiness > 90)
             {
                 _renderer.material.color = Color.red;
-                _basicNeed = BasicNeed.Sleep;
+                Need sleepiness = _needs.FirstOrDefault(x => x.Type == NeedType.Sleep);
+                SetCurrentNeed(sleepiness != null ? sleepiness : new Need(NeedType.Sleep));
             }
             else if (_thirst >= 50 && _thirst > _hunger - 10 && _thirst > _sleepiness - 20)
             {
                 _renderer.material.color = Color.blue;
-                _basicNeed = BasicNeed.Drink;
+                Need thirst = _needs.FirstOrDefault(x => x.Type == NeedType.Drink);
+                SetCurrentNeed(thirst != null ? thirst : new Need(NeedType.Drink));
             }
             else if (_hunger >= 50 && _hunger > _sleepiness - 10)
             {
                 _renderer.material.color = Color.green;
-                _basicNeed = BasicNeed.Eat;
+                Need hunger = _needs.FirstOrDefault(x => x.Type == NeedType.Eat);
+                SetCurrentNeed(hunger != null ? hunger : new Need(NeedType.Eat));
             }
             else if (_sleepiness >= 50)
             {
                 _renderer.material.color = Color.red;
-                _basicNeed = BasicNeed.Sleep;
+                Need sleepiness = _needs.FirstOrDefault(x => x.Type == NeedType.Sleep);
+                SetCurrentNeed(sleepiness != null ? sleepiness : new Need(NeedType.Sleep));
             }
             else
             {
                 if (_state != State.Sleeping)
                     _renderer.material.color = Color.white;
-                _basicNeed = BasicNeed.None;
+                SetCurrentNeed(_needs.FirstOrDefault(x => x.Type == NeedType.None));
             }
             yield return new WaitForSeconds(3);
         }
@@ -565,13 +562,13 @@ public class Twippie : DraggableObjet, ILightnable {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<LabelStat>(this).Populate(_gender.ToString());
-        _stats.GenerateStat<ValueStat>(this).Populate(0, 0, 100, "Hunger", true);
-        _stats.GenerateStat<ValueStat>(this).Populate(0, 0, 100, "Thirst", true);
-        _stats.GenerateStat<ValueStat>(this).Populate(0, 0, 100, "Fatigue", true);
-        _stats.GenerateStat<LabelStat>(this).Populate("Need : " + _basicNeed.ToString());
-        _stats.GenerateStat<LabelStat>(this).Populate("Emotion : ");
-        _stats.GenerateStat<LabelStat>(this).Populate("Action : " + _state.ToString());
+        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate(_gender.ToString());
+        _stats.GenerateStat<ValueStat>(this, statType: "Label").Populate(0, 0, 100, "Hunger", true);
+        _stats.GenerateStat<ValueStat>(this, statType: "Label").Populate(0, 0, 100, "Thirst", true);
+        _stats.GenerateStat<ValueStat>(this, statType: "Label").Populate(0, 0, 100, "Fatigue", true);
+        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate("Main need : " + _needs[0].Type.ToString());
+        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate("Emotion : ");
+        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate("Action : " + _state.ToString());
     }
 
     protected void SetDestination(GoalType goal)
@@ -651,11 +648,11 @@ public class Twippie : DraggableObjet, ILightnable {
 
     protected virtual GoalType DefineGoal()
     {
-        switch (_basicNeed)
+        switch (_needs[0].Type)
         {
-            case BasicNeed.Drink:
+            case NeedType.Drink:
                 return GoalType.Drink;
-            case BasicNeed.Eat:
+            case NeedType.Eat:
                 return GoalType.Eat;
         }
         return GoalType.Wander;
@@ -763,8 +760,18 @@ public class Twippie : DraggableObjet, ILightnable {
         _stats.StatToValue(_stats.StatsList[4]).Value = _hunger;
         _stats.StatToValue(_stats.StatsList[5]).Value = _thirst;
         _stats.StatToValue(_stats.StatsList[6]).Value = _sleepiness;
-        _stats.StatToLabel(_stats.StatsList[7]).Value = "Need : " + _basicNeed.ToString();
+        _stats.StatToLabel(_stats.StatsList[7]).Value = "Main need : " + _needs[0].Type.ToString();
         _stats.StatToLabel(_stats.StatsList[9]).Value = "Action : " + _state.ToString();
+    }
+
+    protected void SetCurrentNeed(Need need)
+    {
+        if (_needs.Contains(need))
+        {
+            _needs.Remove(need);
+        }
+        _needs.Insert(0, need);
+
     }
 
     public LineRenderer LineRenderer

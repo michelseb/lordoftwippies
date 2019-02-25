@@ -247,7 +247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f593be2a591cda24eb3958e7e53d0a34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _icon: {fileID: 21300000, guid: a07a5bee67c3e0a41acebbaf8ff0e771, type: 3}
+  _icon: {fileID: 21300000, guid: 563334faa4c77f1408ac1b4a8d233280, type: 3}
   WOODCOST: 0
   WATERCOST: 0
   STONECOST: 0
@@ -255,6 +255,7 @@ MonoBehaviour:
   _p: {fileID: 0}
   _speed: 2
   _light: {fileID: 108750309629265610}
+  _on: 0
 --- !u!114 &114920172826453384
 MonoBehaviour:
   m_ObjectHideFlags: 1

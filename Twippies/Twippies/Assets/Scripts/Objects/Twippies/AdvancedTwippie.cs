@@ -45,16 +45,16 @@ public class AdvancedTwippie : Twippie {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<LabelStat>(this).Populate("Bois possédé : ");
+        _stats.GenerateStat<LabelStat>(this, statType:"Label").Populate("Bois possédé : ");
     }
 
     protected override GoalType DefineGoal()
     {
-        switch (_basicNeed)
+        switch (_needs[0].Type)
         {
-            case BasicNeed.Drink:
+            case NeedType.Drink:
                 return GoalType.Drink;
-            case BasicNeed.Eat:
+            case NeedType.Eat:
                 return GoalType.Eat;
         }
         switch (_advancedNeed.Type)
