@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Controls : MonoBehaviour {
 
@@ -7,6 +8,8 @@ public class Controls : MonoBehaviour {
         Clicking,
         Dragging,
         Checking,
+        CheckingMultiple,
+        Selecting,
         Waiting
     }
 
@@ -38,12 +41,14 @@ public class Controls : MonoBehaviour {
     private Vector2 _originClic;
     private float _initZoomAmount, _zoomAmount, _maxZoom = 50;
     private ManageableObjet _focusedObject;
+    private List<ManageableObjet> _focusedObjects;
     private int _focusedLayer;
     private Camera _cam;
     private UIManager _ui;
     private UIResources _uiR;
     private ObjetManager _om;
     private bool _newObject;
+    private Texture2D _whiteTexture;
 
     public ClicMode clic;
     public ControlMode ctrl;
@@ -77,6 +82,8 @@ public class Controls : MonoBehaviour {
         ctrl = ControlMode.Waiting;
         _initZoomAmount = _cam.fieldOfView;
         _zoomAmount = _cam.fieldOfView;
+        _focusedObjects = new List<ManageableObjet>();
+        _whiteTexture = new Texture2D(1, 1);
     }
 
 
@@ -93,37 +100,45 @@ public class Controls : MonoBehaviour {
         {
 
             case ControlMode.Waiting:
-
-                if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2"))
+                if (Input.GetButton("Fire1"))
                 {
+                    clic = ClicMode.LeftClic;
                     DefineOriginClick();
                 }
-
+                else if (Input.GetButton("Fire2"))
+                {
+                    clic = ClicMode.RightClic;
+                    DefineOriginClick();
+                }
+                else if (Input.GetButton("Fire3"))
+                {
+                    clic = ClicMode.CentralClic;
+                    DefineOriginClick();
+                }
                 break;
 
 
             case ControlMode.Clicking:
-                if (_focusedObject != null)
+
+                if ((Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1)) && _focusedObject != null)
                 {
-                    _focusedLayer = _focusedObject.gameObject.layer;
+                    CheckObject();
                 }
+
                 if (Vector2.Distance(_originClic, Input.mousePosition) > DIST_TO_DRAG)
                 {
-                    ctrl = ControlMode.Dragging;
-                }
-                if ((Input.GetMouseButtonUp(0)|| Input.GetMouseButtonUp(1)) && _focusedObject != null)
-                {
-                    if (_focusedObject is Twippie)
+                    if (_focusedObject != null && (clic != ClicMode.CentralClic))
                     {
-                        Twippie t = (Twippie)_focusedObject;
-                        t.LineRenderer.enabled = true;
+                        _focusedLayer = _focusedObject.gameObject.layer;
+                        ctrl = ControlMode.Dragging;
                     }
-                    _focusedObject.Stats.enabled = true;
-                    _focusedObject.Stats.SetStatsActiveState(true);
-                    _ui.SetPreviewCam(_focusedObject);
-                    _ui.InfoGUI = true;
-                    ctrl = ControlMode.Checking;
+                    else if (clic == ClicMode.CentralClic)
+                    {
+                        ctrl = ControlMode.Selecting;
+                        _focusedObject = null;
+                    }
                 }
+                
                 break;
 
 
@@ -158,7 +173,6 @@ public class Controls : MonoBehaviour {
                 {
                     if (!_dragCollider.activeSelf)
                     {
-                        clic = ClicMode.LeftClic;
                         _dragCollider.SetActive(true);
                     }
 
@@ -193,7 +207,6 @@ public class Controls : MonoBehaviour {
                 {
                     if (!_planeCollider.activeSelf)
                     {
-                        clic = ClicMode.RightClic;
                         _focusedObject.gameObject.layer = 15;
                         foreach (Transform child in _focusedObject.transform)
                         {
@@ -314,8 +327,32 @@ public class Controls : MonoBehaviour {
 
                 break;
 
+            case ControlMode.Selecting:
+                if (!Input.GetButton("Fire3"))
+                {
+                    clic = ClicMode.None;
+                    if (_focusedObjects.Count > 0)
+                    {
+                        if (_focusedObjects.Count == 1)
+                        {
+                            _focusedObject = _focusedObjects[0];
+                            _focusedObjects.Clear();
+                            CheckObject();
+                        }
+                        else
+                        {
+                            CheckObjects();
+                        }
+                    }
+                    else
+                    {
+                        ctrl = ControlMode.Waiting;
+                    }
+                }
+                break;
 
             case ControlMode.Checking:
+
                 if (_focusedObject is Planete)
                 {
                     Planete planete = (Planete)_focusedObject;
@@ -324,7 +361,7 @@ public class Controls : MonoBehaviour {
                         return;
                     }
                 }
-                if ((Input.GetMouseButtonDown(0)||Input.GetMouseButtonDown(1)) && Input.mousePosition.x < Screen.width * 2/3)
+                if ((Input.GetButtonDown("Fire1")||Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && Input.mousePosition.x < Screen.width * 2/3)
                 {
                     _ui.DisablePreviewCam();
                     _ui.InfoGUI = false;
@@ -343,7 +380,7 @@ public class Controls : MonoBehaviour {
                                 t.LineRenderer.enabled = false;
                             }
                         }
-                        
+                        _focusedObject.SetSelectionActive(false);
                         _focusedObject = null;
                         ctrl = ControlMode.Waiting;
                     }
@@ -352,8 +389,36 @@ public class Controls : MonoBehaviour {
                         DefineOriginClick();
                     }
                 }
-                break; 
-
+                break;
+            case ControlMode.CheckingMultiple:
+                if ((Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && Input.mousePosition.x < Screen.width * 2 / 3)
+                {
+                    foreach (ManageableObjet obj in _focusedObjects)
+                    {
+                        if (obj is Twippie)
+                        {
+                            Twippie t = (Twippie)obj;
+                            t.LineRenderer.enabled = false;
+                        }
+                        obj.SetSelectionActive(false);
+                    }
+                    _focusedObjects.Clear();
+                    _ui.InfoGUI = false;
+                    foreach (ManageableObjet m in _om.AllObjects<ManageableObjet>())
+                    {
+                        m.Stats.SetStatsActiveState(false);
+                        m.Stats.enabled = false;
+                    }
+                    if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1 << 16)))
+                    {
+                        ctrl = ControlMode.Waiting;
+                    }
+                    else
+                    {
+                        DefineOriginClick();
+                    }
+                }
+                break;
         }
         
     }
@@ -361,10 +426,113 @@ public class Controls : MonoBehaviour {
     private void DefineOriginClick()
     {
         _originClic = Input.mousePosition;
-        ctrl = ControlMode.Clicking;
+        switch (clic)
+        {
+            case ClicMode.LeftClic:
+            case ClicMode.RightClic:
+                if (_focusedObject != null)
+                {
+                    ctrl = ControlMode.Clicking;
+                }
+                else
+                {
+                    ctrl = ControlMode.Waiting;
+                }
+                break;
+            case ClicMode.CentralClic:
+                ctrl = ControlMode.Clicking;
+                break;
+            default:
+                ctrl = ControlMode.Waiting;
+                break;
+        }
+        
         
     }
 
+    private void OnGUI()
+    {
+        if (ctrl == ControlMode.Selecting)
+        {
+            Vector3 currPos = Input.mousePosition;
+            Vector2 invertedCurrent = new Vector2(currPos.x, Screen.height - currPos.y);
+            Vector2 invertedOrigin = new Vector2(_originClic.x, Screen.height - _originClic.y);
+            Vector2 mixX = new Vector2(invertedCurrent.x, invertedOrigin.y);
+            Vector2 mixY = new Vector2(invertedOrigin.x, invertedCurrent.y);
+            Rect rect = new Rect();
+            if (invertedCurrent.x > invertedOrigin.x && invertedCurrent.y > invertedOrigin.y)
+            {
+                rect = new Rect(invertedOrigin, invertedCurrent - invertedOrigin);
+            }
+            else if (invertedCurrent.x > invertedOrigin.x)
+            {
+                rect = new Rect(mixY, mixX - mixY);
+            }
+            else if (invertedCurrent.y > invertedOrigin.y)
+            {
+                rect = new Rect(mixX, mixY - mixX);
+            }
+            else
+            {
+                rect = new Rect(invertedCurrent, invertedOrigin - invertedCurrent);
+            }
+            if (!_focusedObjects.Exists(x=>x is Twippie))
+            {
+                DrawScreenRect(rect, new Color(1, 1, 1, .4f));
+                DrawScreenRectBorder(rect, 2f, Color.white);
+            }
+            else
+            {
+                DrawScreenRect(rect, new Color(1, .7f, .5f, .4f));
+                DrawScreenRectBorder(rect, 2f, new Color(1, .7f, .5f));
+            }
+        }
+    }
+
+    private void DrawScreenRect(Rect rect, Color color)
+    {
+        GUI.color = color;
+        GUI.DrawTexture(rect, _whiteTexture);
+        GUI.color = Color.white;
+    }
+
+    private void DrawScreenRectBorder(Rect rect, float thickness, Color color)
+    {
+        DrawScreenRect(new Rect(rect.xMin, rect.yMin, rect.width, thickness), color);
+        DrawScreenRect(new Rect(rect.xMin, rect.yMin, thickness, rect.height), color);
+        DrawScreenRect(new Rect(rect.xMax - thickness, rect.yMin, thickness, rect.height), color);
+        DrawScreenRect(new Rect(rect.xMin, rect.yMax - thickness, rect.width, thickness), color);
+    }
+
+    private void CheckObject()
+    {
+        if (_focusedObject is Twippie)
+        {
+            Twippie t = (Twippie)_focusedObject;
+            t.LineRenderer.enabled = true;
+        }
+        _focusedObject.Stats.enabled = true;
+        _focusedObject.Stats.SetStatsActiveState(true);
+        _ui.SetPreviewCam(_focusedObject);
+        _ui.InfoGUI = true;
+        ctrl = ControlMode.Checking;
+    }
+
+    private void CheckObjects()
+    {
+        foreach (ManageableObjet obj in _focusedObjects)
+        {
+            if (obj is Twippie)
+            {
+                Twippie t = (Twippie)obj;
+                t.LineRenderer.enabled = true;
+            }
+            obj.Stats.enabled = true;
+            obj.Stats.SetStatsActiveState(true);
+        }
+        _ui.InfoGUI = true;
+        ctrl = ControlMode.CheckingMultiple;
+    }
 
     public ManageableObjet FocusedObject
     {
@@ -376,6 +544,14 @@ public class Controls : MonoBehaviour {
         set
         {
             _focusedObject = value;
+        }
+    }
+
+    public List<ManageableObjet> FocusedObjects
+    {
+        get
+        {
+            return _focusedObjects;
         }
     }
 

@@ -84,18 +84,74 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void Update()
     {
+        if (!_outline.enabled)
+        {
+            if (_c.FocusedObjects.Contains(this))
+            {
+                _outline.enabled = true;
+            }
+        }
         
         transform.RotateAround(transform.position, _cam.transform.up, -_rotSpeedX * _rotSpeedMultiplier);
         transform.RotateAround(transform.position, _cam.transform.right, _rotSpeedY * _rotSpeedMultiplier);
         _rotSpeedX = Mathf.Lerp(_rotSpeedX, 0, .05f);
         _rotSpeedY = Mathf.Lerp(_rotSpeedY, 0, .05f);
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetButtonDown("Fire1"))
         {
-            if (_c.FocusedObject != this && _outline.enabled && Input.mousePosition.y > Screen.height * 1/3)
+            if (_c.FocusedObject != this && _outline.enabled && Input.mousePosition.x < Screen.width * 2/3)
             {
                 _outline.enabled = false;
             }
+        }
+
+        if (Input.GetButton("Fire3"))
+        {
+            if (_c.FocusedObjects.Contains(this))
+            {
+                if (!IsWithinSelectionBounds())
+                {
+                    _c.FocusedObjects.Remove(this);
+                    _outline.enabled = false;
+                }
+            }
+            /*if (this is Twippie) ===> Si la liste contient au moins un twippie, enlever tout ce qui n'est pas twippie
+            {
+                if (!_c.FocusedObjects.Contains(this))
+                {
+                    if (IsWithinSelectionBounds())
+                    {
+                        if (!Physics.Linecast(_cam.transform.position, gameObject.transform.position + gameObject.transform.up))
+                        {
+                            _c.FocusedObjects.Add(this);
+                            foreach (ManageableObjet obj in _c.FocusedObjects.ToArray())
+                            {
+                                if (!(obj is Twippie))
+                                {
+                                    _c.FocusedObjects.Remove(obj);
+                                    obj._outline.enabled = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (!_c.FocusedObjects.Exists(x => x is Twippie))
+                {*/
+            if (!_c.FocusedObjects.Contains(this))
+            {
+                if (IsWithinSelectionBounds())
+                {
+                    if (!Physics.Linecast(_cam.transform.position, gameObject.transform.position + gameObject.transform.up))
+                    {
+                        _c.FocusedObjects.Add(this);
+                    }
+                }
+            }
+                //}
+            //}
         }
 
         _age = UpdateValue(_age, _timeReference * .01f);
@@ -115,7 +171,7 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void OnMouseExit()
     {
-        if (_c.FocusedObject != this)
+        if (_c.FocusedObject != this && !_c.FocusedObjects.Contains(this))
         {
             _outline.enabled = false;
         }
@@ -126,7 +182,7 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void OnMouseUp()
     {
-        if (_c.FocusedObject != this)
+        if (_c.FocusedObject != this && !_c.FocusedObjects.Contains(this))
         {
             _outline.enabled = false;
         }
@@ -238,6 +294,34 @@ public abstract class ManageableObjet : Objet {
         _stats.GenerateStat<LabelStat>(this, true, "Titre").Populate(_type);
         
         
+    }
+
+    private Bounds GetViewportBounds(Vector3 screenPosition1, Vector3 screenPosition2)
+    {
+        var v1 = Camera.main.ScreenToViewportPoint(screenPosition1);
+        var v2 = Camera.main.ScreenToViewportPoint(screenPosition2);
+        var min = Vector3.Min(v1, v2);
+        var max = Vector3.Max(v1, v2);
+        min.z = _cam.nearClipPlane;
+        max.z = _cam.farClipPlane;
+
+        var bounds = new Bounds();
+        bounds.SetMinMax(min, max);
+        return bounds;
+    }
+
+    public bool IsWithinSelectionBounds()
+    {
+        var viewportBounds =
+            GetViewportBounds(_c.OriginClic, Input.mousePosition);
+
+        return viewportBounds.Contains(
+            _cam.WorldToViewportPoint(gameObject.transform.position));
+    }
+
+    public void SetSelectionActive(bool active)
+    {
+        _outline.enabled = active;
     }
 
     protected virtual void UpdateStats()

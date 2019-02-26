@@ -171,7 +171,7 @@ public class Planete : ManageableObjet {
 
     protected override void OnMouseExit()
     {
-        if (_c.FocusedObject != this)
+        if (_c.FocusedObject != this && !_c.FocusedObjects.Contains(this))
         {
             _outline.enabled = false;
         }
