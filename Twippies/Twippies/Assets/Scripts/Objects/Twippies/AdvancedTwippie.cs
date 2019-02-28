@@ -17,7 +17,6 @@ public class AdvancedTwippie : Twippie {
     protected override void Awake()
     {
         base.Awake();
-        _type = "Twippie avancé";
         _name = "Twippie qui sait faire des trucs cools !";
     }
 

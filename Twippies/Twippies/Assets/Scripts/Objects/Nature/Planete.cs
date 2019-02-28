@@ -25,7 +25,6 @@ public class Planete : ManageableObjet {
     protected override void Awake()
     {
         base.Awake();
-        _type = "Woaaaa(Planète)";
         _name = "Planète Twippie";
     }
     protected override void Start()

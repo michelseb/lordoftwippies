@@ -4,10 +4,43 @@ using System.Linq;
 using UnityEngine;
 
 public class ObjectGenerator : MonoBehaviour {
+
+    public class GlobalStat
+    {
+        private StatManager _statManager;
+        private string _type;
+
+        public GlobalStat(GameObject go, string type)
+        {
+            _statManager = go.AddComponent<StatManager>();
+            _type = type;
+        }
+
+        public StatManager StatManager
+        {
+            get
+            {
+                return _statManager;
+            }
+        }
+        public string Type
+        {
+            get
+            {
+                return _type;
+            }
+        }
+    }
+
     [SerializeField]
     private float _spawnTime;
     [SerializeField]
     public List<ManageableObjet> ObjectFactory;
+    [SerializeField]
+    public GameObject StatPanel;
+    [SerializeField]
+    public UIContent SpecificStatPanel;
+    public List<GlobalStat> globalStats;
     [SerializeField]
     public List<Stat> StatFactory;
     [SerializeField]
@@ -34,12 +67,23 @@ public class ObjectGenerator : MonoBehaviour {
     private void Awake()
     {
         _om = ObjetManager.Instance;
+        globalStats = new List<GlobalStat>();
+
+        foreach (ManageableObjet objet in ObjectFactory)
+        {
+            GlobalStat globalStat = new GlobalStat(gameObject, objet.GetType().ToString());
+            Debug.Log("nouveau globalstat de type " + objet.GetType().ToString());
+            globalStat.StatManager.GenerateStat<ValueStat>(mainStat: true).Populate(0, 0, 100, "Nombre de " + objet.Type.Split(' ')[0] + "s", true);
+            globalStats.Add(globalStat);
+            globalStat.StatManager.SetStatsActiveState(false);
+            globalStat.StatManager.enabled = false;
+        }
+
     }
 
     private void Start()
     {
         StartCoroutine(WaitForZoneManager());
-        
     }
 
     private IEnumerator WaitForZoneManager()
@@ -67,8 +111,6 @@ public class ObjectGenerator : MonoBehaviour {
                 {
                     GameObject tree = Instantiate(GetGO<TreeObjet>(), _zm.Zones[b].Center, Quaternion.identity, transform);
                     ManageableObjet mo = tree.GetComponent<ManageableObjet>();
-                    mo.Age = 1;
-                    _om.allObjects.Add(mo);
                     mo.Age = 5;
                     _zm.Zones[b].Accessible = false;
                     break;
@@ -91,7 +133,6 @@ public class ObjectGenerator : MonoBehaviour {
                 if (_zm.Zones[b].Accessible)
                 {
                     GameObject twippie = Instantiate(GetGO<Twippie>(), _zm.Zones[b].Center, Quaternion.identity, transform);
-                    _om.allObjects.Add(twippie.GetComponent<ManageableObjet>());
                     z.Add(_zm.Zones[b]);
                     _zm.Zones[b].Accessible = false;
                     break;
@@ -107,7 +148,6 @@ public class ObjectGenerator : MonoBehaviour {
                 if (_zm.Zones[b].Accessible)
                 {
                     GameObject twippie = Instantiate(GetGO<AdvancedTwippie>(), _zm.Zones[b].Center, Quaternion.identity, transform);
-                    _om.allObjects.Add(twippie.GetComponent<ManageableObjet>());
                     z.Add(_zm.Zones[b]);
                     _zm.Zones[b].Accessible = false;
                     break;
@@ -151,4 +191,52 @@ public class ObjectGenerator : MonoBehaviour {
         result = ObjectFactory.FindAll(x => x is T);
         return result;
     }
+
+    public void GenerateGlobalStats(ManageableObjet objet)
+    {
+        
+        GlobalStat globalStat = globalStats.FirstOrDefault(x => x.Type == objet.GetType().ToString());
+        if (globalStat != null)
+        {
+            if (globalStat.StatManager.StatsList.Count == 1) //Stat de base qui compte le nombre d'occurences
+            {
+                foreach (Stat stat in objet.Stats.StatsList)
+                {
+                    globalStat.StatManager.StatsList.Add(stat);
+                    Debug.Log("Ajout de la stat " + stat.GetType().ToString()+ "à la global stat "+ globalStat.Type);
+                }
+                UpdateGlobalStat(objet.GetType().ToString(), 1);
+                Debug.Log("Global stat " + globalStat.Type + " mis à jour");
+            } 
+        }
+    }
+
+    public bool SetGlobalStatActiveState(bool active, string type)
+    {
+        GlobalStat globalStat = globalStats.FirstOrDefault(x => x.Type == type);
+        if (globalStat != null)
+        {
+            globalStat.StatManager.SetStatsActiveState(active);
+            return true;
+        }
+        return false;
+    }
+
+    public void SetAllGlobalStatsActiveState(bool active)
+    {
+        foreach (GlobalStat globalStat in globalStats)
+        {
+            globalStat.StatManager.SetStatsActiveState(active);
+        }
+    }
+
+    public void UpdateGlobalStat(string type, int value)
+    {
+        GlobalStat globalStat = globalStats.FirstOrDefault(x => x.Type == type);
+        if (globalStat != null)
+        {
+            globalStat.StatManager.StatToValue(globalStat.StatManager.StatsList[0]).Value+=value;
+        }
+    }
+
 }

@@ -5,32 +5,19 @@ using UnityEngine;
 public class StatManager : MonoBehaviour {
 
     [SerializeField]
-    private int _nbStats;
-
-    [SerializeField]
     private List<Stat> _statsList;
-
-    private UIContent _panel;
+    private UIContent _specificStatsPanel;
     private ManageableObjet _mObjet;
     private ObjectGenerator _og;
-
-    public int NbStats
-    {
-        get
-        {
-            return _nbStats;
-        }
-
-        set
-        {
-            _nbStats = value;
-        }
-    }
 
     public List<Stat> StatsList
     {
         get
         {
+            if (_statsList == null)
+            {
+                _statsList = new List<Stat>();
+            }
             return _statsList;
         }
 
@@ -44,54 +31,12 @@ public class StatManager : MonoBehaviour {
     {
         _mObjet = GetComponent<ManageableObjet>();
         _og = ObjectGenerator.Instance;
-        _panel = UIContent.Instance;
+        _specificStatsPanel = Instantiate(_og.SpecificStatPanel, _og.StatPanel.transform.Find("Mask").Find("Panel"));
+        _specificStatsPanel.name = "Specific stat panel";
+        _specificStatsPanel.gameObject.SetActive(false);
+        enabled = false;
+        
     }
-
-    
-    //private void OnGUI()
-    //{
-    //    GUI.depth = 1;
-    //    //GUI.(new Rect(20, 20 + (Screen.height * 2 / 3), 100, 100), _mObjet.Icon);
-    //    for (int a = 0; a < _statsList.Count; a++)
-    //    {
-    //        Rect r = new Rect(Screen.width/5, 10+(Screen.height * 1/2)+(a * (Screen.height / 2) / _statsList.Count), Screen.width/3, (Screen.height/2)/_statsList.Count);
-    //        if (_statsList[a] is TextStat)
-    //        {
-    //            TextStat s = (TextStat)_statsList[a];
-    //            s.Value = GUI.TextField(r, s.Value);
-    //        }
-    //        else if (_statsList[a] is LabelStat)
-    //        {
-    //            LabelStat s = (LabelStat)_statsList[a];
-    //            GUI.Label(r, s.Value);
-    //        }
-    //        else if (_statsList[a] is ValueStat)
-    //        {
-    //            ValueStat s = (ValueStat)_statsList[a];
-    //            GUI.Label(r, s.Label);
-    //            r.position += new Vector2(100, 5);
-    //            if (s.ReadOnly)
-    //            {
-    //                GUI.HorizontalSlider(r, s.Value, s.MinValue, s.MaxValue);
-    //            }
-    //            else
-    //            {
-    //                s.Value = GUI.HorizontalSlider(r, s.Value, s.MinValue, s.MaxValue);
-    //            }
-    //        }
-    //        else if (_statsList[a] is BoolStat)
-    //        {
-    //            BoolStat s = (BoolStat)_statsList[a];
-    //            s.Value = GUI.Toggle(r, s.Value, s.Label);
-    //        }
-    //        else if (_statsList[a] is ChoiceStat)
-    //        {
-    //            r.size *= 2;
-    //            ChoiceStat s = (ChoiceStat)_statsList[a];
-    //            s.Value = GUI.SelectionGrid(r, s.Value, s.Values, 4);
-    //        }
-    //    }
-    //}
 
     public ValueStat StatToValue(Stat s)
     {
@@ -114,16 +59,20 @@ public class StatManager : MonoBehaviour {
         return (ChoiceStat)s;
     }
 
-    public T GenerateStat<T>(ManageableObjet owner, bool mainStat = false, string statType = "") where T:Stat
+    public T GenerateStat<T>(ManageableObjet owner = null, bool mainStat = false, string statType = "") where T:Stat
     {
-        GameObject obj = Instantiate(_og.GetStat<T>(statType != ""?statType:null), mainStat?_panel.transform.parent.parent.transform:_panel.transform);
+        GameObject obj = Instantiate(_og.GetStat<T>(statType != ""?statType:null), mainStat?_specificStatsPanel.transform.parent:_specificStatsPanel.transform.GetChild(0));
         if (mainStat)
         {
             obj.transform.SetAsFirstSibling();
         }
         T stat = obj.GetComponent<T>();
-        stat.ManageableObjet = owner;
-        _statsList.Add(stat);
+        if (owner != null)
+        {
+            stat.Main = mainStat;
+            stat.ManageableObjet = owner;
+        }
+        StatsList.Add(stat);
         return stat;
     }
 
@@ -131,10 +80,22 @@ public class StatManager : MonoBehaviour {
     {
         if (_statsList != null && _statsList.Count > 0)
         {
+            if (_statsList.Exists(x=>x.Main == true))
+            {
+                _specificStatsPanel.gameObject.SetActive(active);
+            }
             foreach (Stat stat in _statsList)
             {
                 stat.gameObject.SetActive(active);
             }
+        }
+    }
+
+    public UIContent SpecificStatPanel
+    {
+        get
+        {
+            return _specificStatsPanel;
         }
     }
 }

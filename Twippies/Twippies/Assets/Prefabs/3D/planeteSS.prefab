@@ -482,6 +482,7 @@ MonoBehaviour:
   WATERCOST: 0
   STONECOST: 0
   _stats: {fileID: 114181216130622234}
+  _type: "Glougl (Oc\xE9an)"
   _planet: {fileID: 114418839681409838}
 --- !u!114 &114096340336135250
 MonoBehaviour:
@@ -543,6 +544,8 @@ MonoBehaviour:
   - {fileID: 114922808569114310, guid: 0d98bba2673c10e4b9977dce1d32a316, type: 2}
   - {fileID: 114200954049039872, guid: 415c3e3ede6341c45a639f8de4d8353f, type: 2}
   - {fileID: 114756768802590268, guid: 38fd773339338d847afcdb09284accec, type: 2}
+  - {fileID: 114418839681409838}
+  - {fileID: 114310311304771704}
   StatFactory:
   - {fileID: 114044865003694546, guid: 5736e1b3e10911d47bb005b421429f9b, type: 2}
   - {fileID: 114409729501785376, guid: 6573d25b63e090a498f612bca9231184, type: 2}
@@ -570,6 +573,7 @@ MonoBehaviour:
   WATERCOST: 0
   STONECOST: 0
   _stats: {fileID: 114854001498569816}
+  _type: Woaaaa (Soleil)
   _p: {fileID: 114418839681409838}
   _speed: 2
   _light: {fileID: 108593221924563582}
@@ -590,6 +594,7 @@ MonoBehaviour:
   WATERCOST: 0
   STONECOST: 0
   _stats: {fileID: 114096340336135250}
+  _type: "Woaaaa(Plan\xE8te)"
   _gravity: 15
   _objectDeplacementField: {fileID: 0}
   _water: {fileID: 114048212989039234}

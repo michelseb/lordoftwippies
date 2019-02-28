@@ -17,7 +17,6 @@ public class WaterObjet : ManageableObjet {
     protected override void Awake()
     {
         base.Awake();
-        _type = "Glougl (Océan)";
         _name = "Eau potable";
     }
 

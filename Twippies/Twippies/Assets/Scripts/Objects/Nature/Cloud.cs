@@ -31,7 +31,6 @@ public class Cloud : AerialObjet {
     protected override void Awake()
     {
         base.Awake();
-        _type = "Vvvvv (Nuage)";
         _name = "Nuage capricieux";
     }
 

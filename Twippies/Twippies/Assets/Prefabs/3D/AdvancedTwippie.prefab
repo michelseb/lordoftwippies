@@ -332,6 +332,7 @@ MonoBehaviour:
   WATERCOST: 3
   STONECOST: 0
   _stats: {fileID: 114231794758156476}
+  _type: "Twippie avanc\xE9"
   _p: {fileID: 0}
   _pathFinder: {fileID: 114810807935191006}
   _mask:

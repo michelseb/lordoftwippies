@@ -15,7 +15,6 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
     protected override void Awake()
     {
         base.Awake();
-        _type = "Pomo (Plante verte)";
         _name = "Plante verte";
     }
     protected override void Start()
@@ -81,7 +80,7 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
             {
                 _zone.Ressources.Remove(food);
             }
-            _om.allObjects.Remove(this);
+            _om.UpdateObjectList(this, false);
             _stats.enabled = false;
             Destroy(this);
         }
@@ -128,7 +127,7 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
             twippie.Ressources.Add(new Ressource(Ressource.RessourceType.Food, WOODCOST));
         }
         twippie.FinishExternalAction();
-        _om.allObjects.Remove(this);
+        _om.UpdateObjectList(this, false);
         _stats.enabled = false;
         Destroy(_r);
         Destroy(this);
@@ -143,7 +142,6 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
                 var tree = Instantiate(_childTree, zone.Center, Quaternion.identity);
                 zone.Ressources.Add(new Ressource(Ressource.RessourceType.Food, tree.GetComponent<IConsumable>(), 0));
                 tree.transform.localScale = Vector3.zero;
-                _om.allObjects.Add(tree.GetComponent<ManageableObjet>());
             }
             
         }

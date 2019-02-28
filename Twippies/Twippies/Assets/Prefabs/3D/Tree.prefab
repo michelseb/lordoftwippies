@@ -147,6 +147,7 @@ MonoBehaviour:
   WATERCOST: 0
   STONECOST: 0
   _stats: {fileID: 114676468888186190}
+  _type: Pomo (Plante verte)
   _p: {fileID: 0}
   _childTree: {fileID: 1872517987282830}
   _mask:

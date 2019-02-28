@@ -2,13 +2,14 @@
 using UnityEngine;
 using cakeslice;
 using UnityEngine.UI;
+using System.Collections;
 
 public abstract class ManageableObjet : Objet {
 
     [SerializeField]
     protected StatManager _stats;
 
-
+    [SerializeField]
     protected string _type;
     protected string _name;
     protected float _age;
@@ -27,6 +28,8 @@ public abstract class ManageableObjet : Objet {
     protected override void Awake()
     {
         base.Awake();
+        StartCoroutine((_om.WaitFor(_stats.SpecificStatPanel, ()=> GenerateStats())));
+        _om.UpdateObjectList(this, true);
         _coll = GetComponent<Collider>();
         _renderer = GetComponent<Renderer>();
         if (_coll == null)
@@ -75,10 +78,6 @@ public abstract class ManageableObjet : Objet {
     {
         base.Start();
         _outline.enabled = false;
-        GenerateStats();
-        _stats.SetStatsActiveState(false);
-        _stats.enabled = false;
-        
     }
 
 
@@ -115,31 +114,7 @@ public abstract class ManageableObjet : Objet {
                     _outline.enabled = false;
                 }
             }
-            /*if (this is Twippie) ===> Si la liste contient au moins un twippie, enlever tout ce qui n'est pas twippie
-            {
-                if (!_c.FocusedObjects.Contains(this))
-                {
-                    if (IsWithinSelectionBounds())
-                    {
-                        if (!Physics.Linecast(_cam.transform.position, gameObject.transform.position + gameObject.transform.up))
-                        {
-                            _c.FocusedObjects.Add(this);
-                            foreach (ManageableObjet obj in _c.FocusedObjects.ToArray())
-                            {
-                                if (!(obj is Twippie))
-                                {
-                                    _c.FocusedObjects.Remove(obj);
-                                    obj._outline.enabled = false;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (!_c.FocusedObjects.Exists(x => x is Twippie))
-                {*/
+
             if (!_c.FocusedObjects.Contains(this))
             {
                 if (IsWithinSelectionBounds())
@@ -150,8 +125,6 @@ public abstract class ManageableObjet : Objet {
                     }
                 }
             }
-                //}
-            //}
         }
 
         _age = UpdateValue(_age, _timeReference * .01f);
@@ -288,11 +261,13 @@ public abstract class ManageableObjet : Objet {
 
     public virtual void GenerateStats()
     {
+        
         _stats.StatsList = new List<Stat>();
         _stats.GenerateStat<ValueStat>(this, true).Populate(0, 0, 100, "Age", true);
         _stats.GenerateStat<DescriptionStat>(this, true).Populate(_icon, _name, 20, 14);
         _stats.GenerateStat<LabelStat>(this, true, "Titre").Populate(_type);
-        
+
+        Debug.Log("Stats générées pour " + ToString());
         
     }
 
@@ -338,6 +313,14 @@ public abstract class ManageableObjet : Objet {
         set
         {
             _name = value;
+        }
+    }
+
+    public string Type
+    {
+        get
+        {
+            return _type;
         }
     }
 }

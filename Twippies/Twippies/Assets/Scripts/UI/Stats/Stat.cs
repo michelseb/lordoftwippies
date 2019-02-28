@@ -14,25 +14,28 @@ public abstract class Stat : MonoBehaviour {
     protected StatType _sType;
     [SerializeField]
     protected string _name;
+    protected bool _main;
     protected ManageableObjet _manageableObjet;
+
+    private void Start()
+    {
+        gameObject.SetActive(false);
+    }
 
     public ManageableObjet ManageableObjet
     {
-        get
-        {
-            return _manageableObjet;
-        }
-        set
-        {
-            _manageableObjet = value;
-        }
+        get { return _manageableObjet; }
+        set { _manageableObjet = value; }
     }
     public string Name
     {
-        get
-        {
-            return _name;
-        }
+        get { return _name; }
+    }
+
+    public bool Main
+    {
+        get { return _main; }
+        set { _main = value; }
     }
 }
 

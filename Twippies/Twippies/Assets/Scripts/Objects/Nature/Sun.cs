@@ -24,7 +24,6 @@ public class Sun : AerialObjet {
     protected override void Awake()
     {
         base.Awake();
-        _type = "Woaaaa (Soleil)";
         _name = "Soleil";
     }
 

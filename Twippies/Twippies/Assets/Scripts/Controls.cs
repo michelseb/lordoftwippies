@@ -47,6 +47,7 @@ public class Controls : MonoBehaviour {
     private UIManager _ui;
     private UIResources _uiR;
     private ObjetManager _om;
+    private ObjectGenerator _og;
     private bool _newObject;
     private Texture2D _whiteTexture;
 
@@ -75,6 +76,7 @@ public class Controls : MonoBehaviour {
         _ui = UIManager.Instance;
         _uiR = UIResources.Instance;
         _om = ObjetManager.Instance;
+        _og = ObjectGenerator.Instance;
     }
 
     private void Start()
@@ -241,7 +243,7 @@ public class Controls : MonoBehaviour {
                         {
                             Debug.Log("Resources added: "+_focusedObject.WoodCost+" Wood, "+_focusedObject.WaterCost+" Water, "+_focusedObject.StoneCost+" Stone");
                             _uiR.AddResources(_focusedObject.WoodCost, _focusedObject.WaterCost, _focusedObject.StoneCost);
-                            _om.allObjects.Remove(_focusedObject);
+                            _om.UpdateObjectList(_focusedObject, false);
                             Destroy(_focusedObject.gameObject);
                         }
                     }
@@ -301,7 +303,7 @@ public class Controls : MonoBehaviour {
                                 DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
                                 if (!draggableObjet.Zone.Accessible)
                                 {
-                                    _om.allObjects.Remove(_focusedObject);
+                                    _om.UpdateObjectList(_focusedObject, false);
                                     Destroy(_focusedObject.gameObject);
                                     _focusedObject = null;
                                     _newObject = false;
@@ -402,6 +404,7 @@ public class Controls : MonoBehaviour {
                         }
                         obj.SetSelectionActive(false);
                     }
+                    _og.SetAllGlobalStatsActiveState(false);
                     _focusedObjects.Clear();
                     _ui.InfoGUI = false;
                     foreach (ManageableObjet m in _om.AllObjects<ManageableObjet>())
@@ -527,8 +530,7 @@ public class Controls : MonoBehaviour {
                 Twippie t = (Twippie)obj;
                 t.LineRenderer.enabled = true;
             }
-            obj.Stats.enabled = true;
-            obj.Stats.SetStatsActiveState(true);
+            if (!_og.SetGlobalStatActiveState(true, obj.GetType().ToString())) { Debug.Log("global stat not found"); } else { Debug.Log("global stat "+obj.GetType().ToString()+ " a été updaté !"); }
         }
         _ui.InfoGUI = true;
         ctrl = ControlMode.CheckingMultiple;

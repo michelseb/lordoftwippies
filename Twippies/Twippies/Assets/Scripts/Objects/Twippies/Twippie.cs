@@ -92,7 +92,6 @@ public class Twippie : DraggableObjet, ILightnable {
     protected override void Awake()
     {
         base.Awake();
-        _type = "Twippie primitif";
         _name = "Twippie sans défenses";
         _gender = CoinFlip() ? Gender.Male : Gender.Female;
         _needs = new List<Need> { new Need(NeedType.None) };
@@ -554,7 +553,6 @@ public class Twippie : DraggableObjet, ILightnable {
         twippie.NbGeneration = parentsMeanGeneration+1;
         twippie.Papa = papa;
         twippie.Maman = mama;
-        _om.allObjects.Add(twippie);
         //TODO : Affecter les stats de papa / maman à l'enfant
         //TODO : Calculer si évolution de twippie primitif à avancé
     }
@@ -732,7 +730,7 @@ public class Twippie : DraggableObjet, ILightnable {
         _renderer.material.color = Color.gray;
         _r.AddForce((transform.position - _p.transform.position).normalized, ForceMode.Impulse);
         Debug.Log("Twippie mort :( thirst : " + Mathf.FloorToInt(_thirst) + " hunger : " + Mathf.FloorToInt(_hunger) + " _fatigue : " + Mathf.FloorToInt(_sleepiness));
-        _om.allObjects.Remove(this);
+        _om.UpdateObjectList(this, false);
         _stats.enabled = false;
         Destroy(_lineRenderer);
         _consumable?.Consume();

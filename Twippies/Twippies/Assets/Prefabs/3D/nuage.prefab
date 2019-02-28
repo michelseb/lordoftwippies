@@ -145,6 +145,7 @@ MonoBehaviour:
   WATERCOST: 5
   STONECOST: 0
   _stats: {fileID: 114010745275471244}
+  _type: Vvvvv (Nuage)
   _p: {fileID: 0}
   _raining: 0
   _ps: {fileID: 198519220832407152}

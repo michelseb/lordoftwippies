@@ -7,7 +7,6 @@ public class House : StaticObjet, IBuildable
     protected override void Awake()
     {
         base.Awake();
-        _type = "Talho (Maison)";
         _name = "Maison twippie";
     }
     protected override void Start()

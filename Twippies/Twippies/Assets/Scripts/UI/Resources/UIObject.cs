@@ -26,8 +26,6 @@ public class UIObject : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
         if (go.GetComponent<ManageableObjet>() != null)
         {
             _controls.FocusedObject = go.GetComponent<ManageableObjet>();
-            _om.allObjects.Add(_controls.FocusedObject);
-            
         }
 
     }

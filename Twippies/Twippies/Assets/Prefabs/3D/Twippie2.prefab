@@ -439,6 +439,7 @@ MonoBehaviour:
   WATERCOST: 1
   STONECOST: 0
   _stats: {fileID: 114701642900926098}
+  _type: Twippie primitif
   _p: {fileID: 0}
   _pathFinder: {fileID: 114828306073754496}
   _mask:
