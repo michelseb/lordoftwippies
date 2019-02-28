@@ -28,8 +28,9 @@ public abstract class ManageableObjet : Objet {
     protected override void Awake()
     {
         base.Awake();
-        StartCoroutine((_om.WaitFor(_stats.SpecificStatPanel, ()=> GenerateStats())));
+        _om.StartCoroutine((_om.WaitFor(_stats, ()=> GenerateStats())));
         _om.UpdateObjectList(this, true);
+        _om.StartCoroutine((_om.WaitFor(_stats.StatsList, () => _og.GenerateGlobalStats(this))));
         _coll = GetComponent<Collider>();
         _renderer = GetComponent<Renderer>();
         if (_coll == null)
@@ -261,7 +262,6 @@ public abstract class ManageableObjet : Objet {
 
     public virtual void GenerateStats()
     {
-        
         _stats.StatsList = new List<Stat>();
         _stats.GenerateStat<ValueStat>(this, true).Populate(0, 0, 100, "Age", true);
         _stats.GenerateStat<DescriptionStat>(this, true).Populate(_icon, _name, 20, 14);

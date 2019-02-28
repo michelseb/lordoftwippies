@@ -10,30 +10,13 @@ public class StatManager : MonoBehaviour {
     private ManageableObjet _mObjet;
     private ObjectGenerator _og;
 
-    public List<Stat> StatsList
-    {
-        get
-        {
-            if (_statsList == null)
-            {
-                _statsList = new List<Stat>();
-            }
-            return _statsList;
-        }
-
-        set
-        {
-            _statsList = value;
-        }
-    }
-
     private void Awake()
     {
         _mObjet = GetComponent<ManageableObjet>();
         _og = ObjectGenerator.Instance;
         _specificStatsPanel = Instantiate(_og.SpecificStatPanel, _og.StatPanel.transform.Find("Mask").Find("Panel"));
         _specificStatsPanel.name = "Specific stat panel";
-        _specificStatsPanel.gameObject.SetActive(false);
+        SetStatsActiveState(false);
         enabled = false;
         
     }
@@ -91,11 +74,14 @@ public class StatManager : MonoBehaviour {
         }
     }
 
+    public List<Stat> StatsList
+    {
+        get { return _statsList; }
+        set { _statsList = value; }
+    }
+
     public UIContent SpecificStatPanel
     {
-        get
-        {
-            return _specificStatsPanel;
-        }
+        get { return _specificStatsPanel; }
     }
 }

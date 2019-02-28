@@ -12,7 +12,8 @@ public class ObjectGenerator : MonoBehaviour {
 
         public GlobalStat(GameObject go, string type)
         {
-            _statManager = go.AddComponent<StatManager>();
+            _statManager = go.GetComponent<StatManager>();
+            _statManager.StatsList = new List<Stat>();
             _type = type;
         }
 
@@ -38,6 +39,8 @@ public class ObjectGenerator : MonoBehaviour {
     public List<ManageableObjet> ObjectFactory;
     [SerializeField]
     public GameObject StatPanel;
+    [SerializeField]
+    public GameObject GlobalStatObject;
     [SerializeField]
     public UIContent SpecificStatPanel;
     public List<GlobalStat> globalStats;
@@ -71,7 +74,8 @@ public class ObjectGenerator : MonoBehaviour {
 
         foreach (ManageableObjet objet in ObjectFactory)
         {
-            GlobalStat globalStat = new GlobalStat(gameObject, objet.GetType().ToString());
+            GameObject globalStatObject = Instantiate(GlobalStatObject, transform);
+            GlobalStat globalStat = new GlobalStat(globalStatObject, objet.GetType().ToString());
             Debug.Log("nouveau globalstat de type " + objet.GetType().ToString());
             globalStat.StatManager.GenerateStat<ValueStat>(mainStat: true).Populate(0, 0, 100, "Nombre de " + objet.Type.Split(' ')[0] + "s", true);
             globalStats.Add(globalStat);
@@ -203,7 +207,7 @@ public class ObjectGenerator : MonoBehaviour {
                 foreach (Stat stat in objet.Stats.StatsList)
                 {
                     globalStat.StatManager.StatsList.Add(stat);
-                    Debug.Log("Ajout de la stat " + stat.GetType().ToString()+ "à la global stat "+ globalStat.Type);
+                    Debug.Log("Ajout de la stat " + stat.GetType().ToString()+ " à la global stat "+ globalStat.Type);
                 }
                 UpdateGlobalStat(objet.GetType().ToString(), 1);
                 Debug.Log("Global stat " + globalStat.Type + " mis à jour");

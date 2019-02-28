@@ -58,7 +58,6 @@ public class ObjetManager : MonoBehaviour {
         {
             allObjects.Add(obj);
             Debug.Log(obj.name + " ajouté à la liste globale");
-            StartCoroutine((WaitFor(obj.Stats, () => _og.GenerateGlobalStats(obj))));
         }
         else
         {
