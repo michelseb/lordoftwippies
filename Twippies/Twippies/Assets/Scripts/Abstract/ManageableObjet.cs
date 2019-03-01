@@ -262,6 +262,7 @@ public abstract class ManageableObjet : Objet {
 
     public virtual void GenerateStats()
     {
+        _stats.CreateSpecificPanel(_og.StatPanel.transform.Find("Mask").Find("Panel"));
         _stats.StatsList = new List<Stat>();
         _stats.GenerateStat<ValueStat>(this, true).Populate(0, 0, 100, "Age", true);
         _stats.GenerateStat<DescriptionStat>(this, true).Populate(_icon, _name, 20, 14);

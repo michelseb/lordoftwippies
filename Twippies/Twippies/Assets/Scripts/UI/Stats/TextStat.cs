@@ -45,7 +45,7 @@ public class TextStat : Stat {
 
     public void Populate(string value, int maxChar, float fontSize)
     {
-        _sType = StatType.Text;
+        _statType = StatType.Text;
         _name = "texte";
         _value = value;
         _maxChar = maxChar;

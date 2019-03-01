@@ -14,11 +14,7 @@ public class StatManager : MonoBehaviour {
     {
         _mObjet = GetComponent<ManageableObjet>();
         _og = ObjectGenerator.Instance;
-        _specificStatsPanel = Instantiate(_og.SpecificStatPanel, _og.StatPanel.transform.Find("Mask").Find("Panel"));
-        _specificStatsPanel.name = "Specific stat panel";
-        SetStatsActiveState(false);
         enabled = false;
-        
     }
 
     public ValueStat StatToValue(Stat s)
@@ -42,20 +38,34 @@ public class StatManager : MonoBehaviour {
         return (ChoiceStat)s;
     }
 
+    public void CreateSpecificPanel(Transform parent)
+    {
+        _specificStatsPanel = Instantiate(_og.SpecificStatPanel, parent);
+        _specificStatsPanel.name = "Specific stat panel";
+        _specificStatsPanel.gameObject.SetActive(false);
+    }
+
     public T GenerateStat<T>(ManageableObjet owner = null, bool mainStat = false, string statType = "") where T:Stat
     {
+        
         GameObject obj = Instantiate(_og.GetStat<T>(statType != ""?statType:null), mainStat?_specificStatsPanel.transform.parent:_specificStatsPanel.transform.GetChild(0));
         if (mainStat)
         {
             obj.transform.SetAsFirstSibling();
         }
+        
         T stat = obj.GetComponent<T>();
+        stat.Main = mainStat;
+        if (statType != "")
+        {
+            stat.SpecificType = statType;
+        }
         if (owner != null)
         {
-            stat.Main = mainStat;
             stat.ManageableObjet = owner;
         }
         StatsList.Add(stat);
+        SetStatActiveState(stat, false);
         return stat;
     }
 
@@ -72,6 +82,11 @@ public class StatManager : MonoBehaviour {
                 stat.gameObject.SetActive(active);
             }
         }
+    }
+
+    public void SetStatActiveState(Stat stat, bool active)
+    {
+        stat.gameObject.SetActive(active);
     }
 
     public List<Stat> StatsList

@@ -101,7 +101,7 @@ public class ValueStat : Stat {
 
     public void Populate(int value, int minValue, int maxValue, string label, bool readOnly)
     {
-        _sType = StatType.Value;
+        _statType = StatType.Value;
         _name = "value";
         _value = value;
         _minValue = minValue;

@@ -51,7 +51,7 @@ public class BoolStat : Stat {
 
     public void Populate(bool value, string label)
     {
-        _sType = StatType.Bool;
+        _statType = StatType.Bool;
         _name = "bool";
         _label = label;
         _value = value;

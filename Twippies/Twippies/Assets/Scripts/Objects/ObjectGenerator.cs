@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 public class ObjectGenerator : MonoBehaviour {
@@ -12,7 +13,7 @@ public class ObjectGenerator : MonoBehaviour {
 
         public GlobalStat(GameObject go, string type)
         {
-            _statManager = go.GetComponent<StatManager>();
+            _statManager = go.AddComponent<StatManager>();
             _statManager.StatsList = new List<Stat>();
             _type = type;
         }
@@ -74,8 +75,9 @@ public class ObjectGenerator : MonoBehaviour {
 
         foreach (ManageableObjet objet in ObjectFactory)
         {
-            GameObject globalStatObject = Instantiate(GlobalStatObject, transform);
+            GameObject globalStatObject = Instantiate(GlobalStatObject, StatPanel.transform.Find("Mask").Find("Panel"));
             GlobalStat globalStat = new GlobalStat(globalStatObject, objet.GetType().ToString());
+            globalStat.StatManager.CreateSpecificPanel(globalStatObject.transform);
             Debug.Log("nouveau globalstat de type " + objet.GetType().ToString());
             globalStat.StatManager.GenerateStat<ValueStat>(mainStat: true).Populate(0, 0, 100, "Nombre de " + objet.Type.Split(' ')[0] + "s", true);
             globalStats.Add(globalStat);
@@ -206,7 +208,12 @@ public class ObjectGenerator : MonoBehaviour {
             {
                 foreach (Stat stat in objet.Stats.StatsList)
                 {
-                    globalStat.StatManager.StatsList.Add(stat);
+                    MethodInfo generate = typeof(StatManager).GetMethod("GenerateStat");
+                    var type = typeof(StatManager).Assembly.GetTypes().FirstOrDefault(t => t.Name == stat.GetType().ToString());
+                    MethodInfo generateMethod = generate.MakeGenericMethod(type);
+                    Stat newStat = (Stat)generateMethod.Invoke(globalStat.StatManager, new object[] { null, stat.Main, stat.SpecificType });
+                    //newStat.
+                    globalStat.StatManager.StatsList.Add(newStat);
                     Debug.Log("Ajout de la stat " + stat.GetType().ToString()+ " à la global stat "+ globalStat.Type);
                 }
                 UpdateGlobalStat(objet.GetType().ToString(), 1);

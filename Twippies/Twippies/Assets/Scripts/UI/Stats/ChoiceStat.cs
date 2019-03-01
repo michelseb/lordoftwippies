@@ -43,7 +43,7 @@
     public void Populate(string label, string[] values, int value)
     {
         _name = "choice";
-        _sType = StatType.Choice;
+        _statType = StatType.Choice;
         _label = label;
         _values = values;
         _value = value;

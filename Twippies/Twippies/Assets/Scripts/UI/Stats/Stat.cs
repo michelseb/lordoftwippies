@@ -11,11 +11,12 @@ public enum StatType
 
 public abstract class Stat : MonoBehaviour {
     protected StatManager _statManager;
-    protected StatType _sType;
+    protected StatType _statType;
     [SerializeField]
     protected string _name;
     protected bool _main;
     protected ManageableObjet _manageableObjet;
+    protected string _specificType;
 
     private void Start()
     {
@@ -36,6 +37,12 @@ public abstract class Stat : MonoBehaviour {
     {
         get { return _main; }
         set { _main = value; }
+    }
+
+    public string SpecificType
+    {
+        get { return _specificType; }
+        set { _specificType = value; }
     }
 }
 
