@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class UIContent : MonoBehaviour {
+public class UIContent : GraphicElement {
     private bool _visible;
 
     public bool Visible

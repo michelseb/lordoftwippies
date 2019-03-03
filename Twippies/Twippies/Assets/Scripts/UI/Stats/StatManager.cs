@@ -42,7 +42,6 @@ public class StatManager : MonoBehaviour {
     {
         _specificStatsPanel = Instantiate(_og.SpecificStatPanel, parent);
         _specificStatsPanel.name = "Specific stat panel";
-        _specificStatsPanel.gameObject.SetActive(false);
     }
 
     public T GenerateStat<T>(ManageableObjet owner = null, bool mainStat = false, string statType = "") where T:Stat

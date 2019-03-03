@@ -9,7 +9,7 @@ public enum StatType
     Value
 }
 
-public abstract class Stat : MonoBehaviour {
+public abstract class Stat : GraphicElement {
     protected StatManager _statManager;
     protected StatType _statType;
     [SerializeField]
@@ -17,11 +17,6 @@ public abstract class Stat : MonoBehaviour {
     protected bool _main;
     protected ManageableObjet _manageableObjet;
     protected string _specificType;
-
-    private void Start()
-    {
-        gameObject.SetActive(false);
-    }
 
     public ManageableObjet ManageableObjet
     {
