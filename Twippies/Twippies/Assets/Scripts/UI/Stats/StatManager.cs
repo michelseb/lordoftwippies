@@ -1,14 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class StatManager : MonoBehaviour {
 
     [SerializeField]
     private List<Stat> _statsList;
+    private StatPanel _statPanel;
     private UIContent _specificStatsPanel;
     private ManageableObjet _mObjet;
     private ObjectGenerator _og;
+    [SerializeField]
+    private Color _color;
 
     private void Awake()
     {
@@ -40,14 +44,15 @@ public class StatManager : MonoBehaviour {
 
     public void CreateSpecificPanel(Transform parent)
     {
+        Debug.Log(parent);
         _specificStatsPanel = Instantiate(_og.SpecificStatPanel, parent);
         _specificStatsPanel.name = "Specific stat panel";
     }
 
     public T GenerateStat<T>(ManageableObjet owner = null, bool mainStat = false, string statType = "") where T:Stat
     {
-        
-        GameObject obj = Instantiate(_og.GetStat<T>(statType != ""?statType:null), mainStat?_specificStatsPanel.transform.parent:_specificStatsPanel.transform.GetChild(0));
+        _statPanel = _og.StatPanels.FirstOrDefault(x => x.Type == _mObjet.Type);
+        GameObject obj = Instantiate(_og.GetStat<T>(statType != ""?statType:null), mainStat?_statPanel.transform:_specificStatsPanel.transform.GetChild(0));
         if (mainStat)
         {
             obj.transform.SetAsFirstSibling();
@@ -88,14 +93,8 @@ public class StatManager : MonoBehaviour {
         stat.gameObject.SetActive(active);
     }
 
-    public List<Stat> StatsList
-    {
-        get { return _statsList; }
-        set { _statsList = value; }
-    }
-
-    public UIContent SpecificStatPanel
-    {
-        get { return _specificStatsPanel; }
-    }
+    public List<Stat> StatsList { get { return _statsList; } set { _statsList = value; } }
+    public UIContent SpecificStatPanel { get { return _specificStatsPanel; } }
+    public Color Color { get { return _color; } set { _color = value; } }
+    public StatPanel StatPanel { get { return _statPanel; } set { _statPanel = value; } }
 }

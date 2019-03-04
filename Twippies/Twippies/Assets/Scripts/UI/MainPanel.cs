@@ -18,8 +18,9 @@ public class MainPanel : GraphicElement {
         }
     }
 
-    protected void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         StatPanels = new List<StatPanel>();
     }
 

@@ -5,8 +5,9 @@ public abstract class GraphicElement : MonoBehaviour {
 
     protected Image _image;
     protected bool _active;
+    protected bool _visible;
 
-    protected virtual void Start()
+    protected virtual void Awake()
     {
         _image = GetComponent<Image>();
         SetActive(false);
@@ -21,5 +22,7 @@ public abstract class GraphicElement : MonoBehaviour {
     public void SetVisible(bool visible)
     {
         _image.enabled = visible;
+        _visible = visible;
     }
+    public Image Image { get { return _image; } }
 }
