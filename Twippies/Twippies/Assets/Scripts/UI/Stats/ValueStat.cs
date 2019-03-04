@@ -99,7 +99,7 @@ public class ValueStat : Stat {
         }
     }
 
-    public void Populate(int value, int minValue, int maxValue, string label, bool readOnly)
+    public void Populate(int value, int minValue, int maxValue, string label, bool readOnly, string statName)
     {
         _statType = StatType.Value;
         _name = "value";
@@ -108,5 +108,6 @@ public class ValueStat : Stat {
         _maxValue = maxValue;
         _label = label;
         _readOnly = readOnly;
+        _specificName = statName;
     }
 }

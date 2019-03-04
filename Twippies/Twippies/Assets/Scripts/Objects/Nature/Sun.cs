@@ -17,9 +17,9 @@ public class Sun : AerialObjet {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<BoolStat>(this).Populate(true, "On/Off");
-        _stats.GenerateStat<ValueStat>(this).Populate(1, 0, 10, "Brightness", false);
-        _stats.GenerateStat<ValueStat>(this).Populate(2, 0, 20, "Rotation speed", false);
+        _stats.GenerateStat<BoolStat>(this).Populate(true, "On/Off", "Active");
+        _stats.GenerateStat<ValueStat>(this).Populate(1, 0, 10, "Brightness", false, "Strength");
+        _stats.GenerateStat<ValueStat>(this).Populate(2, 0, 20, "Rotation speed", false, "Speed");
     }
     protected override void Awake()
     {
@@ -43,17 +43,17 @@ public class Sun : AerialObjet {
     protected override void UpdateStats()
     {
         base.UpdateStats();
-        _on = _stats.StatToBool(_stats.StatsList[3]).Value;
+        _on = _stats.StatToBool(_stats.GetStat("Active")).Value;
         if (_on)
         {
-            _speed = _stats.StatToValue(_stats.StatsList[5]).Value;
+            _speed = _stats.StatToValue(_stats.GetStat("Speed")).Value;
         }
         else
         {
             _speed = 0;
         }
         _light.enabled = _on;
-        _light.intensity = _stats.StatToValue(_stats.StatsList[4]).Value;
+        _light.intensity = _stats.StatToValue(_stats.GetStat("Strength")).Value;
     }
 
     public float Speed

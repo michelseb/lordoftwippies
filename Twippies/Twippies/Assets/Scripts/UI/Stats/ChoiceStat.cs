@@ -40,12 +40,13 @@
         }
     }
 
-    public void Populate(string label, string[] values, int value)
+    public void Populate(string label, string[] values, int value, string statName)
     {
         _name = "choice";
         _statType = StatType.Choice;
         _label = label;
         _values = values;
         _value = value;
+        _specificName = statName;
     }
 }

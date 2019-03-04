@@ -11,8 +11,8 @@ public class WaterObjet : ManageableObjet {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<BoolStat>(this).Populate(false, "hard/soft");
-        _stats.GenerateStat<ValueStat>(this).Populate(10, 0, 20, "niveau", false);
+        _stats.GenerateStat<BoolStat>(this).Populate(false, "hard/soft", "Water");
+        _stats.GenerateStat<ValueStat>(this).Populate(10, 0, 20, "niveau", false, "Level");
     }
     protected override void Awake()
     {
@@ -60,7 +60,7 @@ public class WaterObjet : ManageableObjet {
     protected override void UpdateStats()
     {
         base.UpdateStats();
-        float scale = _stats.StatToValue(_stats.StatsList[4]).Value;
+        float scale = _stats.StatToValue(_stats.GetStat("Level")).Value;
         transform.localScale = new Vector3(scale, scale, scale);
 
     }

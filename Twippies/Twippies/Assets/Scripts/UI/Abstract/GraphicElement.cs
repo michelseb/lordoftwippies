@@ -24,5 +24,12 @@ public abstract class GraphicElement : MonoBehaviour {
         _image.enabled = visible;
         _visible = visible;
     }
+
+    public void Init()
+    {
+        _image = GetComponent<Image>();
+        SetActive(false);
+    }
+
     public Image Image { get { return _image; } }
 }

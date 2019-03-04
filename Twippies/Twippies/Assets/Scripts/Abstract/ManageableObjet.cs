@@ -3,6 +3,7 @@ using UnityEngine;
 using cakeslice;
 using UnityEngine.UI;
 using System.Collections;
+using System.Linq;
 
 public abstract class ManageableObjet : Objet {
 
@@ -262,11 +263,12 @@ public abstract class ManageableObjet : Objet {
 
     public virtual void GenerateStats()
     {
+        _stats.StatPanel = _og.StatPanels.FirstOrDefault(x => x.Type == _type);
         _stats.CreateSpecificPanel(_stats.StatPanel.transform);
         _stats.StatsList = new List<Stat>();
-        _stats.GenerateStat<ValueStat>(this, true).Populate(0, 0, 100, "Age", true);
-        _stats.GenerateStat<DescriptionStat>(this, true).Populate(_icon, _name, 20, 14);
-        _stats.GenerateStat<LabelStat>(this, true, "Titre").Populate(_type);
+        _stats.GenerateStat<ValueStat>(this, true).Populate(0, 0, 100, "Age", true, "Age");
+        _stats.GenerateStat<DescriptionStat>(this, true).Populate(_icon, _name, 20, 14, "Description");
+        _stats.GenerateStat<LabelStat>(this, true, "Titre").Populate(_type, "Titre");
 
         Debug.Log("Stats générées pour " + ToString());
         
@@ -302,7 +304,7 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void UpdateStats()
     {
-        _stats.StatToValue(_stats.StatsList[0]).Value = _age;
+        _stats.StatToValue(_stats.GetStat("Age")).Value = _age;
     }
 
     public string Name

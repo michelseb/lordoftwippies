@@ -467,13 +467,13 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1953714432734514}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e8678757669c261419b52f0fb6065523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _nbStats: 0
   _statsList: []
+  _color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &114828306073754496
 MonoBehaviour:
   m_ObjectHideFlags: 1

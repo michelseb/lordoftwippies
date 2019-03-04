@@ -44,7 +44,6 @@ public class StatManager : MonoBehaviour {
 
     public void CreateSpecificPanel(Transform parent)
     {
-        Debug.Log(parent);
         _specificStatsPanel = Instantiate(_og.SpecificStatPanel, parent);
         _specificStatsPanel.name = "Specific stat panel";
     }
@@ -62,7 +61,7 @@ public class StatManager : MonoBehaviour {
         stat.Main = mainStat;
         if (statType != "")
         {
-            stat.SpecificType = statType;
+            stat.SpecificName = statType;
         }
         if (owner != null)
         {
@@ -88,9 +87,21 @@ public class StatManager : MonoBehaviour {
         }
     }
 
+    public Stat GetStat(string name)
+    {
+        return _statsList.FirstOrDefault(x => x.SpecificName == name);
+    }
+
     public void SetStatActiveState(Stat stat, bool active)
     {
         stat.gameObject.SetActive(active);
+    }
+
+    public void Init()
+    {
+        _mObjet = GetComponent<ManageableObjet>();
+        _og = ObjectGenerator.Instance;
+        enabled = false;
     }
 
     public List<Stat> StatsList { get { return _statsList; } set { _statsList = value; } }

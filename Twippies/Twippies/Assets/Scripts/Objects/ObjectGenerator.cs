@@ -49,14 +49,16 @@ public class ObjectGenerator : MonoBehaviour {
         {
             GameObject statPanelObject = Instantiate(StatPanel.gameObject, MainStatPanel.transform);
             StatPanel statPanel = statPanelObject.GetComponent<StatPanel>();
+            statPanel.Init();
             statPanel.StatManager = objet.Stats;
+            statPanel.StatManager.Init();
             statPanel.StatManager.StatPanel = statPanel;
             statPanel.Image.color = statPanel.StatManager.Color;
-            statPanel.Type = objet.GetType().ToString();
+            statPanel.Type = objet.Type;
+            StatPanels.Add(statPanel);
             statPanel.StatManager.CreateSpecificPanel(statPanel.transform);
             Debug.Log("nouveau globalstat de type " + objet.GetType().ToString());
-            statPanel.StatManager.GenerateStat<ValueStat>(mainStat: true).Populate(0, 0, 100, "Nombre de " + objet.Type.Split(' ')[0] + "s", true);
-            StatPanels.Add(statPanel);
+            statPanel.StatManager.GenerateStat<ValueStat>(mainStat: true).Populate(0, 0, 100, "Nombre de " + objet.Type.Split(' ')[0] + "s", true, "Amount");
             statPanel.StatManager.SetStatsActiveState(false);
             statPanel.StatManager.enabled = false;
         }
@@ -187,7 +189,7 @@ public class ObjectGenerator : MonoBehaviour {
                     MethodInfo generate = typeof(StatManager).GetMethod("GenerateStat");
                     var type = typeof(StatManager).Assembly.GetTypes().FirstOrDefault(t => t.Name == stat.GetType().ToString());
                     MethodInfo generateMethod = generate.MakeGenericMethod(type);
-                    Stat newStat = (Stat)generateMethod.Invoke(statPanel.StatManager, new object[] { null, stat.Main, stat.SpecificType });
+                    Stat newStat = (Stat)generateMethod.Invoke(statPanel.StatManager, new object[] { null, stat.Main, stat.SpecificName });
                     //newStat.
                     statPanel.StatManager.StatsList.Add(newStat);
                     Debug.Log("Ajout de la stat " + stat.GetType().ToString()+ " à la global stat "+ statPanel.Type);
@@ -222,7 +224,7 @@ public class ObjectGenerator : MonoBehaviour {
         StatPanel globalStat = StatPanels.FirstOrDefault(x => x.Type == type);
         if (globalStat != null)
         {
-            globalStat.StatManager.StatToValue(globalStat.StatManager.StatsList[0]).Value+=value;
+            globalStat.StatManager.StatToValue(globalStat.StatManager.GetStat("Amount")).Value+=value;
         }
     }
 

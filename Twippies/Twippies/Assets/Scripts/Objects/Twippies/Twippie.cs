@@ -560,13 +560,13 @@ public class Twippie : DraggableObjet, ILightnable {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate(_gender.ToString());
-        _stats.GenerateStat<ValueStat>(this, statType: "Label").Populate(0, 0, 100, "Hunger", true);
-        _stats.GenerateStat<ValueStat>(this, statType: "Label").Populate(0, 0, 100, "Thirst", true);
-        _stats.GenerateStat<ValueStat>(this, statType: "Label").Populate(0, 0, 100, "Fatigue", true);
-        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate("Main need : " + _needs[0].Type.ToString());
-        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate("Emotion : ");
-        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate("Action : " + _state.ToString());
+        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate(_gender.ToString(), "Gender");
+        _stats.GenerateStat<ValueStat>(this, statType: "Label").Populate(0, 0, 100, "Hunger", true, "Hunger");
+        _stats.GenerateStat<ValueStat>(this, statType: "Label").Populate(0, 0, 100, "Thirst", true, "Thirst");
+        _stats.GenerateStat<ValueStat>(this, statType: "Label").Populate(0, 0, 100, "Fatigue", true, "Sleep");
+        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate("Main need : " + _needs[0].Type.ToString(), "Need");
+        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate("Emotion : ", "Emotion");
+        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate("Action : " + _state.ToString(), "Action");
     }
 
     protected void SetDestination(GoalType goal)
@@ -753,13 +753,13 @@ public class Twippie : DraggableObjet, ILightnable {
     protected override void UpdateStats()
     {
         base.UpdateStats();
-        _stats.StatToValue(_stats.StatsList[0]).Value = _age;
-        _stats.StatToLabel(_stats.StatsList[3]).Value = _gender.ToString();
-        _stats.StatToValue(_stats.StatsList[4]).Value = _hunger;
-        _stats.StatToValue(_stats.StatsList[5]).Value = _thirst;
-        _stats.StatToValue(_stats.StatsList[6]).Value = _sleepiness;
-        _stats.StatToLabel(_stats.StatsList[7]).Value = "Main need : " + _needs[0].Type.ToString();
-        _stats.StatToLabel(_stats.StatsList[9]).Value = "Action : " + _state.ToString();
+        _stats.StatToValue(_stats.GetStat("Age")).Value = _age;
+        _stats.StatToLabel(_stats.GetStat("Gender")).Value = _gender.ToString();
+        _stats.StatToValue(_stats.GetStat("Hunger")).Value = _hunger;
+        _stats.StatToValue(_stats.GetStat("Thirst")).Value = _thirst;
+        _stats.StatToValue(_stats.GetStat("Sleep")).Value = _sleepiness;
+        _stats.StatToLabel(_stats.GetStat("Need")).Value = "Main need : " + _needs[0].Type.ToString();
+        _stats.StatToLabel(_stats.GetStat("Action")).Value = "Action : " + _state.ToString();
     }
 
     protected void SetCurrentNeed(Need need)

@@ -49,11 +49,12 @@ public class BoolStat : Stat {
         }
     }
 
-    public void Populate(bool value, string label)
+    public void Populate(bool value, string label, string statName)
     {
         _statType = StatType.Bool;
         _name = "bool";
         _label = label;
         _value = value;
+        _specificName = statName;
     }
 }

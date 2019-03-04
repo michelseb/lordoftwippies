@@ -15,14 +15,14 @@ public class Cloud : AerialObjet {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<BoolStat>(this).Populate(true, "Wet/Dry");
-        _stats.GenerateStat<BoolStat>(this).Populate(true, "Auto");
+        _stats.GenerateStat<BoolStat>(this).Populate(true, "Wet/Dry", "Active");
+        _stats.GenerateStat<BoolStat>(this).Populate(true, "Auto", "Auto");
     }
     protected override void UpdateStats()
     {
         base.UpdateStats();
-        BoolStat active = (BoolStat)_stats.StatsList[3];
-        BoolStat auto = (BoolStat)_stats.StatsList[4];
+        BoolStat active = (BoolStat)_stats.GetStat("Active");
+        BoolStat auto = (BoolStat)_stats.GetStat("Auto");
         _raining = active.Value;
         _auto = auto.Value;
 

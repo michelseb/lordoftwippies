@@ -16,7 +16,7 @@ public abstract class Stat : GraphicElement {
     protected string _name;
     protected bool _main;
     protected ManageableObjet _manageableObjet;
-    protected string _specificType;
+    protected string _specificName;
 
     public ManageableObjet ManageableObjet
     {
@@ -34,10 +34,10 @@ public abstract class Stat : GraphicElement {
         set { _main = value; }
     }
 
-    public string SpecificType
+    public string SpecificName
     {
-        get { return _specificType; }
-        set { _specificType = value; }
+        get { return _specificName; }
+        set { _specificName = value; }
     }
 }
 

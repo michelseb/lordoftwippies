@@ -44,7 +44,7 @@ public class AdvancedTwippie : Twippie {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<LabelStat>(this, statType:"Label").Populate("Bois possédé : ");
+        _stats.GenerateStat<LabelStat>(this, statType:"Label").Populate("Bois possédé : ", "WoodPossession");
     }
 
     protected override GoalType DefineGoal()
@@ -243,7 +243,7 @@ public class AdvancedTwippie : Twippie {
     protected override void UpdateStats()
     {
         base.UpdateStats();
-        _stats.StatToLabel(_stats.StatsList[10]).Value = "Bois possédé : " + _ressources[1].quantity;
+        _stats.StatToLabel(_stats.GetStat("WoodPossession")).Value = "Bois possédé : " + _ressources[1].quantity;
     }
     public Skill[] Skills
     {

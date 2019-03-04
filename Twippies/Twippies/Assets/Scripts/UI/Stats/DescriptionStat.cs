@@ -12,9 +12,10 @@ public class DescriptionStat : Stat
     {
         
     }
-    public void Populate(Sprite icon, string description, int maxChar, float fontSize)
+    public void Populate(Sprite icon, string description, int maxChar, float fontSize, string statName)
     {
         _icon.sprite = icon;
         _textStat.Populate(description, maxChar, fontSize);
+        _specificName = statName;
     }
 }

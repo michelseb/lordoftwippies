@@ -159,12 +159,13 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1872517987282830}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e8678757669c261419b52f0fb6065523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _statsList: []
+  _statsList:
+  - {fileID: 0}
   _color: {r: 0, g: 1, b: 0, a: 0}
 --- !u!136 &136604696652260050
 CapsuleCollider:

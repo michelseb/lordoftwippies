@@ -253,18 +253,18 @@ public class Planete : ManageableObjet {
     public override void GenerateStats()
     {
         base.GenerateStats();
-        _stats.GenerateStat<BoolStat>(this).Populate(true, "Don't press this");
-        _stats.GenerateStat<BoolStat>(this).Populate(false, "Shape mode");
-        _stats.GenerateStat<ChoiceStat>(this).Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0);
+        _stats.GenerateStat<BoolStat>(this).Populate(true, "Don't press this", "Destroy");
+        _stats.GenerateStat<BoolStat>(this).Populate(false, "Shape mode", "Shape");
+        _stats.GenerateStat<ChoiceStat>(this).Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode");
 
     }
 
     protected override void UpdateStats()
     {
         base.UpdateStats();
-        _shaping = _stats.StatToBool(_stats.StatsList[4]).Value;
-        _displayMode = _stats.StatToChoice(_stats.StatsList[5]).Value;
-        if (_stats.StatToBool(_stats.StatsList[3]).Value == false)
+        _shaping = _stats.StatToBool(_stats.GetStat("Shape")).Value;
+        _displayMode = _stats.StatToChoice(_stats.GetStat("Mode")).Value;
+        if (_stats.StatToBool(_stats.GetStat("Destroy")).Value == false)
         {
             foreach (Transform child in transform)
             {
