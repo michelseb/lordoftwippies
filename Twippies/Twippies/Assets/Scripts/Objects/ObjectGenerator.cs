@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -16,7 +17,6 @@ public class ObjectGenerator : MonoBehaviour {
     public StatPanel StatPanel;
     [SerializeField]
     public UIContent SpecificStatPanel;
-    public List<StatPanel> StatPanels;
     [SerializeField]
     public List<Stat> StatFactory;
     [SerializeField]
@@ -25,6 +25,7 @@ public class ObjectGenerator : MonoBehaviour {
     private int _nbTrees;
     [SerializeField]
     private int _nbAdvancedTwippies;
+    public MainPanel MainPanel;
     private ObjetManager _om;
     private ZoneManager _zm;
 
@@ -43,8 +44,7 @@ public class ObjectGenerator : MonoBehaviour {
     private void Awake()
     {
         _om = ObjetManager.Instance;
-        StatPanels = new List<StatPanel>();
-
+        MainPanel = MainPanel.Instance;
         foreach (ManageableObjet objet in ObjectFactory)
         {
             GameObject statPanelObject = Instantiate(StatPanel.gameObject, MainStatPanel.transform);
@@ -55,11 +55,10 @@ public class ObjectGenerator : MonoBehaviour {
             statPanel.StatManager.StatPanel = statPanel;
             statPanel.Image.color = statPanel.StatManager.Color;
             statPanel.Type = objet.Type;
-            StatPanels.Add(statPanel);
-            statPanel.StatManager.CreateSpecificPanel(statPanel.transform);
+            statPanel.StatManager.CreateSpecificPanel(statPanel.transform.Find("Mask").Find("Panel"));
+            MainPanel.GenerateStatPanels(objet.Type, ObjectFactory.FirstOrDefault(x => x.Type == objet.Type));
             Debug.Log("nouveau globalstat de type " + objet.GetType().ToString());
-            statPanel.StatManager.GenerateStat<ValueStat>(mainStat: true).Populate(0, 0, 100, "Nombre de " + objet.Type.Split(' ')[0] + "s", true, "Amount");
-            statPanel.StatManager.SetStatsActiveState(false);
+            MainPanel.SetStatPanelActiveState(false, objet.Type);
             statPanel.StatManager.enabled = false;
         }
 
@@ -176,56 +175,10 @@ public class ObjectGenerator : MonoBehaviour {
         return result;
     }
 
-    public void GenerateGlobalStats(ManageableObjet objet)
-    {
-        
-        StatPanel statPanel = StatPanels.FirstOrDefault(x => x.Type == objet.GetType().ToString());
-        if (statPanel != null)
-        {
-            if (statPanel.StatManager.StatsList.Count == 1) //Stat de base qui compte le nombre d'occurences
-            {
-                foreach (Stat stat in objet.Stats.StatsList)
-                {
-                    MethodInfo generate = typeof(StatManager).GetMethod("GenerateStat");
-                    var type = typeof(StatManager).Assembly.GetTypes().FirstOrDefault(t => t.Name == stat.GetType().ToString());
-                    MethodInfo generateMethod = generate.MakeGenericMethod(type);
-                    Stat newStat = (Stat)generateMethod.Invoke(statPanel.StatManager, new object[] { null, stat.Main, stat.SpecificName });
-                    //newStat.
-                    statPanel.StatManager.StatsList.Add(newStat);
-                    Debug.Log("Ajout de la stat " + stat.GetType().ToString()+ " à la global stat "+ statPanel.Type);
-                }
-                UpdateGlobalStat(objet.GetType().ToString(), 1);
-                Debug.Log("Global stat " + statPanel.Type + " mis à jour");
-            } 
-        }
-    }
+    
 
-    public bool SetGlobalStatActiveState(bool active, string type)
-    {
-        StatPanel globalStat = StatPanels.FirstOrDefault(x => x.Type == type);
-        if (globalStat != null)
-        {
-            globalStat.StatManager.SetStatsActiveState(active);
-            return true;
-        }
-        return false;
-    }
+    
 
-    public void SetAllGlobalStatsActiveState(bool active)
-    {
-        foreach (StatPanel globalStat in StatPanels)
-        {
-            globalStat.StatManager.SetStatsActiveState(active);
-        }
-    }
-
-    public void UpdateGlobalStat(string type, int value)
-    {
-        StatPanel globalStat = StatPanels.FirstOrDefault(x => x.Type == type);
-        if (globalStat != null)
-        {
-            globalStat.StatManager.StatToValue(globalStat.StatManager.GetStat("Amount")).Value+=value;
-        }
-    }
+    
 
 }

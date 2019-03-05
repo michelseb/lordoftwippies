@@ -557,16 +557,16 @@ public class Twippie : DraggableObjet, ILightnable {
         //TODO : Calculer si évolution de twippie primitif à avancé
     }
 
-    public override void GenerateStats()
+    public override void GenerateStats(StatPanel statPanel, StatManager statManager, string type)
     {
-        base.GenerateStats();
-        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate(_gender.ToString(), "Gender");
-        _stats.GenerateStat<ValueStat>(this, statType: "Label").Populate(0, 0, 100, "Hunger", true, "Hunger");
-        _stats.GenerateStat<ValueStat>(this, statType: "Label").Populate(0, 0, 100, "Thirst", true, "Thirst");
-        _stats.GenerateStat<ValueStat>(this, statType: "Label").Populate(0, 0, 100, "Fatigue", true, "Sleep");
-        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate("Main need : " + _needs[0].Type.ToString(), "Need");
-        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate("Emotion : ", "Emotion");
-        _stats.GenerateStat<LabelStat>(this, statType: "Label").Populate("Action : " + _state.ToString(), "Action");
+        base.GenerateStats(statPanel, statManager, type);
+        statManager.GenerateStat<LabelStat>(type, name: "Label");//.Populate(_gender.ToString(), "Gender");
+        statManager.GenerateStat<ValueStat>(type, name: "Label");//.Populate(0, 0, 100, "Hunger", true, "Hunger");
+        statManager.GenerateStat<ValueStat>(type, name: "Label");//.Populate(0, 0, 100, "Thirst", true, "Thirst");
+        statManager.GenerateStat<ValueStat>(type, name: "Label");//.Populate(0, 0, 100, "Fatigue", true, "Sleep");
+        statManager.GenerateStat<LabelStat>(type, name: "Label");//.Populate("Main need : " + _needs[0].Type.ToString(), "Need");
+        statManager.GenerateStat<LabelStat>(type, name: "Label");//.Populate("Emotion : ", "Emotion");
+        statManager.GenerateStat<LabelStat>(type, name: "Label");//.Populate("Action : " + _state.ToString(), "Action");
     }
 
     protected void SetDestination(GoalType goal)

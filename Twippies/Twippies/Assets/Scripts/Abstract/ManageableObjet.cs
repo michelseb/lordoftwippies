@@ -29,9 +29,8 @@ public abstract class ManageableObjet : Objet {
     protected override void Awake()
     {
         base.Awake();
-        _om.StartCoroutine((_om.WaitFor(_stats, ()=> GenerateStats())));
+        //_om.StartCoroutine((_om.WaitFor(_stats, ()=> GenerateStats())));
         _om.UpdateObjectList(this, true);
-        _om.StartCoroutine((_om.WaitFor(_stats.StatsList, () => _og.GenerateGlobalStats(this))));
         _coll = GetComponent<Collider>();
         _renderer = GetComponent<Renderer>();
         if (_coll == null)
@@ -132,7 +131,7 @@ public abstract class ManageableObjet : Objet {
         _age = UpdateValue(_age, _timeReference * .01f);
         if (_stats.enabled)
         {
-            UpdateStats();
+            //UpdateStats();
         }
 
     }
@@ -261,17 +260,18 @@ public abstract class ManageableObjet : Objet {
         return value;
     }
 
-    public virtual void GenerateStats()
+    public virtual void GenerateStats(StatPanel statPanel, StatManager statManager, string type)
     {
-        _stats.StatPanel = _og.StatPanels.FirstOrDefault(x => x.Type == _type);
-        _stats.CreateSpecificPanel(_stats.StatPanel.transform);
-        _stats.StatsList = new List<Stat>();
-        _stats.GenerateStat<ValueStat>(this, true).Populate(0, 0, 100, "Age", true, "Age");
-        _stats.GenerateStat<DescriptionStat>(this, true).Populate(_icon, _name, 20, 14, "Description");
-        _stats.GenerateStat<LabelStat>(this, true, "Titre").Populate(_type, "Titre");
+        statManager.CreateSpecificPanel(statPanel.transform.Find("Mask").Find("Panel"));
+        statManager.GenerateStat<ValueStat>(type, true).Populate(0, 0, 100, "Age", true, "Age");
+        statManager.GenerateStat<DescriptionStat>(type, true).Populate(_icon, _name, 20, 14, "Description");
+        statManager.GenerateStat<LabelStat>(type, true, "Titre").Populate(_type, "Titre");
 
-        Debug.Log("Stats générées pour " + ToString());
-        
+    }
+
+    public StatManager GetStatManager()
+    {
+        return _og.MainPanel.StatPanels.FirstOrDefault(x => x.Type == _type)?.StatManager;
     }
 
     private Bounds GetViewportBounds(Vector3 screenPosition1, Vector3 screenPosition2)

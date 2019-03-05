@@ -48,6 +48,7 @@ public class Controls : MonoBehaviour {
     private UIResources _uiR;
     private ObjetManager _om;
     private ObjectGenerator _og;
+    private MainPanel _mainPanel;
     private bool _newObject;
     private Texture2D _whiteTexture;
 
@@ -77,6 +78,7 @@ public class Controls : MonoBehaviour {
         _uiR = UIResources.Instance;
         _om = ObjetManager.Instance;
         _og = ObjectGenerator.Instance;
+        _mainPanel = MainPanel.Instance;
     }
 
     private void Start()
@@ -367,11 +369,7 @@ public class Controls : MonoBehaviour {
                 {
                     _ui.DisablePreviewCam();
                     _ui.InfoGUI = false;
-                    foreach (ManageableObjet m in _om.AllObjects<ManageableObjet>())
-                    {
-                        m.Stats.SetStatsActiveState(false);
-                        m.Stats.enabled = false;
-                    }
+                    _mainPanel.SetAllStatPanelsActiveState(false);
                     if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1<<16)))
                     {
                         if (_focusedObject is Twippie)
@@ -404,14 +402,10 @@ public class Controls : MonoBehaviour {
                         }
                         obj.SetSelectionActive(false);
                     }
-                    _og.SetAllGlobalStatsActiveState(false);
+                    _mainPanel.SetAllStatPanelsActiveState(false);
                     _focusedObjects.Clear();
                     _ui.InfoGUI = false;
-                    foreach (ManageableObjet m in _om.AllObjects<ManageableObjet>())
-                    {
-                        m.Stats.SetStatsActiveState(false);
-                        m.Stats.enabled = false;
-                    }
+                    _mainPanel.SetAllStatPanelsActiveState(false);
                     if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1 << 16)))
                     {
                         ctrl = ControlMode.Waiting;
@@ -514,8 +508,8 @@ public class Controls : MonoBehaviour {
             Twippie t = (Twippie)_focusedObject;
             t.LineRenderer.enabled = true;
         }
-        _focusedObject.Stats.enabled = true;
-        _focusedObject.Stats.SetStatsActiveState(true);
+        _focusedObject.Stats = _focusedObject.GetStatManager();
+        _mainPanel.SetStatPanelActiveState(true, _focusedObject.Type);
         _ui.SetPreviewCam(_focusedObject);
         _ui.InfoGUI = true;
         ctrl = ControlMode.Checking;
@@ -530,7 +524,7 @@ public class Controls : MonoBehaviour {
                 Twippie t = (Twippie)obj;
                 t.LineRenderer.enabled = true;
             }
-            if (!_og.SetGlobalStatActiveState(true, obj.GetType().ToString())) { Debug.Log("global stat not found"); } else { Debug.Log("global stat "+obj.GetType().ToString()+ " a été updaté !"); }
+            if (!_mainPanel.SetStatPanelActiveState(true, obj.Type)) { Debug.Log("global stat not found"); } else { Debug.Log("global stat "+obj.GetType().ToString()+ " a été updaté !"); }
         }
         _ui.InfoGUI = true;
         ctrl = ControlMode.CheckingMultiple;

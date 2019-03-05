@@ -10,7 +10,6 @@ public abstract class GraphicElement : MonoBehaviour {
     protected virtual void Awake()
     {
         _image = GetComponent<Image>();
-        SetActive(false);
     }
 
     public virtual void SetActive(bool active)

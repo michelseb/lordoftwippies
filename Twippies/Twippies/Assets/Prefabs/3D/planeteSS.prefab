@@ -495,8 +495,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8678757669c261419b52f0fb6065523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _statsList: []
-  _color: {r: 0, g: 0, b: 1, a: 0}
+  _color: {r: 0, g: 0, b: 1, a: 1}
 --- !u!114 &114181216130622234
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -508,8 +507,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8678757669c261419b52f0fb6065523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _statsList: []
-  _color: {r: 0, g: 0, b: 1, a: 0}
+  _color: {r: 0, g: 0, b: 1, a: 1}
 --- !u!114 &114193364866869416
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -548,7 +546,6 @@ MonoBehaviour:
     type: 2}
   SpecificStatPanel: {fileID: 114323179210105148, guid: 9bda9e9a0ad939045a5bb42aab95749b,
     type: 2}
-  StatPanels: []
   StatFactory:
   - {fileID: 114044865003694546, guid: 5736e1b3e10911d47bb005b421429f9b, type: 2}
   - {fileID: 114409729501785376, guid: 6573d25b63e090a498f612bca9231184, type: 2}
@@ -560,6 +557,7 @@ MonoBehaviour:
   _nbTwippies: 20
   _nbTrees: 30
   _nbAdvancedTwippies: 0
+  MainPanel: {fileID: 0}
 --- !u!114 &114310311304771704
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -652,8 +650,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8678757669c261419b52f0fb6065523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _statsList: []
-  _color: {r: 1, g: 0.70513046, b: 0, a: 0}
+  _color: {r: 1, g: 0.70513046, b: 0, a: 1}
 --- !u!135 &135062748282142706
 SphereCollider:
   m_ObjectHideFlags: 1

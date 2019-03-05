@@ -15,14 +15,8 @@ public abstract class Stat : GraphicElement {
     [SerializeField]
     protected string _name;
     protected bool _main;
-    protected ManageableObjet _manageableObjet;
     protected string _specificName;
 
-    public ManageableObjet ManageableObjet
-    {
-        get { return _manageableObjet; }
-        set { _manageableObjet = value; }
-    }
     public string Name
     {
         get { return _name; }

@@ -8,11 +8,11 @@ public class WaterObjet : ManageableObjet {
     private Planete _planet;
     
 
-    public override void GenerateStats()
+    public override void GenerateStats(StatPanel statPanel, StatManager statManager, string type)
     {
-        base.GenerateStats();
-        _stats.GenerateStat<BoolStat>(this).Populate(false, "hard/soft", "Water");
-        _stats.GenerateStat<ValueStat>(this).Populate(10, 0, 20, "niveau", false, "Level");
+        base.GenerateStats(statPanel, statManager, type);
+        statManager.GenerateStat<BoolStat>(type).Populate(false, "hard/soft", "Water");
+        statManager.GenerateStat<ValueStat>(type).Populate(10, 0, 20, "niveau", false, "Level");
     }
     protected override void Awake()
     {

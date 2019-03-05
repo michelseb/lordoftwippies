@@ -1,8 +1,11 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 public class StatPanel : GraphicElement {
 
     protected MainPanel _mainStatPanel;
+    [SerializeField]
     protected Tab _tab;
     protected StatManager _statManager;
     private string _type;
@@ -12,6 +15,24 @@ public class StatPanel : GraphicElement {
         base.Awake();
         _mainStatPanel = MainPanel.Instance;
         _mainStatPanel.StatPanels.Add(this);
+    }
+
+    public override void SetActive(bool active)
+    {
+        base.SetActive(active);
+        if (_active)
+        {
+            List<StatPanel> panels = _mainStatPanel.StatPanels.FindAll(x => x._active);
+            for (int a = 0; a< panels.Count; a++)
+            {
+                if (panels[a] == this)
+                {
+                    _tab.transform.position += Vector3.right * a/3;
+                }
+            }
+            
+            
+        }
     }
 
     public MainPanel MainStatPanel { get { return _mainStatPanel; } }

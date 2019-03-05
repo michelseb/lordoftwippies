@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ObjetManager : MonoBehaviour {
@@ -62,7 +63,8 @@ public class ObjetManager : MonoBehaviour {
         else
         {
             allObjects.Remove(obj);
-            _og.UpdateGlobalStat(obj.GetType().ToString(), -1);
+            StatPanel statPanel = _og.MainPanel.StatPanels.FirstOrDefault(x => x.Type == obj.Type);
+            _og.MainPanel.UpdateGlobalStat(statPanel, -1);
         }
     }
 

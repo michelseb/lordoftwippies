@@ -5,19 +5,17 @@ using UnityEngine;
 
 public class StatManager : MonoBehaviour {
 
-    [SerializeField]
     private List<Stat> _statsList;
     private StatPanel _statPanel;
     private UIContent _specificStatsPanel;
-    private ManageableObjet _mObjet;
     private ObjectGenerator _og;
     [SerializeField]
     private Color _color;
 
     private void Awake()
     {
-        _mObjet = GetComponent<ManageableObjet>();
         _og = ObjectGenerator.Instance;
+        _statsList = new List<Stat>();
         enabled = false;
     }
 
@@ -48,10 +46,9 @@ public class StatManager : MonoBehaviour {
         _specificStatsPanel.name = "Specific stat panel";
     }
 
-    public T GenerateStat<T>(ManageableObjet owner = null, bool mainStat = false, string statType = "") where T:Stat
+    public T GenerateStat<T>(string statType, bool mainStat = false, string name = "") where T:Stat
     {
-        _statPanel = _og.StatPanels.FirstOrDefault(x => x.Type == _mObjet.Type);
-        GameObject obj = Instantiate(_og.GetStat<T>(statType != ""?statType:null), mainStat?_statPanel.transform:_specificStatsPanel.transform.GetChild(0));
+        GameObject obj = Instantiate(_og.GetStat<T>(name != ""?name:null), mainStat?_statPanel.transform.Find("Mask").Find("Panel"):_specificStatsPanel.transform.GetChild(0));
         if (mainStat)
         {
             obj.transform.SetAsFirstSibling();
@@ -59,32 +56,12 @@ public class StatManager : MonoBehaviour {
         
         T stat = obj.GetComponent<T>();
         stat.Main = mainStat;
-        if (statType != "")
+        if (name != "")
         {
-            stat.SpecificName = statType;
+            stat.SpecificName = name;
         }
-        if (owner != null)
-        {
-            stat.ManageableObjet = owner;
-        }
-        StatsList.Add(stat);
-        SetStatActiveState(stat, false);
+        _statsList.Add(stat);
         return stat;
-    }
-
-    public void SetStatsActiveState(bool active)
-    {
-        if (_statsList != null && _statsList.Count > 0)
-        {
-            if (_statsList.Exists(x=>x.Main == true))
-            {
-                _specificStatsPanel.gameObject.SetActive(active);
-            }
-            foreach (Stat stat in _statsList)
-            {
-                stat.gameObject.SetActive(active);
-            }
-        }
     }
 
     public Stat GetStat(string name)
@@ -99,8 +76,8 @@ public class StatManager : MonoBehaviour {
 
     public void Init()
     {
-        _mObjet = GetComponent<ManageableObjet>();
         _og = ObjectGenerator.Instance;
+        _statsList = new List<Stat>();
         enabled = false;
     }
 
