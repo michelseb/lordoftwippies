@@ -27,11 +27,26 @@ public class StatPanel : GraphicElement {
             {
                 if (panels[a] == this)
                 {
-                    _tab.transform.position += Vector3.right * a/3;
+                    _tab.transform.position += Vector3.right * a * 12 * _canvas.scaleFactor;
                 }
             }
-            
-            
+        }
+        else
+        {
+            _tab.transform.position = _mainStatPanel.StatPanels[0].Tab.transform.position;
+        }
+    }
+
+    public override void SetVisible(bool visible)
+    {
+        base.SetVisible(visible);
+        var graphics = transform.GetComponentsInChildren<GraphicElement>(true);
+        for (int a = 0; a < graphics.Length; a++)
+        {
+            if (!(graphics[a] is Tab) && !(graphics[a] is StatPanel))
+            {
+                graphics[a].SetActive(visible);
+            }
         }
     }
 

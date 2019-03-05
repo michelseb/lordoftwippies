@@ -101,4 +101,6 @@ public class UIManager : MonoBehaviour {
         }
         
     }
+
+    public Camera UICam { get { return _UICam; } }
 }

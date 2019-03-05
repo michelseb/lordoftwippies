@@ -6,10 +6,14 @@ public abstract class GraphicElement : MonoBehaviour {
     protected Image _image;
     protected bool _active;
     protected bool _visible;
+    protected Canvas _canvas;
+    protected UIManager _uiManager;
 
     protected virtual void Awake()
     {
         _image = GetComponent<Image>();
+        _canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+        _uiManager = UIManager.Instance;
     }
 
     public virtual void SetActive(bool active)
@@ -18,10 +22,13 @@ public abstract class GraphicElement : MonoBehaviour {
         gameObject.SetActive(active);
     }
 
-    public void SetVisible(bool visible)
+    public virtual void SetVisible(bool visible)
     {
-        _image.enabled = visible;
-        _visible = visible;
+        if (_image != null)
+        {
+            _image.enabled = visible;
+            _visible = visible;
+        }
     }
 
     public void Init()
@@ -29,6 +36,16 @@ public abstract class GraphicElement : MonoBehaviour {
         _image = GetComponent<Image>();
         SetActive(false);
     }
+
+    protected Rect RectTransformToScreenSpace(RectTransform transform)
+    {
+        Vector2 size = Vector2.Scale(transform.rect.size, transform.lossyScale);
+        float x = transform.position.x + transform.anchoredPosition.x;
+        float y = Screen.height - transform.position.y - transform.anchoredPosition.y;
+
+        return new Rect(x, y, size.x, size.y);
+    }
+
 
     public Image Image { get { return _image; } }
 }

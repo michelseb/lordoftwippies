@@ -525,6 +525,7 @@ public class Controls : MonoBehaviour {
                 t.LineRenderer.enabled = true;
             }
             if (!_mainPanel.SetStatPanelActiveState(true, obj.Type)) { Debug.Log("global stat not found"); } else { Debug.Log("global stat "+obj.GetType().ToString()+ " a été updaté !"); }
+            _mainPanel.StatPanels[0].Tab.SetFocus(true);
         }
         _ui.InfoGUI = true;
         ctrl = ControlMode.CheckingMultiple;

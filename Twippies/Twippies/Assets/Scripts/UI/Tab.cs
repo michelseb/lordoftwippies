@@ -21,13 +21,13 @@ public class Tab : GraphicElement
             {
                 panel.Tab.SetFocus(false);
             }
-            _panel.transform.SetAsFirstSibling();
+            _panel.transform.SetAsLastSibling();
             _image.color = _panel.StatManager.Color;
             _panel.SetVisible(true);
         }
         else
         {
-            _image.color = _panel.StatManager.Color * .3f;
+            _image.color = _panel.StatManager.Color * .8f;
             _panel.SetVisible(false);
         }
     }
