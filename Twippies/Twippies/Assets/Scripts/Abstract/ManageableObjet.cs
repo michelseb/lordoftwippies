@@ -120,10 +120,10 @@ public abstract class ManageableObjet : Objet {
             {
                 if (IsWithinSelectionBounds())
                 {
-                    if (!Physics.Linecast(_cam.transform.position, gameObject.transform.position + gameObject.transform.up))
-                    {
+                    //if (!Physics.Linecast(_cam.transform.position, gameObject.transform.position + gameObject.transform.up))
+                    //{
                         _c.FocusedObjects.Add(this);
-                    }
+                    //}
                 }
             }
         }

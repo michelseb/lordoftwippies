@@ -17,7 +17,7 @@ public abstract class GraphicElement : MonoBehaviour {
     }
 
     public virtual void SetActive(bool active)
-    {
+    { 
         _active = active;
         gameObject.SetActive(active);
     }
@@ -45,7 +45,6 @@ public abstract class GraphicElement : MonoBehaviour {
 
         return new Rect(x, y, size.x, size.y);
     }
-
 
     public Image Image { get { return _image; } }
 }

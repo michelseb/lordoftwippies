@@ -19,22 +19,20 @@ public class StatPanel : GraphicElement {
 
     public override void SetActive(bool active)
     {
-        base.SetActive(active);
-        if (_active)
+        if (_active != active)
         {
-            List<StatPanel> panels = _mainStatPanel.StatPanels.FindAll(x => x._active);
-            for (int a = 0; a< panels.Count; a++)
+            if (active)
             {
-                if (panels[a] == this)
-                {
-                    _tab.transform.position += Vector3.right * a * 12 * _canvas.scaleFactor;
-                }
+                List<StatPanel> panels = _mainStatPanel.StatPanels.FindAll(x => x._active);
+                panels.Add(this);
+                _tab.transform.localPosition += Vector3.right * panels.IndexOf(this) * RectTransformToScreenSpace((RectTransform)_tab.transform).width;
+            }
+            else
+            {
+                _tab.transform.localPosition = _tab.StartPos;
             }
         }
-        else
-        {
-            _tab.transform.position = _mainStatPanel.StatPanels[0].Tab.transform.position;
-        }
+        base.SetActive(active);
     }
 
     public override void SetVisible(bool visible)
