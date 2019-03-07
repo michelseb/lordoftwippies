@@ -50,6 +50,7 @@ public class ObjectGenerator : MonoBehaviour {
             GameObject statPanelObject = Instantiate(StatPanel.gameObject, MainStatPanel.transform);
             StatPanel statPanel = statPanelObject.GetComponent<StatPanel>();
             statPanel.Init();
+            statPanel.name = objet.Type;
             statPanel.StatManager = objet.Stats;
             statPanel.StatManager.Init();
             statPanel.StatManager.StatPanel = statPanel;
@@ -57,7 +58,6 @@ public class ObjectGenerator : MonoBehaviour {
             statPanel.Type = objet.Type;
             statPanel.StatManager.CreateSpecificPanel(statPanel.transform.Find("Mask").Find("Panel"));
             MainPanel.GenerateStatPanels(objet.Type, ObjectFactory.FirstOrDefault(x => x.Type == objet.Type));
-            Debug.Log("nouveau globalstat de type " + objet.GetType().ToString());
             MainPanel.SetStatPanelActiveState(false, objet.Type);
             statPanel.StatManager.enabled = false;
         }

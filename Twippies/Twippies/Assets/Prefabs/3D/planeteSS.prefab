@@ -595,7 +595,7 @@ MonoBehaviour:
   WATERCOST: 0
   STONECOST: 0
   _stats: {fileID: 114096340336135250}
-  _type: "Woaaaa(Plan\xE8te)"
+  _type: "Patsha (Plan\xE8te)"
   _gravity: 15
   _objectDeplacementField: {fileID: 0}
   _water: {fileID: 114048212989039234}

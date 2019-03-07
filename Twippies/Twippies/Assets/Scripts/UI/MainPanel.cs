@@ -20,12 +20,6 @@ public class MainPanel : GraphicElement {
         }
     }
 
-    protected override void Awake()
-    {
-        base.Awake();
-        StatPanels = new List<StatPanel>();
-    }
-
     public void GenerateStatPanels(string type, ManageableObjet obj)
     {
         Type t = obj.GetType();

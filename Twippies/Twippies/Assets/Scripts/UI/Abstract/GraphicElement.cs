@@ -9,13 +9,6 @@ public abstract class GraphicElement : MonoBehaviour {
     protected Canvas _canvas;
     protected UIManager _uiManager;
 
-    protected virtual void Awake()
-    {
-        _image = GetComponent<Image>();
-        _canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
-        _uiManager = UIManager.Instance;
-    }
-
     public virtual void SetActive(bool active)
     { 
         _active = active;
@@ -31,10 +24,11 @@ public abstract class GraphicElement : MonoBehaviour {
         }
     }
 
-    public void Init()
+    public virtual void Init()
     {
         _image = GetComponent<Image>();
-        SetActive(false);
+        _canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+        _uiManager = UIManager.Instance;
     }
 
     protected Rect RectTransformToScreenSpace(RectTransform transform)
