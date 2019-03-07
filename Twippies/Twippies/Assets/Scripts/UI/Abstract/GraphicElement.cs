@@ -47,4 +47,5 @@ public abstract class GraphicElement : MonoBehaviour {
     }
 
     public Image Image { get { return _image; } }
+    public bool Active { get { return _active; } }
 }

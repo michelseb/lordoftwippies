@@ -23,8 +23,9 @@ public class StatPanel : GraphicElement {
         {
             if (active)
             {
+                Debug.Log(ToString() + " is moving the tabs !!!!!");
+                _active = true;
                 List<StatPanel> panels = _mainStatPanel.StatPanels.FindAll(x => x._active);
-                panels.Add(this);
                 _tab.transform.localPosition += Vector3.right * panels.IndexOf(this) * RectTransformToScreenSpace((RectTransform)_tab.transform).width;
             }
             else

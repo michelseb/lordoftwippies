@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Controls : MonoBehaviour {
@@ -365,7 +366,7 @@ public class Controls : MonoBehaviour {
                         return;
                     }
                 }
-                if ((Input.GetButtonDown("Fire1")||Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && Input.mousePosition.x < Screen.width * 2/3)
+                if ((Input.GetButtonDown("Fire1")||Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && Input.mousePosition.x < Screen.width * 3/5)
                 {
                     _ui.DisablePreviewCam();
                     _ui.InfoGUI = false;
@@ -391,7 +392,7 @@ public class Controls : MonoBehaviour {
                 }
                 break;
             case ControlMode.CheckingMultiple:
-                if ((Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && Input.mousePosition.x < Screen.width * 2 / 3)
+                if ((Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && Input.mousePosition.x < Screen.width * 3/5)
                 {
                     foreach (ManageableObjet obj in _focusedObjects)
                     {
@@ -527,7 +528,7 @@ public class Controls : MonoBehaviour {
             if (!_mainPanel.SetStatPanelActiveState(true, obj.Type)) { Debug.Log("global stat not found"); } else { Debug.Log("global stat "+obj.GetType().ToString()+ " a été updaté !"); }
             
         }
-        _mainPanel.StatPanels[0].Tab.SetFocus(true);
+        _mainPanel.StatPanels.First(x => x.Active).Tab.SetFocus(true);//.Tab.SetFocus(true);
         _ui.InfoGUI = true;
         ctrl = ControlMode.CheckingMultiple;
     }
