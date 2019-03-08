@@ -512,8 +512,8 @@ public class Controls : MonoBehaviour {
         _focusedObject.Stats = _focusedObject.GetStatManager();
         _mainPanel.SetStatPanelActiveState(true, _focusedObject.Type);
         StatPanel activePanel = _mainPanel.StatPanels.Find(x => x.Active);
-        activePanel.Tab.SetScale(1);
-        activePanel.Tab.SetPosition(0, 1);
+        _focusedObject.PopulateStats(activePanel);
+        activePanel.Tab.SetFocus(true);
         _ui.SetPreviewCam(_focusedObject);
         _ui.InfoGUI = true;
         ctrl = ControlMode.Checking;
@@ -534,12 +534,7 @@ public class Controls : MonoBehaviour {
             if (!_mainPanel.SetStatPanelActiveState(true, obj.Type)) { Debug.Log("global stat not found"); } else { Debug.Log("global stat "+obj.GetType().ToString()+ " a été updaté !"); }
         }
         List<StatPanel> activePanels = _mainPanel.StatPanels.FindAll(x => x.Active);
-        for (int a = 0; a < activePanels.Count; a++)
-        {
-            activePanels[a].Tab.SetScale(activePanels.Count);
-            activePanels[a].Tab.SetPosition(a, activePanels.Count);
-        }
-        activePanels[0].Tab.SetFocus(true);//.Tab.SetFocus(true);
+        activePanels[0].Tab.SetFocus(true);
         _ui.InfoGUI = true;
         ctrl = ControlMode.CheckingMultiple;
     }

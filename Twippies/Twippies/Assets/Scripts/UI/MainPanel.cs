@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class MainPanel : GraphicElement {
 
+    [SerializeField]
+    public GameObject TabContainer;
     public List<StatPanel> StatPanels;
     private static MainPanel _instance;
     public static MainPanel Instance
@@ -29,7 +31,15 @@ public class MainPanel : GraphicElement {
             t.GetMethod("GenerateStats").Invoke(obj, new object[] { statPanel, statPanel.StatManager, type });
             statPanel.StatManager.GenerateStat<ValueStat>(obj.Type, mainStat: true, name: "Amount").Populate(0, 0, 100, "Nombre de " + obj.Type.Split(' ')[0] + "s", true, "Amount");
             UpdateGlobalStat(statPanel, 1);
-            Debug.Log("Global stat " + statPanel.Type + " mis à jour");
+        }
+    }
+
+    public void PopulateStatPanel(StatPanel panel, Stat stat, object[] objs)
+    {
+        if (panel != null)
+        {
+            Type t = stat.GetType();
+            t.GetMethod("Populate").Invoke(panel, objs);
         }
     }
 
@@ -38,6 +48,7 @@ public class MainPanel : GraphicElement {
         StatPanel statPanel = StatPanels.FirstOrDefault(x => x.Type == type);
         if (statPanel != null)
         {
+            statPanel.Tab.SetActive(active);
             statPanel.SetActive(active);
             return true;
         }
@@ -48,6 +59,7 @@ public class MainPanel : GraphicElement {
     {
         foreach (StatPanel statPanel in StatPanels)
         {
+            statPanel.Tab.SetActive(active);
             statPanel.SetActive(active);
         }
     }

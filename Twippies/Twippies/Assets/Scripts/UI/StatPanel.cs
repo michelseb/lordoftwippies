@@ -15,7 +15,7 @@ public class StatPanel : GraphicElement {
         var graphics = transform.GetComponentsInChildren<GraphicElement>(true);
         for (int a = 0; a < graphics.Length; a++)
         {
-            if (!(graphics[a] is Tab) && !(graphics[a] is StatPanel))
+            if (!(graphics[a] is Tab))
             {
                 graphics[a].SetActive(visible);
             }

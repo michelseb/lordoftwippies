@@ -269,6 +269,13 @@ public abstract class ManageableObjet : Objet {
 
     }
 
+    public virtual void PopulateStats(StatPanel statPanel)
+    {
+        _og.MainPanel.PopulateStatPanel(statPanel, statPanel.StatManager.GetStat("Age"), new object[] { _age, 0, 100, "Age", true, "Age" });
+        _og.MainPanel.PopulateStatPanel(statPanel, statPanel.StatManager.GetStat("Description"), new object[] { _icon, _name, 20, 14, "Description" });
+        _og.MainPanel.PopulateStatPanel(statPanel, statPanel.StatManager.GetStat("Titre"), new object[] { _type, "Titre" });
+    }
+
     public StatManager GetStatManager()
     {
         return _og.MainPanel.StatPanels.FirstOrDefault(x => x.Type == _type)?.StatManager;

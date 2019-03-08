@@ -29,6 +29,7 @@ public abstract class GraphicElement : MonoBehaviour {
         _image = GetComponent<Image>();
         _canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         _uiManager = UIManager.Instance;
+        SetActive(_active);
     }
 
     protected Rect RectTransformToScreenSpace(RectTransform transform)
