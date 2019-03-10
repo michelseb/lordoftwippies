@@ -12,12 +12,20 @@ public class Cloud : AerialObjet {
     private ParticleSystem _ps;
 
 
-    public override void GenerateStats(StatPanel statPanel, StatManager statManager, string type)
+    public override void GenerateStats(StatPanel statPanel, string type)
     {
-        base.GenerateStats(statPanel, statManager, type);
-        statManager.GenerateStat<BoolStat>(type).Populate(true, "Wet/Dry", "Active");
-        statManager.GenerateStat<BoolStat>(type).Populate(true, "Auto", "Auto");
+        base.GenerateStats(statPanel, type);
+        statPanel.StatManager.GenerateStat<BoolStat>(type).Populate(true, "Wet/Dry", "Active");
+        statPanel.StatManager.GenerateStat<BoolStat>(type).Populate(true, "Auto", "Auto");
     }
+
+    public override void PopulateStats()
+    {
+        base.PopulateStats();
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Active"), new object[] { true, "Wet/Dry", "Active" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Auto"), new object[] { true, "Auto", "Auto" });
+    }
+
     protected override void UpdateStats()
     {
         base.UpdateStats();

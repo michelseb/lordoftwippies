@@ -382,6 +382,7 @@ public class Controls : MonoBehaviour {
                             }
                         }
                         _focusedObject.SetSelectionActive(false);
+                        MainPanel.Instance.SetActive(false);
                         _focusedObject = null;
                         ctrl = ControlMode.Waiting;
                     }
@@ -403,10 +404,10 @@ public class Controls : MonoBehaviour {
                         }
                         obj.SetSelectionActive(false);
                     }
-                    _mainPanel.SetAllStatPanelsActiveState(false);
                     _focusedObjects.Clear();
                     _ui.InfoGUI = false;
                     _mainPanel.SetAllStatPanelsActiveState(false);
+                    MainPanel.Instance.SetActive(false);
                     if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1 << 16)))
                     {
                         ctrl = ControlMode.Waiting;
@@ -509,11 +510,13 @@ public class Controls : MonoBehaviour {
             Twippie t = (Twippie)_focusedObject;
             t.LineRenderer.enabled = true;
         }
-        _focusedObject.Stats = _focusedObject.GetStatManager();
         _mainPanel.SetStatPanelActiveState(true, _focusedObject.Type);
         StatPanel activePanel = _mainPanel.StatPanels.Find(x => x.Active);
-        _focusedObject.PopulateStats(activePanel);
+        _focusedObject.Stats = _focusedObject.GetStatManager();
+        _focusedObject.PopulateStats();
         activePanel.Tab.SetFocus(true);
+        activePanel.StatManager.GetStat("Amount").SetActive(false);
+        MainPanel.Instance.SetActive(true);
         _ui.SetPreviewCam(_focusedObject);
         _ui.InfoGUI = true;
         ctrl = ControlMode.Checking;
@@ -534,6 +537,7 @@ public class Controls : MonoBehaviour {
             if (!_mainPanel.SetStatPanelActiveState(true, obj.Type)) { Debug.Log("global stat not found"); } else { Debug.Log("global stat "+obj.GetType().ToString()+ " a été updaté !"); }
         }
         List<StatPanel> activePanels = _mainPanel.StatPanels.FindAll(x => x.Active);
+        MainPanel.Instance.SetActive(true);
         activePanels[0].Tab.SetFocus(true);
         _ui.InfoGUI = true;
         ctrl = ControlMode.CheckingMultiple;

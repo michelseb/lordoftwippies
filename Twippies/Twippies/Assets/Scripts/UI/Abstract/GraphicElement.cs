@@ -29,6 +29,7 @@ public abstract class GraphicElement : MonoBehaviour {
         _image = GetComponent<Image>();
         _canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         _uiManager = UIManager.Instance;
+        //transform.rotation = MainPanel.Instance.transform.rotation;
         SetActive(_active);
     }
 

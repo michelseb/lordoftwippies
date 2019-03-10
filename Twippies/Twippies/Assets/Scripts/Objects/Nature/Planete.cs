@@ -250,14 +250,23 @@ public class Planete : ManageableObjet {
     }
 
 
-    public override void GenerateStats(StatPanel statPanel, StatManager statManager, string type)
+    public override void GenerateStats(StatPanel statPanel, string type)
     {
-        base.GenerateStats(statPanel, statManager, type);
-        statManager.GenerateStat<BoolStat>(type).Populate(true, "Don't press this", "Destroy");
-        statManager.GenerateStat<BoolStat>(type).Populate(false, "Shape mode", "Shape");
-        statManager.GenerateStat<ChoiceStat>(type).Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode");
+        base.GenerateStats(statPanel, type);
+        statPanel.StatManager.GenerateStat<BoolStat>(type).Populate(true, "Don't press this", "Destroy");
+        statPanel.StatManager.GenerateStat<BoolStat>(type).Populate(false, "Shape mode", "Shape");
+        statPanel.StatManager.GenerateStat<ChoiceStat>(type).Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode");
 
     }
+
+    public override void PopulateStats()
+    {
+        base.PopulateStats();
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Destroy"), new object[] { true, "Don't press this", "Destroy" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Shape"), new object[] { false, "Shape mode", "Shape" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Mode"), new object[] { "Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode" });
+    }
+
 
     protected override void UpdateStats()
     {
@@ -275,25 +284,6 @@ public class Planete : ManageableObjet {
         }
 
     }
-
-    /*private void OnDrawGizmos()
-    {
-        if (_updatedVertices == null)
-        {
-            return;
-        }
-        if (Camera.current == Camera.main)
-        {
-            
-            Gizmos.matrix = transform.localToWorldMatrix;
-            for (int i = 0; i < _updatedVertices.Length; i++)
-            {
-                float col = (float)i / (float)(_updatedVertices.Length - 1);
-                Gizmos.color = new Color(1, col, col);
-                Gizmos.DrawSphere(_updatedVertices[i], col/2); // + (_updatedVertices[i] - transform.position).normalized
-            }
-        }
-    }*/
 
     private void Mapping()
     {

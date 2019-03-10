@@ -6,8 +6,6 @@ public class UIManager : MonoBehaviour {
     private Camera _previewCam, _UICam;
     [SerializeField]
     private GameObject _eye;
-    [SerializeField]
-    private GameObject _mainStatPanel;
 
     private ManageableObjet _managedObject;
     private Renderer _managedRenderer;
@@ -36,7 +34,7 @@ public class UIManager : MonoBehaviour {
     {
         _cam = Camera.main;
         _previewCam.enabled = false;
-        _mainStatPanel.SetActive(false);
+        MainPanel.Instance.SetActive(false);
     }
 
     private void Update()
@@ -44,18 +42,18 @@ public class UIManager : MonoBehaviour {
 
         if (_infoGUI)
         {
-            if (!_mainStatPanel.activeSelf)
+            if (!MainPanel.Instance.Active)
             {
-                _mainStatPanel.SetActive(true);
+                MainPanel.Instance.SetActive(true);
             }
             _previewCam.Render();
             _UICam.Render();
         }
         else
         {
-            if (_mainStatPanel.activeSelf)
+            if (MainPanel.Instance.Active)
             {
-                _mainStatPanel.SetActive(false);
+                MainPanel.Instance.SetActive(false);
             }
         }
 

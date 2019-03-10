@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 public class StatManager : MonoBehaviour {
-
+    [SerializeField]
     private List<Stat> _statsList;
     private StatPanel _statPanel;
     private UIContent _specificStatsPanel;

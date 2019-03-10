@@ -41,10 +41,16 @@ public class AdvancedTwippie : Twippie {
         }
     }
 
-    public override void GenerateStats(StatPanel statPanel, StatManager statManager, string type)
+    public override void GenerateStats(StatPanel statPanel, string type)
     {
-        base.GenerateStats(statPanel, statManager, type);
-        statManager.GenerateStat<LabelStat>(type, name:"Label").Populate("Bois possédé : ", "WoodPossession");
+        base.GenerateStats(statPanel, type);
+        statPanel.StatManager.GenerateStat<LabelStat>(type, name:"Label").Populate("Bois possédé : ", "WoodPossession");
+    }
+
+    public override void PopulateStats()
+    {
+        base.PopulateStats();
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("WoodPossession"), new object[] { "Bois possédé : ", "WoodPossession" });
     }
 
     protected override GoalType DefineGoal()

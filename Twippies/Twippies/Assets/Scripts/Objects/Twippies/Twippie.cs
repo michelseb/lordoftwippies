@@ -557,16 +557,28 @@ public class Twippie : DraggableObjet, ILightnable {
         //TODO : Calculer si évolution de twippie primitif à avancé
     }
 
-    public override void GenerateStats(StatPanel statPanel, StatManager statManager, string type)
+    public override void GenerateStats(StatPanel statPanel, string type)
     {
-        base.GenerateStats(statPanel, statManager, type);
-        statManager.GenerateStat<LabelStat>(type, name: "Label");//.Populate(_gender.ToString(), "Gender");
-        statManager.GenerateStat<ValueStat>(type, name: "Label");//.Populate(0, 0, 100, "Hunger", true, "Hunger");
-        statManager.GenerateStat<ValueStat>(type, name: "Label");//.Populate(0, 0, 100, "Thirst", true, "Thirst");
-        statManager.GenerateStat<ValueStat>(type, name: "Label");//.Populate(0, 0, 100, "Fatigue", true, "Sleep");
-        statManager.GenerateStat<LabelStat>(type, name: "Label");//.Populate("Main need : " + _needs[0].Type.ToString(), "Need");
-        statManager.GenerateStat<LabelStat>(type, name: "Label");//.Populate("Emotion : ", "Emotion");
-        statManager.GenerateStat<LabelStat>(type, name: "Label");//.Populate("Action : " + _state.ToString(), "Action");
+        base.GenerateStats(statPanel, type);
+        statPanel.StatManager.GenerateStat<LabelStat>(type, name: "Label").Populate(_gender.ToString(), "Gender");
+        statPanel.StatManager.GenerateStat<ValueStat>(type, name: "Label").Populate(0, 0, 100, "Hunger", true, "Hunger");
+        statPanel.StatManager.GenerateStat<ValueStat>(type, name: "Label").Populate(0, 0, 100, "Thirst", true, "Thirst");
+        statPanel.StatManager.GenerateStat<ValueStat>(type, name: "Label").Populate(0, 0, 100, "Fatigue", true, "Sleep");
+        statPanel.StatManager.GenerateStat<LabelStat>(type, name: "Label").Populate("Main need : ", "Need");
+        statPanel.StatManager.GenerateStat<LabelStat>(type, name: "Label").Populate("Emotion : ", "Emotion");
+        statPanel.StatManager.GenerateStat<LabelStat>(type, name: "Label").Populate("Action : " + _state.ToString(), "Action");
+    }
+
+    public override void PopulateStats()
+    {
+        base.PopulateStats();
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Gender"), new object[] { _gender.ToString(), "Gender" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Hunger"), new object[] { 0, 0, 100, "Hunger", true, "Hunger" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Thirst"), new object[] { 0, 0, 100, "Thirst", true, "Thirst" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Sleep"), new object[] { 0, 0, 100, "Fatigue", true, "Sleep" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Need"), new object[] { "Main need : " + _needs[0].Type.ToString(), "Need" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Emotion"), new object[] { "Emotion : ", "Emotion" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Action"), new object[] { "Action : " + _state.ToString(), "Action" });
     }
 
     protected void SetDestination(GoalType goal)

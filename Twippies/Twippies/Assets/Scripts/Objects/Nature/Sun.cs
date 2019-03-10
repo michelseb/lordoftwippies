@@ -14,13 +14,22 @@ public class Sun : AerialObjet {
     private bool _on;
 
 
-    public override void GenerateStats(StatPanel statPanel, StatManager statManager, string type)
+    public override void GenerateStats(StatPanel statPanel, string type)
     {
-        base.GenerateStats(statPanel, statManager, type);
-        statManager.GenerateStat<BoolStat>(type).Populate(true, "On/Off", "Active");
-        statManager.GenerateStat<ValueStat>(type).Populate(1, 0, 10, "Brightness", false, "Strength");
-        statManager.GenerateStat<ValueStat>(type).Populate(2, 0, 20, "Rotation speed", false, "Speed");
+        base.GenerateStats(statPanel, type);
+        statPanel.StatManager.GenerateStat<BoolStat>(type).Populate(true, "On/Off", "Active");
+        statPanel.StatManager.GenerateStat<ValueStat>(type).Populate(1, 0, 10, "Brightness", false, "Strength");
+        statPanel.StatManager.GenerateStat<ValueStat>(type).Populate(2, 0, 20, "Rotation speed", false, "Speed");
     }
+
+    public override void PopulateStats()
+    {
+        base.PopulateStats();
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Active"), new object[] { true, "On/Off", "Active" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Strength"), new object[] { 1, 0, 10, "Brightness", false, "Strength" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Speed"), new object[] { 2, 0, 20, "Rotation speed", false, "Speed" });
+    }
+
     protected override void Awake()
     {
         base.Awake();

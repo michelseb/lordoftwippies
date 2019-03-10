@@ -79,6 +79,7 @@ public abstract class ManageableObjet : Objet {
     {
         base.Start();
         _outline.enabled = false;
+        _stats = null;
     }
 
 
@@ -129,9 +130,9 @@ public abstract class ManageableObjet : Objet {
         }
 
         _age = UpdateValue(_age, _timeReference * .01f);
-        if (_stats.enabled)
+        if (_stats != null)
         {
-            //UpdateStats();
+            UpdateStats();
         }
 
     }
@@ -260,20 +261,20 @@ public abstract class ManageableObjet : Objet {
         return value;
     }
 
-    public virtual void GenerateStats(StatPanel statPanel, StatManager statManager, string type)
+    public virtual void GenerateStats(StatPanel statPanel, string type)
     {
-        statManager.CreateSpecificPanel(statPanel.transform.Find("Mask").Find("Panel"));
-        statManager.GenerateStat<ValueStat>(type, true).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateStat<DescriptionStat>(type, true).Populate(_icon, _name, 20, 14, "Description");
-        statManager.GenerateStat<LabelStat>(type, true, "Titre").Populate(_type, "Titre");
+        statPanel.StatManager.CreateSpecificPanel(statPanel.transform.Find("Mask").Find("Panel"));
+        statPanel.StatManager.GenerateStat<ValueStat>(type, true).Populate(0, 0, 100, "Age", true, "Age");
+        statPanel.StatManager.GenerateStat<DescriptionStat>(type, true).Populate(_icon, _name, 20, 14, "Description");
+        statPanel.StatManager.GenerateStat<LabelStat>(type, true, "Titre").Populate(_type, "Titre");
 
     }
 
-    public virtual void PopulateStats(StatPanel statPanel)
+    public virtual void PopulateStats()
     {
-        _og.MainPanel.PopulateStatPanel(statPanel, statPanel.StatManager.GetStat("Age"), new object[] { _age, 0, 100, "Age", true, "Age" });
-        _og.MainPanel.PopulateStatPanel(statPanel, statPanel.StatManager.GetStat("Description"), new object[] { _icon, _name, 20, 14, "Description" });
-        _og.MainPanel.PopulateStatPanel(statPanel, statPanel.StatManager.GetStat("Titre"), new object[] { _type, "Titre" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Age"), new object[] { _age, 0, 100, "Age", true, "Age" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Description"), new object[] { _icon, _name, 20, 14, "Description" });
+        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Titre"), new object[] { _type, "Titre" });
     }
 
     public StatManager GetStatManager()

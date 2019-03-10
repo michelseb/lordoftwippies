@@ -9,6 +9,7 @@ public class MainPanel : GraphicElement {
     [SerializeField]
     public GameObject TabContainer;
     public List<StatPanel> StatPanels;
+    private Animator _animator;
     private static MainPanel _instance;
     public static MainPanel Instance
     {
@@ -22,25 +23,28 @@ public class MainPanel : GraphicElement {
         }
     }
 
+    private void Awake()
+    {
+        _animator = GetComponent<Animator>();
+    }
+
     public void GenerateStatPanels(string type, ManageableObjet obj)
     {
         Type t = obj.GetType();
         StatPanel statPanel = StatPanels.FirstOrDefault(x => x.Type == type);
         if (statPanel != null)
         {
-            t.GetMethod("GenerateStats").Invoke(obj, new object[] { statPanel, statPanel.StatManager, type });
+            t.GetMethod("GenerateStats").Invoke(obj, new object[] { statPanel, type });
             statPanel.StatManager.GenerateStat<ValueStat>(obj.Type, mainStat: true, name: "Amount").Populate(0, 0, 100, "Nombre de " + obj.Type.Split(' ')[0] + "s", true, "Amount");
             UpdateGlobalStat(statPanel, 1);
+            statPanel.StatManager.GetStat("Amount").SetActive(false);
         }
     }
 
-    public void PopulateStatPanel(StatPanel panel, Stat stat, object[] objs)
+    public void PopulateStatPanel(Stat stat, object[] objs)
     {
-        if (panel != null)
-        {
-            Type t = stat.GetType();
-            t.GetMethod("Populate").Invoke(panel, objs);
-        }
+        Type t = stat.GetType();
+        t.GetMethod("Populate").Invoke(stat, objs);
     }
 
     public bool SetStatPanelActiveState(bool active, string type)
@@ -59,6 +63,7 @@ public class MainPanel : GraphicElement {
     {
         foreach (StatPanel statPanel in StatPanels)
         {
+            statPanel.StatManager.GetStat("Amount").SetActive(active);
             statPanel.Tab.SetActive(active);
             statPanel.SetActive(active);
         }
@@ -70,5 +75,12 @@ public class MainPanel : GraphicElement {
         {
             statPanel.StatManager.StatToValue(statPanel.StatManager.GetStat("Amount")).Value += value;
         }
+    }
+
+    public override void SetActive(bool active)
+    {
+        base.SetActive(active);
+        _animator.SetBool("Opening", active);
+
     }
 }
