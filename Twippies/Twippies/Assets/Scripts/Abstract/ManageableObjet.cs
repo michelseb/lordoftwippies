@@ -197,39 +197,6 @@ public abstract class ManageableObjet : Objet {
         _rotSpeedY = rotationVector.y*.1f;
     }
 
-    public Collider Coll
-    {
-        get
-        {
-            return _coll;
-        }
-    }
-
-    public StatManager Stats
-    {
-        get
-        {
-            return _stats;
-        }
-
-        set
-        {
-            _stats = value;
-        }
-    }
-
-    public float Age
-    {
-        get
-        {
-            return _age;
-        }
-        set
-        {
-            _age = value;
-        }
-    }
-
     private void SetFocus()
     {
         
@@ -277,9 +244,9 @@ public abstract class ManageableObjet : Objet {
         _og.MainPanel.PopulateStatPanel(_stats.GetStat("Titre"), new object[] { _type, "Titre" });
     }
 
-    public StatManager GetStatManager()
+    public void GetStatManager()
     {
-        return _og.MainPanel.StatPanels.FirstOrDefault(x => x.Type == _type)?.StatManager;
+        _stats = _og.MainPanel.StatPanels.FirstOrDefault(x => x.Type == _type)?.StatManager;
     }
 
     private Bounds GetViewportBounds(Vector3 screenPosition1, Vector3 screenPosition2)
@@ -315,23 +282,8 @@ public abstract class ManageableObjet : Objet {
         _stats.StatToValue(_stats.GetStat("Age")).Value = _age;
     }
 
-    public string Name
-    {
-        get
-        {
-            return _name;
-        }
-        set
-        {
-            _name = value;
-        }
-    }
-
-    public string Type
-    {
-        get
-        {
-            return _type;
-        }
-    }
+    public Collider Coll { get { return _coll; } }
+    public StatManager Stats { get { return _stats; } }
+    public float Age { get { return _age; } set { _age = value; } }
+    public string Type { get { return _type; } }
 }

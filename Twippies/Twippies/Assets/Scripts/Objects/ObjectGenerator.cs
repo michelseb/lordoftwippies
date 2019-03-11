@@ -47,18 +47,19 @@ public class ObjectGenerator : MonoBehaviour {
         MainPanel = MainPanel.Instance;
         foreach (ManageableObjet objet in ObjectFactory)
         {
+            
             GameObject statPanelObject = Instantiate(StatPanel.gameObject, MainStatPanel.transform);
             StatPanel statPanel = statPanelObject.GetComponent<StatPanel>();
-            statPanel.Init();
-            statPanel.Tab.transform.SetParent(MainPanel.TabContainer.transform, true);
-            statPanel.name = objet.Type;
             statPanel.StatManager = objet.Stats;
             statPanel.StatManager.Init();
+            statPanel.Tab.transform.SetParent(MainPanel.TabContainer.transform, true);
+            statPanel.name = objet.Type;
             statPanel.StatManager.StatPanel = statPanel;
-            statPanel.Image.color = statPanel.StatManager.Color;
             statPanel.Type = objet.Type;
-            MainPanel.GenerateStatPanels(objet.Type, ObjectFactory.FirstOrDefault(x => x.Type == objet.Type));
+            MainPanel.GenerateStatsForPanel(statPanel, objet);
             MainPanel.SetStatPanelActiveState(false, objet.Type);
+            statPanel.Init();
+            statPanel.Image.color = statPanel.StatManager.Color;
             statPanel.StatManager.enabled = false;
         }
 

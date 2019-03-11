@@ -512,7 +512,7 @@ public class Controls : MonoBehaviour {
         }
         _mainPanel.SetStatPanelActiveState(true, _focusedObject.Type);
         StatPanel activePanel = _mainPanel.StatPanels.Find(x => x.Active);
-        _focusedObject.Stats = _focusedObject.GetStatManager();
+        _focusedObject.GetStatManager();
         _focusedObject.PopulateStats();
         activePanel.Tab.SetFocus(true);
         activePanel.StatManager.GetStat("Amount").SetActive(false);

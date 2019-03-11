@@ -28,16 +28,15 @@ public class MainPanel : GraphicElement {
         _animator = GetComponent<Animator>();
     }
 
-    public void GenerateStatPanels(string type, ManageableObjet obj)
+    public void GenerateStatsForPanel(StatPanel panel, ManageableObjet obj)
     {
         Type t = obj.GetType();
-        StatPanel statPanel = StatPanels.FirstOrDefault(x => x.Type == type);
-        if (statPanel != null)
+        if (panel != null)
         {
-            t.GetMethod("GenerateStats").Invoke(obj, new object[] { statPanel, type });
-            statPanel.StatManager.GenerateStat<ValueStat>(obj.Type, mainStat: true, name: "Amount").Populate(0, 0, 100, "Nombre de " + obj.Type.Split(' ')[0] + "s", true, "Amount");
-            UpdateGlobalStat(statPanel, 1);
-            statPanel.StatManager.GetStat("Amount").SetActive(false);
+            t.GetMethod("GenerateStats").Invoke(obj, new object[] { panel, obj.Type });
+            panel.StatManager.GenerateStat<ValueStat>(obj.Type, mainStat: true, name: "Amount").Populate(0, 0, 100, "Nombre de " + obj.Type.Split(' ')[0] + "s", true, "Amount");
+            UpdateGlobalStat(panel, 1);
+            panel.StatManager.GetStat("Amount").SetActive(false);
         }
     }
 
@@ -63,7 +62,7 @@ public class MainPanel : GraphicElement {
     {
         foreach (StatPanel statPanel in StatPanels)
         {
-            statPanel.StatManager.GetStat("Amount").SetActive(active);
+            statPanel.StatManager.GetStat("Amount")?.SetActive(active);
             statPanel.Tab.SetActive(active);
             statPanel.SetActive(active);
         }
