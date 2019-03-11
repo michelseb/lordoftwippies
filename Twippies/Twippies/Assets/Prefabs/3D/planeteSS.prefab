@@ -63,7 +63,6 @@ GameObject:
   - component: {fileID: 114751641857333390}
   - component: {fileID: 114096340336135250}
   - component: {fileID: 114193364866869416}
-  - component: {fileID: 114205979466608698}
   m_Layer: 11
   m_Name: planeteSS
   m_TagString: Planet
@@ -490,11 +489,19 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1332633013073338}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e8678757669c261419b52f0fb6065523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _statsList:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   _color: {r: 0, g: 0.64032507, b: 1, a: 1}
 --- !u!114 &114181216130622234
 MonoBehaviour:
@@ -507,6 +514,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8678757669c261419b52f0fb6065523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _statsList: []
   _color: {r: 0, g: 0, b: 1, a: 1}
 --- !u!114 &114193364866869416
 MonoBehaviour:
@@ -522,42 +530,6 @@ MonoBehaviour:
   _zonePrefab: {fileID: 114973741472705764, guid: e84722a6820471b468bb9a479ec21111,
     type: 2}
   _zoneSize: 0.2
---- !u!114 &114205979466608698
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1332633013073338}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c306f5d4afa0a6c489ea07a2e9b50fb7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _spawnTime: 0.1
-  ObjectFactory:
-  - {fileID: 114582063650703976, guid: b00ca645c3d7f5a448fd93017afddcb2, type: 2}
-  - {fileID: 114922808569114310, guid: 0d98bba2673c10e4b9977dce1d32a316, type: 2}
-  - {fileID: 114200954049039872, guid: 415c3e3ede6341c45a639f8de4d8353f, type: 2}
-  - {fileID: 114756768802590268, guid: 38fd773339338d847afcdb09284accec, type: 2}
-  - {fileID: 114418839681409838}
-  - {fileID: 114310311304771704}
-  MainStatPanel: {fileID: 0}
-  StatPanel: {fileID: 114018620825034182, guid: 2f67ddda1a11081448139e8df2a152df,
-    type: 2}
-  SpecificStatPanel: {fileID: 114323179210105148, guid: 9bda9e9a0ad939045a5bb42aab95749b,
-    type: 2}
-  StatFactory:
-  - {fileID: 114044865003694546, guid: 5736e1b3e10911d47bb005b421429f9b, type: 2}
-  - {fileID: 114409729501785376, guid: 6573d25b63e090a498f612bca9231184, type: 2}
-  - {fileID: 114011699035219790, guid: 2dedf94197686ab4e8a08e7c5092f5c3, type: 2}
-  - {fileID: 114723887030412328, guid: a42e06bc772062e48b5118dfb269f81e, type: 2}
-  - {fileID: 114254403375099870, guid: 89c2d9bbce59e8e438e709436f8e6ed1, type: 2}
-  - {fileID: 114186191489322908, guid: 19908cc0ef53e65469c74a9d3311a261, type: 2}
-  - {fileID: 114706530667446898, guid: 117ffc420fb76a94cbf6d10e852ad16e, type: 2}
-  _nbTwippies: 20
-  _nbTrees: 30
-  _nbAdvancedTwippies: 0
-  MainPanel: {fileID: 0}
 --- !u!114 &114310311304771704
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -645,11 +617,19 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1741177253584878}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e8678757669c261419b52f0fb6065523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _statsList:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   _color: {r: 1, g: 0.70513046, b: 0, a: 1}
 --- !u!135 &135062748282142706
 SphereCollider:
