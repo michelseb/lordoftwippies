@@ -48,7 +48,7 @@ public class StatManager : MonoBehaviour {
 
     public T GenerateStat<T>(string statType, bool mainStat = false, string name = "") where T:Stat
     {
-        GameObject obj = Instantiate(_og.GetStat<T>(name != ""?name:null), mainStat?_statPanel.transform.Find("Mask").Find("Panel"):_specificStatsPanel.transform.GetChild(0));
+        GameObject obj = Instantiate(_og.GetStat<T>(name != ""?name:null), mainStat?_statPanel.transform.Find("Mask").Find("Panel"):_specificStatsPanel.Content.transform);
         if (mainStat)
         {
             obj.transform.SetAsFirstSibling();

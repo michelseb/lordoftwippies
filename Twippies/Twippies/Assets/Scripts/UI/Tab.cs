@@ -29,12 +29,14 @@ public class Tab : GraphicElement
             }
             _panel.transform.SetAsLastSibling();
             _image.color = col;
+            _panel.StatManager.SpecificStatPanel.Image.color = col;
             _textField.faceColor = _panel.StatManager.Color + new Color(.8f, .8f, .8f);
         }
         else
         {
 
             _image.color = new Color(col.r * .4f, col.g * .4f, col.b * .4f, 1);
+            _panel.StatManager.SpecificStatPanel.Image.color = _image.color;
             _textField.faceColor = _panel.StatManager.Color + new Color(.3f, .3f, .3f);
             _panel.transform.SetSiblingIndex(_panel.MainStatPanel.StatPanels.Count - 1 - _panel.MainStatPanel.StatPanels.IndexOf(_panel));
         }

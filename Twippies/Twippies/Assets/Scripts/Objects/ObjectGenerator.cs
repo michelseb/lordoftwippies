@@ -57,6 +57,7 @@ public class ObjectGenerator : MonoBehaviour {
             MainPanel.GenerateStatsForPanel(statPanel, objet);
             MainPanel.SetStatPanelActiveState(false, objet.Type);
             statPanel.Init();
+            statPanel.StatManager.SpecificStatPanel.Init();
             statPanel.Image.color = statPanel.StatManager.Color;
             statPanel.StatManager.enabled = false;
         }
