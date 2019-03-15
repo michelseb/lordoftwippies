@@ -17,7 +17,8 @@ public class Planete : ManageableObjet {
     private ZoneManager _zManager;
     private Mesh _mesh;
     private MeshCollider _meshCollider;
-    private Vector3[] _originalVertices, _deformedVertices, _updatedVertices;
+    private Vector3[] _originalVertices;
+    private Dictionary<int, Vector3> _deformedVertices;
     private Vector3[] _vertexVelocities;
     private bool _shaping, _deforming;
     private int _displayMode;
@@ -47,13 +48,7 @@ public class Planete : ManageableObjet {
             }
         }
         _originalVertices = _mesh.vertices;
-        _deformedVertices = new Vector3[_originalVertices.Length];
-        _updatedVertices = new Vector3[_originalVertices.Length];
-        for (int i = 0; i < _originalVertices.Length; i++)
-        {
-            _deformedVertices[i] = _originalVertices[i];
-            _updatedVertices[i] = _originalVertices[i];
-        }
+        _deformedVertices = new Dictionary<int, Vector3>();
         _vertexVelocities = new Vector3[_originalVertices.Length];
     }
 
@@ -116,12 +111,15 @@ public class Planete : ManageableObjet {
             {
                 if (Time.frameCount % _displayIntervals == 0)
                 {
-                    _mesh.MarkDynamic();
-                    for (int i = 0; i < _deformedVertices.Length; i++)
+                    for (int i = 0; i < _deformedVertices.Count; i++)
                     {
                         UpdateVertex(i);
                     }
                     _deforming = true;
+                    foreach (Vector3 point in _deformedVertices)
+                    {
+
+                    }
                     _mesh.vertices = _deformedVertices;
                     _mesh.RecalculateNormals();
                     _meshCollider.sharedMesh = _mesh;
@@ -241,9 +239,6 @@ public class Planete : ManageableObjet {
     protected void UpdateVertex(int i)
     {
         Vector3 velocity = _vertexVelocities[i]; // Récupération de la force appliquée au vertice
-        _updatedVertices[i] = _deformedVertices[i]; //Update du vertice si bouton appuyé
-        //Vector3 deplacement = _deformedVertices[i] - _updatedVertices[i]; //Distance de déplacement du vertice depuis l'original
-        //velocity -= deplacement *5* Time.deltaTime; //plus le point est déplacé, moins il va vite
         velocity *= 1f - 5 * Time.deltaTime; //Réduction progressive de la vélocité pour éviter que ça rebondisse
         _vertexVelocities[i] = velocity;
         _deformedVertices[i] += velocity * Time.deltaTime;
@@ -271,7 +266,12 @@ public class Planete : ManageableObjet {
     protected override void UpdateStats()
     {
         base.UpdateStats();
-        _shaping = _stats.StatToBool(_stats.GetStat("Shape")).Value;
+        bool shapingMode = _stats.StatToBool(_stats.GetStat("Shape")).Value;
+        if (shapingMode && shapingMode != _shaping)
+        {
+            _mesh.MarkDynamic();
+        }
+        _shaping = shapingMode;
         _displayMode = _stats.StatToChoice(_stats.GetStat("Mode")).Value;
         if (_stats.StatToBool(_stats.GetStat("Destroy")).Value == false)
         {
@@ -285,29 +285,11 @@ public class Planete : ManageableObjet {
 
     }
 
-    private void Mapping()
-    {
-        Vector3 center = transform.position;
-        for (int i = 0; i < _updatedVertices.Length; i++)
-        {
-
-        }
-
-    }
-
     public bool Shaping
     {
         get
         {
             return _shaping;
-        }
-    }
-
-    public Vector3[] Vertices
-    {
-        get
-        {
-            return _updatedVertices;
         }
     }
 
