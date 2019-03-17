@@ -15,7 +15,7 @@ public class Zone : MonoBehaviour {
     private ObjetManager _om;
     private ZoneManager _zManager;
     private Vector3 _centerZone;
-    private List<Vector3> _vertices;
+    private List<int> _verticeIds;
     private GameObject _zoneObject;
     private List<Zone> _neighbours;
     private List<PathCost> _pathCosts;
@@ -40,7 +40,7 @@ public class Zone : MonoBehaviour {
 
     private void Awake()
     {
-        _vertices = new List<Vector3>();
+        _verticeIds = new List<int>();
         _neighbours = new List<Zone>();
         _om = ObjetManager.Instance;
         _pathCosts = new List<PathCost>();
@@ -158,11 +158,12 @@ public class Zone : MonoBehaviour {
     public void SetMinHeight(Vector3 center)
     {
         float height = float.PositiveInfinity;
-        foreach (Vector3 v in _vertices)
+        foreach (int v in _verticeIds)
         {
-            if (Vector3.Distance(v, center) < height)
+            float distance = Vector3.Distance(_zManager.Vertices[v], center);
+            if (distance < height)
             {
-                height = Vector3.Distance(v, center);
+                height = distance;
             }
         }
         _minHeight = height;
@@ -172,11 +173,12 @@ public class Zone : MonoBehaviour {
     public void SetMaxHeight(Vector3 center)
     {
         float height = 0;
-        foreach (Vector3 v in _vertices)
+        foreach (int v in _verticeIds)
         {
-            if (Vector3.Distance(v, center) > height)
+            float distance = Vector3.Distance(_zManager.Vertices[v], center);
+            if (distance > height)
             {
-                height = Vector3.Distance(v, center);
+                height = distance;
             }
         }
         _maxHeight = height;
@@ -220,15 +222,15 @@ public class Zone : MonoBehaviour {
         }
     }
 
-    public List<Vector3> Vertices
+    public List<int> VerticeIds
     {
         get
         {
-            return _vertices;
+            return _verticeIds;
         }
         set
         {
-            _vertices = value;
+            _verticeIds = value;
         }
     }
 

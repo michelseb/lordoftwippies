@@ -17,9 +17,8 @@ public class Planete : ManageableObjet {
     private ZoneManager _zManager;
     private Mesh _mesh;
     private MeshCollider _meshCollider;
-    private Vector3[] _originalVertices;
-    private Dictionary<int, Vector3> _deformedVertices;
-    private Vector3[] _vertexVelocities;
+    private Vector3[] _originalVertices, _newVertices;
+    private SortedDictionary<int, Vector3> _deformedVertices;
     private bool _shaping, _deforming;
     private int _displayMode;
 
@@ -48,8 +47,8 @@ public class Planete : ManageableObjet {
             }
         }
         _originalVertices = _mesh.vertices;
-        _deformedVertices = new Dictionary<int, Vector3>();
-        _vertexVelocities = new Vector3[_originalVertices.Length];
+        _newVertices = _originalVertices;
+        _deformedVertices = new SortedDictionary<int, Vector3>();
     }
 
     protected override void Update()
@@ -64,7 +63,7 @@ public class Planete : ManageableObjet {
                 case 0:
                     foreach (Zone z in _zManager.Zones)
                     {
-                        z.Display = Zone.DisplayMode.None;
+                        z.Display = Zone.DisplayMode.Height;
                     }
                     break;
                 case 1:
@@ -107,33 +106,12 @@ public class Planete : ManageableObjet {
                 _water.Coll.enabled = false;
             }
 
-            if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
+            if (!(Input.GetMouseButton(0) || Input.GetMouseButton(1)) && _deforming)
             {
-                if (Time.frameCount % _displayIntervals == 0)
-                {
-                    for (int i = 0; i < _deformedVertices.Count; i++)
-                    {
-                        UpdateVertex(i);
-                    }
-                    _deforming = true;
-                    foreach (Vector3 point in _deformedVertices)
-                    {
-
-                    }
-                    _mesh.vertices = _deformedVertices;
-                    _mesh.RecalculateNormals();
-                    _meshCollider.sharedMesh = _mesh;
-                }
-            }
-            else
-            {
-                if (_deforming)
-                {
-                    _zManager.Vertices = _mesh.vertices;
-                    _zManager.SetTriangles();
-                    _zManager.GenerateZoneObjects();
-                    _deforming = false;
-                }
+                _zManager.Vertices = _mesh.vertices;
+                _zManager.SetTriangles(_deformedVertices);
+                _deformedVertices.Clear();
+                _deforming = false;
             }
 
         }
@@ -178,7 +156,6 @@ public class Planete : ManageableObjet {
     {
         if (_shaping)
         {
-
             if
            (Input.mousePosition.x < Screen.width * 9 / 20 ||
            Input.mousePosition.x > Screen.width * 11 / 20 ||
@@ -190,17 +167,27 @@ public class Planete : ManageableObjet {
 
             if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
             {
+                _deforming = true;
                 Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
 
                 if (Physics.Raycast(inputRay, out hit, float.MaxValue, _layerMask) && Input.GetMouseButton(0))
                 {
-                    Deform(hit.point, 10);
+                    Deform(transform.InverseTransformPoint(hit.point), 10);
                 }
                 else if (Physics.Raycast(inputRay, out hit, float.MaxValue, _layerMask) && Input.GetMouseButton(1))
                 {
-                    Deform(hit.point, -10);
+                    Deform(transform.InverseTransformPoint(hit.point), -10);
                 }
+
+                foreach(KeyValuePair<int, Vector3> vertice in _deformedVertices)
+                {
+                    _newVertices[vertice.Key] = vertice.Value;
+                }
+                _mesh.vertices = _newVertices;
+                _mesh.RecalculateNormals();
+                _meshCollider.sharedMesh = _mesh;
+
             }
         }
     }
@@ -219,31 +206,25 @@ public class Planete : ManageableObjet {
 
     protected virtual void Deform(Vector3 point, float force)
     {
-        point = transform.InverseTransformPoint(point);
-        for (int i = 0; i < _deformedVertices.Length; i++)
+        for (int i = 0; i < _originalVertices.Length; i++)
         {
-            AddForceToVertex(i, point, force);
+            Vector3 pointToVertex = _originalVertices[i] - point; //distance de chaque vertice au point touché
+            Vector3 direction = transform.position - point; // distance du centre au point touché
+            float attenuatedForce = force / (1f + pointToVertex.sqrMagnitude) * Time.deltaTime; //Force appliquée au vertice selon la distance au point touché (plus distance courte, plus force élevée)
+            if (Mathf.Abs(attenuatedForce) < .05f)
+                continue;
+            Vector3 velocity = direction.normalized * attenuatedForce;
+            velocity *= 1f - 10 * Time.deltaTime;
+            if (!_deformedVertices.ContainsKey(i))
+            {
+                _deformedVertices.Add(i, _originalVertices[i] + velocity); //Direction opposée au centre, force selon attenuatedForce stocké dans la liste des vertices déformés
+            }
+            else
+            {
+                _deformedVertices[i] = _originalVertices[i] + velocity;
+            }
         }
     }
-
-    protected void AddForceToVertex(int i, Vector3 point, float force)
-    {
-        Vector3 pointToVertex = _deformedVertices[i] - point; //distance de chaque vertice au point touché
-        Vector3 direction = transform.position - point; // distance du centre au point touché
-        float attenuatedForce = force / (1f + pointToVertex.sqrMagnitude); //Force appliquée au vertice selon la distance au point touché (plus distance courte, plus force élevée)
-        float velocity = attenuatedForce * Time.deltaTime;
-        if (Vector3.Distance(_deformedVertices[i], _originalVertices[i]) < 5) //Limite de magnitude de la déformation
-            _vertexVelocities[i] += direction.normalized * velocity; //Direction opposée au centre, force selon attenuatedForce
-    }
-
-    protected void UpdateVertex(int i)
-    {
-        Vector3 velocity = _vertexVelocities[i]; // Récupération de la force appliquée au vertice
-        velocity *= 1f - 5 * Time.deltaTime; //Réduction progressive de la vélocité pour éviter que ça rebondisse
-        _vertexVelocities[i] = velocity;
-        _deformedVertices[i] += velocity * Time.deltaTime;
-    }
-
 
     public override void GenerateStats(StatPanel statPanel, string type)
     {

@@ -6,18 +6,29 @@ using MIConvexHull;
 
 public class MeshMaker {
 
-    public static GameObject CreateSelection(IEnumerable<Vector3> points, Transform t, Vector3 pos, Vector3 worldPos)
+    public static GameObject CreateSelection(ZoneManager zManager, Zone z, Vector3 worldPos, SortedDictionary<int, Vector3> deformedVertices = null)
     {
         GameObject go = new GameObject("ZoneObject");
         go.layer = 16;
-        go.transform.position = pos;
+        go.transform.position = z.Center;
         MeshFilter mf = go.AddComponent(typeof(MeshFilter)) as MeshFilter;
         List<Vector3> newPoints = new List<Vector3>();
-        foreach (Vector3 p in points)
+        
+        foreach (int p in z.VerticeIds)
         {
-            Vector3 nP = p - pos;
-            newPoints.Add(nP);
-            nP += (p - worldPos).normalized * .5f;
+            Vector3 nP;
+            if (deformedVertices != null)
+            {
+                nP = deformedVertices[p] - z.Center;
+                newPoints.Add(nP);
+                nP += (deformedVertices[p] - worldPos).normalized * .5f;
+            }
+            else
+            {
+                nP = zManager.Vertices[p] - z.Center;
+                newPoints.Add(nP);
+                nP += (zManager.Vertices[p] - worldPos).normalized * .5f;
+            }         
             newPoints.Add(nP);
         }
         mf.mesh = CreateMesh(newPoints);
@@ -32,7 +43,7 @@ public class MeshMaker {
         col.skinWidth = .1f;
         col.convex = true;
         col.isTrigger = true;
-        go.transform.parent = t;
+        go.transform.parent = z.transform;
         return go;
     }
 

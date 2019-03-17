@@ -32,29 +32,7 @@ public class ZoneManager : MonoBehaviour {
         Debug.Log("nombre de zones : " + id);
         _zones = tempZones.ToArray();
         SetTriangles();
-        GenerateZoneObjects();
         FindNeighbours();
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (_zones == null)
-        {
-            return;
-        }
-
-        if (Camera.current == Camera.main)
-        {
-            Gizmos.matrix = transform.localToWorldMatrix;
-            foreach (Zone z in _zones)
-            {
-                Gizmos.color = z.Col;
-                foreach (Vector3 v in z.Vertices)
-                {
-                    Gizmos.DrawSphere(v, .2f);
-                }
-            }
-        }
     }
 
     private bool FindCenter(float minDist, List<Zone> zones, int zoneId)
@@ -88,7 +66,7 @@ public class ZoneManager : MonoBehaviour {
         {
             for (int b = a+1; b < _zones.Length; b++)
             {
-                if (_zones[a].Vertices.Any(x => _zones[b].Vertices.Any(y => x.Equals(y))))
+                if (_zones[a].VerticeIds.Any(x => _zones[b].VerticeIds.Any(y => x.Equals(y))))
                 {
                     _zones[a].Neighbours.Add(_zones[b]);
                     _zones[b].Neighbours.Add(_zones[a]);
@@ -127,6 +105,42 @@ public class ZoneManager : MonoBehaviour {
         }
     }
 
+    public void SetTriangles(SortedDictionary<int, Vector3> deformedVertices)
+    {
+        List<Zone> zonesToUpdate = new List<Zone>();
+        foreach (int vertexId in deformedVertices.Keys.ToList())
+        {
+            deformedVertices[vertexId] = transform.TransformPoint(_planeteMesh.vertices[vertexId]);
+
+            Zone zone = _zones.FirstOrDefault(x => x.VerticeIds.Contains(vertexId));
+            if (zone != null && !zonesToUpdate.Contains(zone))
+            {
+                foreach (int vertex in zone.VerticeIds)
+                {
+                    if (!deformedVertices.Keys.Contains(vertex))
+                    {
+                        deformedVertices.Add(vertex, transform.TransformPoint(_planeteMesh.vertices[vertex]));
+                    }
+                }
+                zone.Center = deformedVertices[zone.CenterId];
+                zonesToUpdate.Add(zone);
+
+                if (zone.ZoneObject != null)
+                {
+                    Destroy(zone.ZoneObject);
+                }
+                zone.ZoneObject = MeshMaker.CreateSelection(this, zone, transform.position, deformedVertices);
+                zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
+            }
+
+        }
+        
+
+        GetZoneInfo(zonesToUpdate);
+        _vertices = _planeteMesh.vertices;
+    }
+
+
     public void SetTriangles()
     {
         for (int a = 0; a < _vertices.Length; a++)
@@ -134,17 +148,17 @@ public class ZoneManager : MonoBehaviour {
             _vertices[a] = transform.TransformPoint(_planeteMesh.vertices[a]);
         }
 
-        int[] triangles = _planeteMesh.triangles;
         foreach (Zone z in _zones)
         {
             z.transform.parent = null;
-            z.Vertices.Clear();
+            z.VerticeIds.Clear();
             z.Center = _vertices[z.CenterId];
             z.transform.position = z.Center;
             z.transform.parent = transform;
         }
 
-        for (int i = 0; i < triangles.Length-3; i += 3)
+        int[] triangles = _planeteMesh.triangles;
+        for (int i = 0; i < triangles.Length - 3; i += 3)
         {
             Vector3 a = _vertices[triangles[i]];
             Vector3 b = _vertices[triangles[i + 1]];
@@ -160,34 +174,34 @@ public class ZoneManager : MonoBehaviour {
                 {
                     distMin = dist;
                     tempZone = z;
-                    
+
                 }
             }
-           
-            if (!tempZone.Vertices.Contains(a))
-                tempZone.Vertices.Add(a);
-            if (!tempZone.Vertices.Contains(b))
-                tempZone.Vertices.Add(b);
-            if (!tempZone.Vertices.Contains(c))
-                tempZone.Vertices.Add(c);
+
+            if (!tempZone.VerticeIds.Contains(triangles[i]))
+                tempZone.VerticeIds.Add(triangles[i]);
+            if (!tempZone.VerticeIds.Contains(triangles[i + 1]))
+                tempZone.VerticeIds.Add(triangles[i + 1]);
+            if (!tempZone.VerticeIds.Contains(triangles[i + 2]))
+                tempZone.VerticeIds.Add(triangles[i + 2]);
             
         }
 
         GetZoneInfo();
+        GenerateZoneObjects();
         _vertices = _planeteMesh.vertices;
 
     }
 
     public void GenerateZoneObjects()
     {
-        
         foreach (Zone zone in _zones)
         {
             if (zone.ZoneObject != null)
             {
                 Destroy(zone.ZoneObject);
             }
-            zone.ZoneObject = MeshMaker.CreateSelection(zone.Vertices, zone.transform, zone.Center, transform.position);
+            zone.ZoneObject = MeshMaker.CreateSelection(this, zone, transform.position);
             zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
 
         }
@@ -434,8 +448,17 @@ public class ZoneManager : MonoBehaviour {
 
 
 
-    public void GetZoneInfo()
+    public void GetZoneInfo(List<Zone> zonesToUpdate = null)
     {
+        Zone[] zones;
+        if (zonesToUpdate != null)
+        {
+            zones = zonesToUpdate.ToArray();
+        }
+        else
+        {
+            zones = _zones;
+        }
         float radius = 0;
         if (_planete.Water.Radius == 0)
         {
@@ -450,9 +473,9 @@ public class ZoneManager : MonoBehaviour {
         {
             radius = _planete.Water.Radius;
         }
-        for (int a = 0; a < _zones.Length; a++)
+        for (int a = 0; a < zones.Length; a++)
         {
-            Zone zone = _zones[a];
+            Zone zone = zones[a];
             Ressource water = zone.Ressources.Find(x => x.ressourceType == Ressource.RessourceType.Drink);
             if (water != null)
             {
@@ -478,5 +501,4 @@ public class ZoneManager : MonoBehaviour {
 
         }
     }
-
 }
