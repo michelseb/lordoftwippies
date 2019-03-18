@@ -14,6 +14,8 @@ public class Planete : ManageableObjet {
     private Sun _sun;
     [SerializeField]
     private LayerMask _layerMask;
+    [SerializeField]
+    private float _deformSize;
     private ZoneManager _zManager;
     private Mesh _mesh;
     private MeshCollider _meshCollider;
@@ -21,6 +23,7 @@ public class Planete : ManageableObjet {
     private SortedDictionary<int, Vector3> _deformedVertices;
     private bool _shaping, _deforming;
     private int _displayMode;
+    
 
     protected override void Awake()
     {
@@ -63,7 +66,7 @@ public class Planete : ManageableObjet {
                 case 0:
                     foreach (Zone z in _zManager.Zones)
                     {
-                        z.Display = Zone.DisplayMode.Height;
+                        z.Display = Zone.DisplayMode.None;
                     }
                     break;
                 case 1:
@@ -173,11 +176,11 @@ public class Planete : ManageableObjet {
 
                 if (Physics.Raycast(inputRay, out hit, float.MaxValue, _layerMask) && Input.GetMouseButton(0))
                 {
-                    Deform(transform.InverseTransformPoint(hit.point), 10);
+                    Deform(transform.InverseTransformPoint(hit.point), 1, _deformSize);
                 }
                 else if (Physics.Raycast(inputRay, out hit, float.MaxValue, _layerMask) && Input.GetMouseButton(1))
                 {
-                    Deform(transform.InverseTransformPoint(hit.point), -10);
+                    Deform(transform.InverseTransformPoint(hit.point), -1, _deformSize);
                 }
 
                 foreach(KeyValuePair<int, Vector3> vertice in _deformedVertices)
@@ -204,14 +207,16 @@ public class Planete : ManageableObjet {
         }
     }
 
-    protected virtual void Deform(Vector3 point, float force)
+    protected virtual void Deform(Vector3 point, float force, float size = 0)
     {
         for (int i = 0; i < _originalVertices.Length; i++)
         {
             Vector3 pointToVertex = _originalVertices[i] - point; //distance de chaque vertice au point touché
             Vector3 direction = transform.position - point; // distance du centre au point touché
-            float attenuatedForce = force / (1f + pointToVertex.sqrMagnitude) * Time.deltaTime; //Force appliquée au vertice selon la distance au point touché (plus distance courte, plus force élevée)
-            if (Mathf.Abs(attenuatedForce) < .05f)
+            if ((direction.magnitude < _water.Radius / 2 && Mathf.Sign(force) == 1)  || (direction.magnitude > _water.Radius && Mathf.Sign(force) == -1))
+                continue;
+            float attenuatedForce = (force - (pointToVertex.sqrMagnitude - size) * Mathf.Sign(force)) * Time.deltaTime; //Force appliquée au vertice selon la distance au point touché (plus distance courte, plus force élevée)
+            if (attenuatedForce * Mathf.Sign(force) < 0)
                 continue;
             Vector3 velocity = direction.normalized * attenuatedForce;
             velocity *= 1f - 10 * Time.deltaTime;
@@ -266,35 +271,8 @@ public class Planete : ManageableObjet {
 
     }
 
-    public bool Shaping
-    {
-        get
-        {
-            return _shaping;
-        }
-    }
-
-    public WaterObjet Water
-    {
-        get
-        {
-            return _water;
-        }
-    }
-
-    public Sun Sun
-    {
-        get
-        {
-            return _sun;
-        }
-    }
-
-    public ZoneManager ZManager
-    {
-        get
-        {
-            return _zManager;
-        }
-    }
+    public bool Shaping { get { return _shaping; } }
+    public WaterObjet Water { get { return _water; } }
+    public Sun Sun { get { return _sun; } }
+    public ZoneManager ZManager { get { return _zManager; } }
 }

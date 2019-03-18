@@ -5,7 +5,6 @@ public class Zone : MonoBehaviour {
 
     [SerializeField]
     private int _id;
-    private Material _zoneMaterial;
     private float _minHeight, _maxHeight, _meanHeight, _deltaHeight;
     private Color _color;
     private int _centerId;
@@ -46,6 +45,7 @@ public class Zone : MonoBehaviour {
         _pathCosts = new List<PathCost>();
         _ressources = new List<Ressource>();
         _twippies = new List<Twippie>();
+        _color = new Color(Random.value, Random.value, Random.value);
     }
 
     private void Update()
@@ -214,213 +214,23 @@ public class Zone : MonoBehaviour {
         }
     }
 
-    public Color Col
-    {
-        get
-        {
-            return _color;
-        }
-    }
-
-    public List<int> VerticeIds
-    {
-        get
-        {
-            return _verticeIds;
-        }
-        set
-        {
-            _verticeIds = value;
-        }
-    }
-
-    public bool Accessible
-    {
-        get
-        {
-            return _accessible;
-        }
-        set
-        {
-            _accessible = value; 
-        }
-    }
-
-    public bool Taken
-    {
-        get
-        {
-            return _taken;
-        }
-        set
-        {
-            _taken = value;
-        }
-    }
-
-    public Vector3 Center
-    {
-        get
-        {
-            return _centerZone;
-        }
-        set
-        {
-            _centerZone = value;
-        }
-    }
-
-    public float MinHeight
-    {
-        get
-        {
-            return _minHeight;
-        }
-    }
-
-    public float MaxHeight
-    {
-        get
-        {
-            return _maxHeight;
-        }
-
-    }
-
-    public float MeanHeight
-    {
-        get
-        {
-            return _meanHeight;
-        }
-        set
-        {
-            _meanHeight = value;
-        }
-    }
-
-    public float DeltaHeight
-    {
-        get
-        {
-            return _deltaHeight;
-        }
-        set
-        {
-            _deltaHeight = value;
-        }
-    }
-
-    public int CenterId
-    {
-        get
-        {
-            return _centerId;
-        }
-        set
-        {
-            _centerId = value;
-        }
-    }
-
-    public GameObject ZoneObject
-    {
-        get
-        {
-            return _zoneObject;
-        }
-        set
-        {
-            _zoneObject = value;
-        }
-    }
-
-    public Material ZoneMaterial
-    {
-        get
-        {
-            return _zoneMaterial;
-        }
-    }
-
-    public DisplayMode Display
-    {
-        get
-        {
-            return _displayMode;
-        }
-        set
-        {
-            _displayMode = value;
-        }
-    }
-
-    public ZoneManager ZManager
-    {
-        get
-        {
-            return _zManager;
-        }
-        set
-        {
-            _zManager = value;
-        }
-    }
-
-    public List<Zone> Neighbours
-    {
-        get
-        {
-            return _neighbours;
-        }
-        set
-        {
-            _neighbours = value;
-        }
-    }
-
-    public List<PathCost> PathCosts
-    {
-        get
-        {
-            return _pathCosts;
-        }
-        set
-        {
-            _pathCosts = value;
-        }
-    }
-
-    public int Id
-    {
-        get
-        {
-            return _id;
-        }
-        set
-        {
-            _id = value;
-        }
-    }
-    public List<Ressource> Ressources
-    {
-        get
-        {
-            return _ressources;
-        }
-        set
-        {
-            _ressources = value;
-        }
-    }
-
-    public List<Twippie> Twippies
-    {
-        get
-        {
-            return _twippies;
-        }
-    }
-
-
+    public Color Col { get { return _color; } }
+    public List<int> VerticeIds { get { return _verticeIds; } set { _verticeIds = value; } }
+    public bool Accessible { get { return _accessible; } set { _accessible = value; } }
+    public bool Taken { get { return _taken; } set { _taken = value; } }
+    public Vector3 Center { get { return _centerZone; } set { _centerZone = value; } }
+    public float MinHeight { get { return _minHeight; } }
+    public float MaxHeight { get { return _maxHeight; } }
+    public float MeanHeight { get { return _meanHeight; } set { _meanHeight = value; } }
+    public float DeltaHeight { get { return _deltaHeight; } set { _deltaHeight = value; } }
+    public int CenterId { get { return _centerId; } set { _centerId = value; } }
+    public GameObject ZoneObject { get { return _zoneObject; } set { _zoneObject = value; } }
+    public DisplayMode Display { get { return _displayMode; } set { _displayMode = value; } }
+    public ZoneManager ZManager { get { return _zManager; } set { _zManager = value; } }
+    public List<Zone> Neighbours { get { return _neighbours; } set { _neighbours = value; } }
+    public List<PathCost> PathCosts { get { return _pathCosts; } set { _pathCosts = value; } }
+    public int Id { get { return _id; } set { _id = value; } }
+    public List<Ressource> Ressources { get { return _ressources; } set { _ressources = value; } }
+    public List<Twippie> Twippies { get { return _twippies; } }
+    public Color Color { get { return _color; } set { _color = value; } }
 }

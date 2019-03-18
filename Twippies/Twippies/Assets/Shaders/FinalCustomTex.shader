@@ -45,8 +45,6 @@
 	  float _Step3;
       void vert (inout appdata_full v, out Input o) {
           UNITY_INITIALIZE_OUTPUT(Input,o);
-		  /*float4 objectOrigin = unity_ObjectToWorld[3];
-          float4 worldPos = mul(unity_ObjectToWorld, v.vertex);*/
 		  float dist = length(v.vertex.xyz);
 		  if (dist <= _Rayon){
 		  	  v.color = _RED;
@@ -81,7 +79,9 @@
 		half3 Col5 = (IN.COL1.r) * tex2D (_MainTex5, IN.uv_MainTex5).rgb;
 		// pour afficher les textures : //
 		o.Albedo = Col1 + Col2 + Col3 + Col4 + Col5;
-		
+		//o.Emission = half3(IN.COL.r * IN.couleur.Red + IN.COL.g * IN.couleur.Green + IN.COL.b * IN.couleur.Blue);
+		//o.Alpha = 0.2;
+		//o.Emission = IN.Color;
 		// pour afficher les Vertex  Color : //
 		//o.Albedo = IN.couleur;
 

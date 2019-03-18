@@ -13,6 +13,7 @@ public class ZoneManager : MonoBehaviour {
     private float _zoneSize;
     private int _nbVertex;
     private Zone[] _zones;
+    private Color[] _colors;
 
     private void Awake()
     {
@@ -21,6 +22,7 @@ public class ZoneManager : MonoBehaviour {
         _planete = gameObject.GetComponent<Planete>();
         _vertices = _planeteMesh.vertices;
         _nbVertex = _planeteMesh.vertexCount;
+        _colors = new Color[_nbVertex];
 
         List<Zone> tempZones = new List<Zone>();
         int id = 0;
@@ -31,7 +33,7 @@ public class ZoneManager : MonoBehaviour {
         }
         Debug.Log("nombre de zones : " + id);
         _zones = tempZones.ToArray();
-        SetTriangles();
+        InitTriangles();
         FindNeighbours();
     }
 
@@ -137,11 +139,10 @@ public class ZoneManager : MonoBehaviour {
         
 
         GetZoneInfo(zonesToUpdate);
-        _vertices = _planeteMesh.vertices;
     }
 
 
-    public void SetTriangles()
+    public void InitTriangles()
     {
         for (int a = 0; a < _vertices.Length; a++)
         {
@@ -151,7 +152,6 @@ public class ZoneManager : MonoBehaviour {
         foreach (Zone z in _zones)
         {
             z.transform.parent = null;
-            z.VerticeIds.Clear();
             z.Center = _vertices[z.CenterId];
             z.transform.position = z.Center;
             z.transform.parent = transform;
@@ -179,16 +179,26 @@ public class ZoneManager : MonoBehaviour {
             }
 
             if (!tempZone.VerticeIds.Contains(triangles[i]))
+            {
+                _colors[triangles[i]] = tempZone.Color;
                 tempZone.VerticeIds.Add(triangles[i]);
+            }
             if (!tempZone.VerticeIds.Contains(triangles[i + 1]))
+            {
+                _colors[triangles[i + 1]] = tempZone.Color;
                 tempZone.VerticeIds.Add(triangles[i + 1]);
+            }
             if (!tempZone.VerticeIds.Contains(triangles[i + 2]))
+            {
+                _colors[triangles[i + 2]] = tempZone.Color;
                 tempZone.VerticeIds.Add(triangles[i + 2]);
+            }
             
         }
 
         GetZoneInfo();
         GenerateZoneObjects();
+        _planeteMesh.colors = _colors;
         _vertices = _planeteMesh.vertices;
 
     }
@@ -429,7 +439,7 @@ public class ZoneManager : MonoBehaviour {
             }
         }
 
-        if (take)
+        if (take && tempZone != null)
             tempZone.Accessible = false;
         return tempZone;
     }
