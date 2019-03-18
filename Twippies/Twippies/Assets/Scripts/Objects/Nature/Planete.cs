@@ -23,6 +23,7 @@ public class Planete : ManageableObjet {
     private SortedDictionary<int, Vector3> _deformedVertices;
     private bool _shaping, _deforming;
     private int _displayMode;
+    private bool _mouseOver;
     
 
     protected override void Awake()
@@ -103,6 +104,10 @@ public class Planete : ManageableObjet {
         }
         if (_shaping)
         {
+            if (!_mouseOver)
+            {
+                AbsRotateObjet();
+            }
 
             if (_water.Coll.enabled)
             {
@@ -147,26 +152,25 @@ public class Planete : ManageableObjet {
         t.rotation = targetRotation;//Quaternion.Slerp(t.rotation, targetRotation, 50f * Time.deltaTime);
     }
 
+    protected override void OnMouseEnter()
+    {
+        base.OnMouseEnter();
+        _mouseOver = true;
+    }
+
     protected override void OnMouseExit()
     {
         if (_c.FocusedObject != this && !_c.FocusedObjects.Contains(this))
         {
             _outline.enabled = false;
         }
+        _mouseOver = false;
     }
 
     protected override void OnMouseOver()
     {
         if (_shaping)
         {
-            if
-           (Input.mousePosition.x < Screen.width * 9 / 20 ||
-           Input.mousePosition.x > Screen.width * 11 / 20 ||
-           Input.mousePosition.y < Screen.height * 8 / 18 ||
-           Input.mousePosition.y > Screen.height * 10 / 18)
-            {
-                AbsRotateObjet();
-            }
 
             if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
             {
@@ -213,7 +217,7 @@ public class Planete : ManageableObjet {
         {
             Vector3 pointToVertex = _originalVertices[i] - point; //distance de chaque vertice au point touché
             Vector3 direction = transform.position - point; // distance du centre au point touché
-            if ((direction.magnitude < _water.Radius / 2 && Mathf.Sign(force) == 1)  || (direction.magnitude > _water.Radius && Mathf.Sign(force) == -1))
+            if ((direction.magnitude < _water.Radius * 4 / 7 && Mathf.Sign(force) == 1)  || (direction.magnitude > _water.Radius && Mathf.Sign(force) == -1))
                 continue;
             float attenuatedForce = (force - (pointToVertex.sqrMagnitude - size) * Mathf.Sign(force)) * Time.deltaTime; //Force appliquée au vertice selon la distance au point touché (plus distance courte, plus force élevée)
             if (attenuatedForce * Mathf.Sign(force) < 0)
@@ -222,11 +226,11 @@ public class Planete : ManageableObjet {
             velocity *= 1f - 10 * Time.deltaTime;
             if (!_deformedVertices.ContainsKey(i))
             {
-                _deformedVertices.Add(i, _originalVertices[i] + velocity); //Direction opposée au centre, force selon attenuatedForce stocké dans la liste des vertices déformés
+                _deformedVertices.Add(i, _originalVertices[i] + velocity * .2f); //Direction opposée au centre, force selon attenuatedForce stocké dans la liste des vertices déformés
             }
             else
             {
-                _deformedVertices[i] = _originalVertices[i] + velocity;
+                _deformedVertices[i] = _originalVertices[i] + velocity * .2f;
             }
         }
     }

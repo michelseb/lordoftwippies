@@ -133,6 +133,7 @@ public class ZoneManager : MonoBehaviour {
                 }
                 zone.ZoneObject = MeshMaker.CreateSelection(this, zone, transform.position, deformedVertices);
                 zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
+                _planeteMesh.colors = _colors;
             }
 
         }

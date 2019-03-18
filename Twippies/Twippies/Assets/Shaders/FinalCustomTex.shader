@@ -1,4 +1,6 @@
-﻿Shader "Custom/FinalCustomTex" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/FinalCustomTex" {
     Properties {
 		_MainTex1 ("Tex1", 2D) = "white" {}
 		_MainTex2 ("Tex2", 2D) = "white" {}
@@ -16,10 +18,9 @@
 		_Step3 ("Step3", FLOAT) = 1
 
     }
+	
     SubShader {    
-
-      	Tags { "RenderType" = "Opaque" }
-      	
+		Tags { "RenderType" = "Transparent" }
       	 LOD 300
       	CGPROGRAM
       	#pragma surface surf Lambert vertex:vert 
@@ -88,6 +89,46 @@
       }
       ENDCG
     }
+	SubShader{
+		Pass{
+			Tags { "RenderType" = "Opaque" }
+      		LOD 300
+			CGPROGRAM
+            #pragma vertex wfiVertCol
+            #pragma fragment passThrough
+            #include "UnityCG.cginc"
+
+             struct VertOut
+             {
+                 float4 position : POSITION;
+                 float4 color : COLOR;
+             };
+             struct VertIn
+             {
+                 float4 vertex : POSITION;
+                 float4 color : COLOR;
+             };
+             VertOut wfiVertCol(VertIn input, float3 normal : NORMAL)
+             {
+                 VertOut output;
+                 output.position = UnityObjectToClipPos(input.vertex);
+                 output.color = input.color;
+                 return output;
+             }
+             struct FragOut
+             {
+                 float4 color : COLOR;
+             };
+             FragOut passThrough(float4 color : COLOR)
+             {
+                 FragOut output;
+                 output.color = color;
+                 return output;
+             }
+             ENDCG
+		}
+
+	}
     
     Fallback "Diffuse"
   }
