@@ -24,7 +24,10 @@ public abstract class ManageableObjet : Objet {
     protected bool _mouseOver;
     protected int _displayIntervals = 3;
 
-    
+    public Collider Coll { get { return _coll; } }
+    public StatManager Stats { get { return _stats; } }
+    public float Age { get { return _age; } set { _age = value; } }
+    public string Type { get { return _type; } }
 
     protected override void Awake()
     {
@@ -281,9 +284,4 @@ public abstract class ManageableObjet : Objet {
     {
         _stats.StatToValue(_stats.GetStat("Age")).Value = _age;
     }
-
-    public Collider Coll { get { return _coll; } }
-    public StatManager Stats { get { return _stats; } }
-    public float Age { get { return _age; } set { _age = value; } }
-    public string Type { get { return _type; } }
 }

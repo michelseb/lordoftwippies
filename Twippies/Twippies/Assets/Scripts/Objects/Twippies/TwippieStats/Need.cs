@@ -17,11 +17,5 @@ public class Need {
         _needType = needType;
     }
 
-    public NeedType Type
-    {
-        get
-        {
-            return _needType;
-        }
-    }
+    public NeedType Type { get { return _needType; } }
 }

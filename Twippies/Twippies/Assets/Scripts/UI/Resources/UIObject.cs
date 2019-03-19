@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 public class UIObject : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -9,12 +7,10 @@ public class UIObject : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
     private Objet _objet;
 
     private Controls _controls;
-    private ObjetManager _om;
 
     private void Awake()
     {
         _controls = Controls.Instance;
-        _om = ObjetManager.Instance;
     }
 
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)

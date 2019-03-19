@@ -115,7 +115,7 @@ public class ObjectGenerator : MonoBehaviour {
             {
                 if (_zm.Zones[b].Accessible)
                 {
-                    GameObject twippie = Instantiate(GetGO<Twippie>(), _zm.Zones[b].Center, Quaternion.identity, transform);
+                    Instantiate(GetGO<Twippie>(), _zm.Zones[b].Center, Quaternion.identity, transform);
                     z.Add(_zm.Zones[b]);
                     _zm.Zones[b].Accessible = false;
                     break;
@@ -130,7 +130,7 @@ public class ObjectGenerator : MonoBehaviour {
             {
                 if (_zm.Zones[b].Accessible)
                 {
-                    GameObject twippie = Instantiate(GetGO<AdvancedTwippie>(), _zm.Zones[b].Center, Quaternion.identity, transform);
+                    Instantiate(GetGO<AdvancedTwippie>(), _zm.Zones[b].Center, Quaternion.identity, transform);
                     z.Add(_zm.Zones[b]);
                     _zm.Zones[b].Accessible = false;
                     break;
@@ -174,11 +174,4 @@ public class ObjectGenerator : MonoBehaviour {
         result = ObjectFactory.FindAll(x => x is T);
         return result;
     }
-
-    
-
-    
-
-    
-
 }

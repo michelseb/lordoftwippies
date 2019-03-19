@@ -7,12 +7,8 @@ public class UIResources : MonoBehaviour {
     [SerializeField]
     SpriteRenderer[] sprites;
     [SerializeField]
-    private ObjetManager _om;
-    [SerializeField]
     private GameObject _body;
-    private Vector3 _bodyScale;
     private ThingBuilder _builder;
-    private Controls _c;
     [SerializeField]
     private Text _woodText, _waterText, _stoneText;
     private bool _selected;
@@ -20,19 +16,8 @@ public class UIResources : MonoBehaviour {
     private bool _resourcesShowing;
     private int _woodAmount, _waterAmount, _stoneAmount;
 
-
     private static UIResources _instance;
-    public static UIResources Instance
-    {
-        get
-        {
-            if (_instance == null)
-                _instance = FindObjectOfType<UIResources>();
-
-            return _instance;
-        }
-    }
-
+    public static UIResources Instance { get { if (_instance == null) _instance = FindObjectOfType<UIResources>(); return _instance; } }
     private void Start()
     {
         _woodText.text = "Wood : " + _woodAmount;
@@ -41,9 +26,6 @@ public class UIResources : MonoBehaviour {
         mouthAnim = transform.Find("bottom").GetComponent<Animator>();
         bodyAnim = transform.Find("body").GetComponent<Animator>();
         _builder = ThingBuilder.Instance;
-        _om = ObjetManager.Instance;
-        _c = Controls.Instance;
-        _bodyScale = _body.transform.localScale;
         for (int a = 0; a < _builder.Constructables.Length; a++)
         {
             GameObject uiThing = Instantiate(_builder.Constructables[a]);
@@ -52,9 +34,6 @@ public class UIResources : MonoBehaviour {
             uiThing.transform.localScale = Vector3.one;
             uiThing.transform.localPosition = Vector3.zero;
             uiThing.layer = 14;
-            //SpriteRenderer sp = uiThing.GetComponent<SpriteRenderer>();
-            //sp.sortingLayerName = "Resources";
-            //sp.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
         }
 
     }
@@ -135,26 +114,6 @@ public class UIResources : MonoBehaviour {
         }
     }
 
-    public bool MouseOver
-    {
-        get
-        {
-            return _mouseOver;
-        }
-    }
-
-    public bool Selected
-    {
-        get
-        {
-            return _selected;
-        }
-        set
-        {
-            _selected = value;
-        }
-    }
-
-
-
+    public bool Selected { get { return _selected; } set { _selected = value; } }
+    public bool MouseOver { get { return _mouseOver; } }
 }

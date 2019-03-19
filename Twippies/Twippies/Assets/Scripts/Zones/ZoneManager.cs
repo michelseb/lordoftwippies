@@ -5,24 +5,24 @@ using System.Linq;
 public class ZoneManager : MonoBehaviour {
 
     private Mesh _planeteMesh;
-    private Planete _planete;
-    private Vector3[] _vertices;
     [SerializeField]
     private Zone _zonePrefab;
     [SerializeField]
     private float _zoneSize;
     private int _nbVertex;
-    private Zone[] _zones;
-    private Color[] _colors;
+    public Color[] Colors { get; set; }
+    public Vector3[] Vertices { get; set; }
+    public Zone[] Zones { get; private set; }
+    public Planete Planete { get; private set; }
 
     private void Awake()
     {
         
         _planeteMesh = GetComponent<MeshFilter>().mesh;
-        _planete = gameObject.GetComponent<Planete>();
-        _vertices = _planeteMesh.vertices;
+        Planete = gameObject.GetComponent<Planete>();
+        Vertices = _planeteMesh.vertices;
         _nbVertex = _planeteMesh.vertexCount;
-        _colors = new Color[_nbVertex];
+        Colors = new Color[_nbVertex];
 
         List<Zone> tempZones = new List<Zone>();
         int id = 0;
@@ -32,7 +32,7 @@ public class ZoneManager : MonoBehaviour {
                 id++;
         }
         Debug.Log("nombre de zones : " + id);
-        _zones = tempZones.ToArray();
+        Zones = tempZones.ToArray();
         InitTriangles();
         FindNeighbours();
     }
@@ -40,7 +40,7 @@ public class ZoneManager : MonoBehaviour {
     private bool FindCenter(float minDist, List<Zone> zones, int zoneId)
     {
         int id = Random.Range(0, _nbVertex - 1);
-        Vector3 center = transform.TransformPoint(_vertices[id]);
+        Vector3 center = transform.TransformPoint(Vertices[id]);
         foreach (Zone z in zones)
         {
             float dist = (center - z.Center).magnitude;
@@ -60,53 +60,23 @@ public class ZoneManager : MonoBehaviour {
 
     public void FindNeighbours()
     {
-        foreach (Zone z in _zones)
+        foreach (Zone z in Zones)
         {
             z.Neighbours.Clear();
         }
-        for (int a = 0; a < _zones.Length; a++)
+        for (int a = 0; a < Zones.Length; a++)
         {
-            for (int b = a+1; b < _zones.Length; b++)
+            for (int b = a+1; b < Zones.Length; b++)
             {
-                if (_zones[a].VerticeIds.Any(x => _zones[b].VerticeIds.Any(y => x.Equals(y))))
+                if (Zones[a].VerticeIds.Any(x => Zones[b].VerticeIds.Any(y => x.Equals(y))))
                 {
-                    _zones[a].Neighbours.Add(_zones[b]);
-                    _zones[b].Neighbours.Add(_zones[a]);
+                    Zones[a].Neighbours.Add(Zones[b]);
+                    Zones[b].Neighbours.Add(Zones[a]);
                 }
             }
         }
     }
-
-
-    public Vector3[] Vertices
-    {
-        get
-        {
-            return _vertices;
-        }
-        set
-        {
-            _vertices = value;
-        }
-    }
-
-    public Zone[] Zones
-    {
-        get
-        {
-            return _zones;
-        }
-    }
-
-
-    public Planete Planete
-    {
-        get
-        {
-            return _planete;
-        }
-    }
-
+    
     public void SetTriangles(SortedDictionary<int, Vector3> deformedVertices)
     {
         List<Zone> zonesToUpdate = new List<Zone>();
@@ -114,7 +84,7 @@ public class ZoneManager : MonoBehaviour {
         {
             deformedVertices[vertexId] = transform.TransformPoint(_planeteMesh.vertices[vertexId]);
 
-            Zone zone = _zones.FirstOrDefault(x => x.VerticeIds.Contains(vertexId));
+            Zone zone = Zones.FirstOrDefault(x => x.VerticeIds.Contains(vertexId));
             if (zone != null && !zonesToUpdate.Contains(zone))
             {
                 foreach (int vertex in zone.VerticeIds)
@@ -127,13 +97,13 @@ public class ZoneManager : MonoBehaviour {
                 zone.Center = deformedVertices[zone.CenterId];
                 zonesToUpdate.Add(zone);
 
-                if (zone.ZoneObject != null)
-                {
-                    Destroy(zone.ZoneObject);
-                }
-                zone.ZoneObject = MeshMaker.CreateSelection(this, zone, transform.position, deformedVertices);
-                zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
-                _planeteMesh.colors = _colors;
+                //if (zone.ZoneObject != null)
+                //{
+                //    Destroy(zone.ZoneObject);
+                //}
+                //zone.ZoneObject = MeshMaker.CreateSelection(this, zone, transform.position, deformedVertices);
+                //zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
+                _planeteMesh.colors = Colors;
             }
 
         }
@@ -145,15 +115,15 @@ public class ZoneManager : MonoBehaviour {
 
     public void InitTriangles()
     {
-        for (int a = 0; a < _vertices.Length; a++)
+        for (int a = 0; a < Vertices.Length; a++)
         {
-            _vertices[a] = transform.TransformPoint(_planeteMesh.vertices[a]);
+            Vertices[a] = transform.TransformPoint(_planeteMesh.vertices[a]);
         }
 
-        foreach (Zone z in _zones)
+        foreach (Zone z in Zones)
         {
             z.transform.parent = null;
-            z.Center = _vertices[z.CenterId];
+            z.Center = Vertices[z.CenterId];
             z.transform.position = z.Center;
             z.transform.parent = transform;
         }
@@ -161,14 +131,14 @@ public class ZoneManager : MonoBehaviour {
         int[] triangles = _planeteMesh.triangles;
         for (int i = 0; i < triangles.Length - 3; i += 3)
         {
-            Vector3 a = _vertices[triangles[i]];
-            Vector3 b = _vertices[triangles[i + 1]];
-            Vector3 c = _vertices[triangles[i + 2]];
+            Vector3 a = Vertices[triangles[i]];
+            Vector3 b = Vertices[triangles[i + 1]];
+            Vector3 c = Vertices[triangles[i + 2]];
 
             Vector3 centre = (a + b + c) / 3;
             float distMin = Mathf.Infinity;
             Zone tempZone = null;
-            foreach (Zone z in _zones)
+            foreach (Zone z in Zones)
             {
                 float dist = (centre - z.Center).sqrMagnitude;
                 if (dist < distMin)
@@ -181,42 +151,42 @@ public class ZoneManager : MonoBehaviour {
 
             if (!tempZone.VerticeIds.Contains(triangles[i]))
             {
-                _colors[triangles[i]] = tempZone.Color;
+                Colors[triangles[i]] = tempZone.Color;
                 tempZone.VerticeIds.Add(triangles[i]);
             }
             if (!tempZone.VerticeIds.Contains(triangles[i + 1]))
             {
-                _colors[triangles[i + 1]] = tempZone.Color;
+                Colors[triangles[i + 1]] = tempZone.Color;
                 tempZone.VerticeIds.Add(triangles[i + 1]);
             }
             if (!tempZone.VerticeIds.Contains(triangles[i + 2]))
             {
-                _colors[triangles[i + 2]] = tempZone.Color;
+                Colors[triangles[i + 2]] = tempZone.Color;
                 tempZone.VerticeIds.Add(triangles[i + 2]);
             }
             
         }
 
         GetZoneInfo();
-        GenerateZoneObjects();
-        _planeteMesh.colors = _colors;
-        _vertices = _planeteMesh.vertices;
+        //GenerateZoneObjects();
+        //_planeteMesh.colors = Colors;
+        Vertices = _planeteMesh.vertices;
 
     }
 
-    public void GenerateZoneObjects()
-    {
-        foreach (Zone zone in _zones)
-        {
-            if (zone.ZoneObject != null)
-            {
-                Destroy(zone.ZoneObject);
-            }
-            zone.ZoneObject = MeshMaker.CreateSelection(this, zone, transform.position);
-            zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
+    //public void GenerateZoneObjects()
+    //{
+    //    foreach (Zone zone in Zones)
+    //    {
+    //        if (zone.ZoneObject != null)
+    //        {
+    //            Destroy(zone.ZoneObject);
+    //        }
+    //        zone.ZoneObject = MeshMaker.CreateSelection(this, zone, transform.position);
+    //        zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
 
-        }
-    }
+    //    }
+    //}
 
     public Zone GetZoneByRessourceInList(List<Zone> list, Ressource.RessourceType ressource, PathFinder p = null, bool checkTaken = false, bool checkAccessible = false)
     {
@@ -274,12 +244,12 @@ public class ZoneManager : MonoBehaviour {
     public Zone GetRandomZoneByDistance(Transform t, PathFinder p, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
     {
         List<Zone> zones = new List<Zone>();
-        for (int i = 0; i < _zones.Length; i++)
+        for (int i = 0; i < Zones.Length; i++)
         {
-            float dist = (t.position - _zones[i].Center).sqrMagnitude;
+            float dist = (t.position - Zones[i].Center).sqrMagnitude;
             if (dist < distanceMax)
             {
-                zones.Add(_zones[i]);
+                zones.Add(Zones[i]);
             }
         }
 
@@ -312,12 +282,12 @@ public class ZoneManager : MonoBehaviour {
     public Zone GetLargeZoneByDistance(Transform t, PathFinder p, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
     {
         List<Zone> zones = new List<Zone>();
-        for (int i = 0; i < _zones.Length; i++)
+        for (int i = 0; i < Zones.Length; i++)
         {
-            float dist = (t.position - _zones[i].Center).sqrMagnitude;
+            float dist = (t.position - Zones[i].Center).sqrMagnitude;
             if (dist < distanceMax)
             {
-                zones.Add(_zones[i]);
+                zones.Add(Zones[i]);
             }
         }
 
@@ -363,14 +333,14 @@ public class ZoneManager : MonoBehaviour {
     public Zone GetRessourceZoneByDistance(Transform t, PathFinder p, Ressource.RessourceType ressource, bool checkTaken = false, bool checkAccessible = false, float distanceMax = float.MaxValue)
     {
         List<Zone> zones = new List<Zone>();
-        for (int i = 0; i < _zones.Length; i++)
+        for (int i = 0; i < Zones.Length; i++)
         {
-            float dist = (t.position - _zones[i].Center).sqrMagnitude;
+            float dist = (t.position - Zones[i].Center).sqrMagnitude;
             if (dist < distanceMax)
             {
-                if (_zones[i].Ressources.Exists(x => x.ressourceType == ressource))
+                if (Zones[i].Ressources.Exists(x => x.ressourceType == ressource))
                 {
-                    zones.Add(_zones[i]);
+                    zones.Add(Zones[i]);
                 }
             }
         }
@@ -425,7 +395,7 @@ public class ZoneManager : MonoBehaviour {
         Zone tempZone = null;
         Zone[] zones;
 
-        zones = _zones;
+        zones = Zones;
 
         foreach (Zone z in zones)
         {
@@ -449,7 +419,7 @@ public class ZoneManager : MonoBehaviour {
     public Zone GetAerialZone(Transform t)
     {
         RaycastHit hit;
-        if (Physics.Linecast(t.position, _planete.transform.position, out hit, 1 << 16, QueryTriggerInteraction.Collide))
+        if (Physics.Linecast(t.position, Planete.transform.position, out hit, 1 << 16, QueryTriggerInteraction.Collide))
         { 
             return hit.collider.transform.parent.GetComponent<Zone>();
         }
@@ -468,21 +438,21 @@ public class ZoneManager : MonoBehaviour {
         }
         else
         {
-            zones = _zones;
+            zones = Zones;
         }
         float radius = 0;
-        if (_planete.Water.Radius == 0)
+        if (Planete.Water.Radius == 0)
         {
-            SphereCollider s = _planete.Water.GetComponent<SphereCollider>();
+            SphereCollider s = Planete.Water.GetComponent<SphereCollider>();
 
             if (s != null)
             {
-                radius = s.radius * _planete.Water.gameObject.transform.lossyScale.magnitude;
+                radius = s.radius * Planete.Water.gameObject.transform.lossyScale.magnitude;
             }
         }
         else
         {
-            radius = _planete.Water.Radius;
+            radius = Planete.Water.Radius;
         }
         for (int a = 0; a < zones.Length; a++)
         {
@@ -511,5 +481,10 @@ public class ZoneManager : MonoBehaviour {
             }
 
         }
+    }
+
+    public void SetColors()
+    {
+        _planeteMesh.colors = Colors;
     }
 }

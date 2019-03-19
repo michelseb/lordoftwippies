@@ -7,7 +7,11 @@ public class StatPanel : GraphicElement {
     [SerializeField]
     protected Tab _tab;
     protected StatManager _statManager;
-    private string _type;
+
+    public MainPanel MainStatPanel { get { return _mainStatPanel; } }
+    public Tab Tab { get { return _tab; } }
+    public StatManager StatManager { get { return _statManager; } set { _statManager = value; } }
+    public string Type { get; set; }
 
     public override void SetVisible(bool visible)
     {
@@ -28,9 +32,4 @@ public class StatPanel : GraphicElement {
         _mainStatPanel = MainPanel.Instance;
         _mainStatPanel.StatPanels.Add(this);
     }
-
-    public MainPanel MainStatPanel { get { return _mainStatPanel; } }
-    public Tab Tab { get { return _tab; } }
-    public StatManager StatManager { get { return _statManager; } set { _statManager = value; } }
-    public string Type { get { return _type; } set { _type = value; } }
 }

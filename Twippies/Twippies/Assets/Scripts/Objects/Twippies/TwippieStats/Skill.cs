@@ -17,27 +17,7 @@ public class Skill {
         _value = value;
     }
 
-    public float SkillValue
-    {
-        get
-        {
-            return _value;
-        }
-        set
-        {
-            _value = value;
-        }
-    }
-    public SkillType Type
-    {
-        get
-        {
-            return _skillType;
-        }
-        set
-        {
-            _skillType = value;
-        }
-    }
+    public float SkillValue { get { return _value; } set { _value = value; } }
+    public SkillType Type { get { return _skillType; } set { _skillType = value; } }
 
 }

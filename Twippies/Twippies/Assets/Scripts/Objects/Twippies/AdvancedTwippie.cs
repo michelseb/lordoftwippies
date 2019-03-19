@@ -14,6 +14,9 @@ public class AdvancedTwippie : Twippie {
     protected Skill _advancedNeed;
     protected Skill[] _skills;
 
+    public Skill[] Skills { get { return _skills; } set { _skills = value; } }
+    public Coroutine Collecting { get { return _collecting; } set { _collecting = value; } }
+
     protected override void Awake()
     {
         base.Awake();
@@ -251,27 +254,5 @@ public class AdvancedTwippie : Twippie {
         base.UpdateStats();
         _stats.StatToLabel(_stats.GetStat("WoodPossession")).Value = "Bois possédé : " + _ressources[1].quantity;
     }
-    public Skill[] Skills
-    {
-        get
-        {
-            return _skills;
-        }
-        set
-        {
-            _skills = value;
-        }
-    }
 
-    public Coroutine Collecting
-    {
-        get
-        {
-            return _collecting;
-        }
-        set
-        {
-            _collecting = value;
-        }
-    }
 }

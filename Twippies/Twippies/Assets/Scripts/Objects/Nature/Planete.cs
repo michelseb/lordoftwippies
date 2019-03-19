@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,15 +17,18 @@ public class Planete : ManageableObjet {
     private LayerMask _layerMask;
     [SerializeField]
     private float _deformSize;
-    private ZoneManager _zManager;
     private Mesh _mesh;
     private MeshCollider _meshCollider;
     private Vector3[] _originalVertices, _newVertices;
     private SortedDictionary<int, Vector3> _deformedVertices;
-    private bool _shaping, _deforming;
-    private int _displayMode;
-    private bool _mouseOver;
-    
+    private bool _deforming;
+    private Zone.DisplayMode _displayMode;
+
+    public bool Shaping { get; private set; }
+    public WaterObjet Water { get { return _water; } }
+    public Sun Sun { get { return _sun; } }
+    public ZoneManager ZManager { get; private set; }
+
 
     protected override void Awake()
     {
@@ -34,7 +38,7 @@ public class Planete : ManageableObjet {
     protected override void Start()
     {
         base.Start();
-        _zManager = GetComponent<ZoneManager>();
+        ZManager = GetComponent<ZoneManager>();
         _outline.color = 2;
         _meshCollider = GetComponent<MeshCollider>();
         if (GetComponent<MeshFilter>() != null)
@@ -59,50 +63,60 @@ public class Planete : ManageableObjet {
     {
         base.Update();
 
-        
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Array values = Enum.GetValues(typeof(Zone.DisplayMode));
+            System.Random random = new System.Random();
+            _displayMode = (Zone.DisplayMode)values.GetValue(random.Next(values.Length));
+        }
+
         if (_c.ctrl != Controls.ControlMode.Dragging)
         {
-            switch (_displayMode)
+            foreach(Zone z in ZManager.Zones)
             {
-                case 0:
-                    foreach (Zone z in _zManager.Zones)
-                    {
-                        z.Display = Zone.DisplayMode.None;
-                    }
-                    break;
-                case 1:
-                    foreach (Zone z in _zManager.Zones)
-                    {
-                        z.Display = Zone.DisplayMode.Population;
-                    }
-                    break;
-                case 2:
-                    foreach (Zone z in _zManager.Zones)
-                    {
-                        z.Display = Zone.DisplayMode.Height;
-                    }
-                    break;
-                case 5:
-                    foreach (Zone z in _zManager.Zones)
-                    {
-                        z.Display = Zone.DisplayMode.Accessible;
-                    }
-                    break;
-                case 6:
-                    foreach (Zone z in _zManager.Zones)
-                    {
-                        z.Display = Zone.DisplayMode.Water;
-                    }
-                    break;
-                case 7:
-                    foreach (Zone z in _zManager.Zones)
-                    {
-                        z.Display = Zone.DisplayMode.Food;
-                    }
-                    break;
+                z.Display = _displayMode;
             }
+            //switch (_displayMode)
+            //{
+            //    case 0:
+            //        foreach (Zone z in ZManager.Zones)
+            //        {
+            //            z.Display = Zone.DisplayMode.None;
+            //        }
+            //        break;
+            //    case 1:
+            //        foreach (Zone z in ZManager.Zones)
+            //        {
+            //            z.Display = Zone.DisplayMode.Population;
+            //        }
+            //        break;
+            //    case 2:
+            //        foreach (Zone z in ZManager.Zones)
+            //        {
+            //            z.Display = Zone.DisplayMode.Height;
+            //        }
+            //        break;
+            //    case 5:
+            //        foreach (Zone z in ZManager.Zones)
+            //        {
+            //            z.Display = Zone.DisplayMode.Accessible;
+            //        }
+            //        break;
+            //    case 6:
+            //        foreach (Zone z in ZManager.Zones)
+            //        {
+            //            z.Display = Zone.DisplayMode.Water;
+            //        }
+            //        break;
+            //    case 7:
+            //        foreach (Zone z in ZManager.Zones)
+            //        {
+            //            z.Display = Zone.DisplayMode.Food;
+            //        }
+            //        break;
+            //}
         }
-        if (_shaping)
+        if (Shaping)
         {
             if (!_mouseOver)
             {
@@ -116,8 +130,8 @@ public class Planete : ManageableObjet {
 
             if (!(Input.GetMouseButton(0) || Input.GetMouseButton(1)) && _deforming)
             {
-                _zManager.Vertices = _mesh.vertices;
-                _zManager.SetTriangles(_deformedVertices);
+                ZManager.Vertices = _mesh.vertices;
+                ZManager.SetTriangles(_deformedVertices);
                 _deformedVertices.Clear();
                 _deforming = false;
             }
@@ -152,24 +166,19 @@ public class Planete : ManageableObjet {
         t.rotation = targetRotation;//Quaternion.Slerp(t.rotation, targetRotation, 50f * Time.deltaTime);
     }
 
-    protected override void OnMouseEnter()
-    {
-        base.OnMouseEnter();
-        _mouseOver = true;
-    }
-
     protected override void OnMouseExit()
     {
+        _mouseOver = false;
         if (_c.FocusedObject != this && !_c.FocusedObjects.Contains(this))
         {
             _outline.enabled = false;
         }
-        _mouseOver = false;
     }
 
     protected override void OnMouseOver()
     {
-        if (_shaping)
+        _mouseOver = true;
+        if (Shaping)
         {
 
             if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
@@ -201,7 +210,7 @@ public class Planete : ManageableObjet {
 
     protected override void OnMouseDrag()
     {
-        if (!_shaping)
+        if (!Shaping)
         {
             RotateObjet();
         }else
@@ -257,12 +266,12 @@ public class Planete : ManageableObjet {
     {
         base.UpdateStats();
         bool shapingMode = _stats.StatToBool(_stats.GetStat("Shape")).Value;
-        if (shapingMode && shapingMode != _shaping)
+        if (shapingMode && shapingMode != Shaping)
         {
             _mesh.MarkDynamic();
         }
-        _shaping = shapingMode;
-        _displayMode = _stats.StatToChoice(_stats.GetStat("Mode")).Value;
+        Shaping = shapingMode;
+        _displayMode = (Zone.DisplayMode)_stats.StatToChoice(_stats.GetStat("Mode")).Value;
         if (_stats.StatToBool(_stats.GetStat("Destroy")).Value == false)
         {
             foreach (Transform child in transform)
@@ -274,9 +283,4 @@ public class Planete : ManageableObjet {
         }
 
     }
-
-    public bool Shaping { get { return _shaping; } }
-    public WaterObjet Water { get { return _water; } }
-    public Sun Sun { get { return _sun; } }
-    public ZoneManager ZManager { get { return _zManager; } }
 }

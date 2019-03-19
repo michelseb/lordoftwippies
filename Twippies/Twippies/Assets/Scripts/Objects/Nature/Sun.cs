@@ -29,7 +29,7 @@ public class Sun : AerialObjet {
         _og.MainPanel.PopulateStatPanel(_stats.GetStat("Strength"), new object[] { 1, 0, 10, "Brightness", false, "Strength" });
         _og.MainPanel.PopulateStatPanel(_stats.GetStat("Speed"), new object[] { 2, 0, 20, "Rotation speed", false, "Speed" });
     }
-
+    public float Speed { get { return _speed; } }
     protected override void Awake()
     {
         base.Awake();
@@ -65,11 +65,5 @@ public class Sun : AerialObjet {
         _light.intensity = _stats.StatToValue(_stats.GetStat("Strength")).Value;
     }
 
-    public float Speed
-    {
-        get
-        {
-            return _speed;
-        }
-    }
+
 }

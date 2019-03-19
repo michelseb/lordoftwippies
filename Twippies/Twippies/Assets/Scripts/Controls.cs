@@ -38,19 +38,12 @@ public class Controls : MonoBehaviour {
     private Camera _frontCam;
 
     private float _zoomSensitivity = 15;
-    
-    private Vector2 _originClic;
     private float _initZoomAmount, _zoomAmount, _maxZoom = 50;
-    private ManageableObjet _focusedObject;
-    private List<ManageableObjet> _focusedObjects;
-    private int _focusedLayer;
     private Camera _cam;
     private UIManager _ui;
     private UIResources _uiR;
     private ObjetManager _om;
-    private ObjectGenerator _og;
     private MainPanel _mainPanel;
-    private bool _newObject;
     private Texture2D _whiteTexture;
 
     public ClicMode clic;
@@ -58,19 +51,14 @@ public class Controls : MonoBehaviour {
 
     const float DIST_TO_DRAG = 10.0f;
 
+    public ManageableObjet FocusedObject { get; set; }
+    public bool NewObject { get; set; }
+    public int FocusedLayer { get; set; }
+    public List<ManageableObjet> FocusedObjects { get; private set; }
+    public Vector2 OriginClic { get; private set; }
+
     private static Controls _instance;
-    public static Controls Instance
-    {
-        get
-        {
-            if (_instance == null)
-                _instance = FindObjectOfType<Controls>();
-
-            return _instance;
-        }
-    }
-
-
+    public static Controls Instance { get { if (_instance == null) _instance = FindObjectOfType<Controls>(); return _instance; } }
 
     private void Awake()
     {
@@ -78,7 +66,6 @@ public class Controls : MonoBehaviour {
         _ui = UIManager.Instance;
         _uiR = UIResources.Instance;
         _om = ObjetManager.Instance;
-        _og = ObjectGenerator.Instance;
         _mainPanel = MainPanel.Instance;
     }
 
@@ -87,7 +74,7 @@ public class Controls : MonoBehaviour {
         ctrl = ControlMode.Waiting;
         _initZoomAmount = _cam.fieldOfView;
         _zoomAmount = _cam.fieldOfView;
-        _focusedObjects = new List<ManageableObjet>();
+        FocusedObjects = new List<ManageableObjet>();
         _whiteTexture = new Texture2D(1, 1);
     }
 
@@ -125,22 +112,22 @@ public class Controls : MonoBehaviour {
 
             case ControlMode.Clicking:
 
-                if ((Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1)) && _focusedObject != null)
+                if ((Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1)) && FocusedObject != null)
                 {
                     CheckObject();
                 }
 
-                if (Vector2.Distance(_originClic, Input.mousePosition) > DIST_TO_DRAG)
+                if (Vector2.Distance(OriginClic, Input.mousePosition) > DIST_TO_DRAG)
                 {
-                    if (_focusedObject != null && (clic != ClicMode.CentralClic))
+                    if (FocusedObject != null && (clic != ClicMode.CentralClic))
                     {
-                        _focusedLayer = _focusedObject.gameObject.layer;
+                        FocusedLayer = FocusedObject.gameObject.layer;
                         ctrl = ControlMode.Dragging;
                     }
                     else if (clic == ClicMode.CentralClic)
                     {
                         ctrl = ControlMode.Selecting;
-                        _focusedObject = null;
+                        FocusedObject = null;
                     }
                 }
                 
@@ -149,10 +136,10 @@ public class Controls : MonoBehaviour {
 
             case ControlMode.Dragging:
 
-                if (_newObject && !_planeCollider.activeSelf)
+                if (NewObject && !_planeCollider.activeSelf)
                 {
                     _planeCollider.SetActive(true);
-                    if ((_focusedObject is AerialObjet) == false)
+                    if ((FocusedObject is AerialObjet) == false)
                     {
                         {
                             foreach (Zone z in _om.ActivePlanet.ZManager.Zones)
@@ -163,9 +150,9 @@ public class Controls : MonoBehaviour {
                     }
                 }
 
-                if (_focusedObject is DraggableObjet) {
-                    DraggableObjet d = (DraggableObjet)_focusedObject;
-                    if (_focusedObject is Twippie == false)
+                if (FocusedObject is DraggableObjet) {
+                    DraggableObjet d = (DraggableObjet)FocusedObject;
+                    if (FocusedObject is Twippie == false)
                     {
                         if (d.Zone != null)
                         {
@@ -181,15 +168,15 @@ public class Controls : MonoBehaviour {
                         _dragCollider.SetActive(true);
                     }
 
-                    if (_focusedObject != null)
+                    if (FocusedObject != null)
                     {
-                        if (_focusedObject is AerialObjet)
+                        if (FocusedObject is AerialObjet)
                         {
                             _aerialDragCollider.SetActive(true);
                         }
-                        if (_focusedObject is DraggableObjet)
+                        if (FocusedObject is DraggableObjet)
                         {
-                            DraggableObjet d = (DraggableObjet)_focusedObject;
+                            DraggableObjet d = (DraggableObjet)FocusedObject;
                             if (d.Coll.enabled)
                             {
                                 d.Coll.enabled = false;
@@ -208,12 +195,12 @@ public class Controls : MonoBehaviour {
                     }
 
                 }
-                else if (Input.GetButton("Fire2") && _focusedObject is DraggableObjet) // Clic droit sur un objet draggable
+                else if (Input.GetButton("Fire2") && FocusedObject is DraggableObjet) // Clic droit sur un objet draggable
                 {
                     if (!_planeCollider.activeSelf)
                     {
-                        _focusedObject.gameObject.layer = 15;
-                        foreach (Transform child in _focusedObject.transform)
+                        FocusedObject.gameObject.layer = 15;
+                        foreach (Transform child in FocusedObject.transform)
                         {
                             child.gameObject.layer = 15;
                         }
@@ -224,11 +211,11 @@ public class Controls : MonoBehaviour {
                         }
                         _planeCollider.SetActive(true);
                     }
-                    if (_focusedObject != null)
+                    if (FocusedObject != null)
                     {
-                        if (_focusedObject is DraggableObjet)
+                        if (FocusedObject is DraggableObjet)
                         {
-                            DraggableObjet d = (DraggableObjet)_focusedObject;
+                            DraggableObjet d = (DraggableObjet)FocusedObject;
                             if (d.Coll.enabled)
                             {
                                 d.Coll.enabled = false;
@@ -242,32 +229,32 @@ public class Controls : MonoBehaviour {
                     
                     if (clic == ClicMode.RightClic)
                     {
-                        if (_uiR.MouseOver && _focusedObject is DraggableObjet)
+                        if (_uiR.MouseOver && FocusedObject is DraggableObjet)
                         {
-                            Debug.Log("Resources added: "+_focusedObject.WoodCost+" Wood, "+_focusedObject.WaterCost+" Water, "+_focusedObject.StoneCost+" Stone");
-                            _uiR.AddResources(_focusedObject.WoodCost, _focusedObject.WaterCost, _focusedObject.StoneCost);
-                            _om.UpdateObjectList(_focusedObject, false);
-                            Destroy(_focusedObject.gameObject);
+                            Debug.Log("Resources added: "+FocusedObject.WoodCost+" Wood, "+FocusedObject.WaterCost+" Water, "+FocusedObject.StoneCost+" Stone");
+                            _uiR.AddResources(FocusedObject.WoodCost, FocusedObject.WaterCost, FocusedObject.StoneCost);
+                            _om.UpdateObjectList(FocusedObject, false);
+                            Destroy(FocusedObject.gameObject);
                         }
                     }
                     clic = ClicMode.None;
                     if (_planeCollider.activeSelf)
                     {
-                        _focusedObject.gameObject.layer = _focusedLayer;
-                        foreach (Transform child in _focusedObject.transform)
+                        FocusedObject.gameObject.layer = FocusedLayer;
+                        foreach (Transform child in FocusedObject.transform)
                         {
-                            child.gameObject.layer = _focusedLayer;
+                            child.gameObject.layer = FocusedLayer;
                         }
                         _planeCollider.SetActive(false);
                     }
                     _aerialDragCollider.SetActive(false);
                     _dragCollider.SetActive(false);
                     
-                    if (_focusedObject)
+                    if (FocusedObject)
                     {
-                        if (_focusedObject is DraggableObjet)
+                        if (FocusedObject is DraggableObjet)
                         {
-                            DraggableObjet d = (DraggableObjet)_focusedObject;
+                            DraggableObjet d = (DraggableObjet)FocusedObject;
                             if (!d.Coll.enabled)
                             {
                                 d.Coll.enabled = true;
@@ -275,58 +262,57 @@ public class Controls : MonoBehaviour {
                         }
                     }
 
-                    if (_focusedObject != null)
+                    if (FocusedObject != null)
                     {
-                        if (_focusedObject is DraggableObjet)
+                        if (FocusedObject is DraggableObjet)
                         {
-                            if (_focusedObject is AerialObjet)
+                            if (FocusedObject is AerialObjet)
                             {
-                                AerialObjet aerialObjet = (AerialObjet)_focusedObject;
+                                AerialObjet aerialObjet = (AerialObjet)FocusedObject;
                                 aerialObjet.Zone = aerialObjet.ZoneManager.GetAerialZone(aerialObjet.transform);
                             }
                             else
                             {
-                                DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
+                                DraggableObjet draggableObjet = (DraggableObjet)FocusedObject;
                                 draggableObjet.Zone = draggableObjet.ZoneManager.GetZone(false, draggableObjet.Zone, draggableObjet.transform);
                                 if (draggableObjet is IConsumable)
                                 {
-                                    IConsumable consumable = (IConsumable)draggableObjet;
                                     draggableObjet.Zone.Ressources.Add(new Ressource(Ressource.RessourceType.Food, draggableObjet.GetComponent<IConsumable>(), 0));
                                 }
                             }
                         }
                     }
 
-                    if (_newObject)
+                    if (NewObject)
                     {
-                        if (_focusedObject is DraggableObjet)
+                        if (FocusedObject is DraggableObjet)
                         {
-                            if ((_focusedObject is AerialObjet) == false)
+                            if ((FocusedObject is AerialObjet) == false)
                             {
-                                DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
+                                DraggableObjet draggableObjet = (DraggableObjet)FocusedObject;
                                 if (!draggableObjet.Zone.Accessible)
                                 {
-                                    _om.UpdateObjectList(_focusedObject, false);
-                                    Destroy(_focusedObject.gameObject);
-                                    _focusedObject = null;
-                                    _newObject = false;
+                                    _om.UpdateObjectList(FocusedObject, false);
+                                    Destroy(FocusedObject.gameObject);
+                                    FocusedObject = null;
+                                    NewObject = false;
                                     ctrl = ControlMode.Waiting;
                                 }
                             }
                         }
                     }
 
-                    if (_focusedObject != null)
+                    if (FocusedObject != null)
                     {
-                        if (_focusedObject is DraggableObjet && (_focusedObject is AerialObjet) == false &&(_focusedObject is Twippie) == false)
+                        if (FocusedObject is DraggableObjet && (FocusedObject is AerialObjet) == false &&(FocusedObject is Twippie) == false)
                         {
-                            DraggableObjet draggableObjet = (DraggableObjet)_focusedObject;
+                            DraggableObjet draggableObjet = (DraggableObjet)FocusedObject;
                             draggableObjet.Zone = draggableObjet.ZoneManager.GetZone(true, draggableObjet.Zone, draggableObjet.transform);
                         }
                     }
 
-                    _focusedObject = null;
-                    _newObject = false;
+                    FocusedObject = null;
+                    NewObject = false;
                     ctrl = ControlMode.Waiting;
                 }
 
@@ -336,12 +322,12 @@ public class Controls : MonoBehaviour {
                 if (!Input.GetButton("Fire3"))
                 {
                     clic = ClicMode.None;
-                    if (_focusedObjects.Count > 0)
+                    if (FocusedObjects.Count > 0)
                     {
-                        if (_focusedObjects.Count == 1)
+                        if (FocusedObjects.Count == 1)
                         {
-                            _focusedObject = _focusedObjects[0];
-                            _focusedObjects.Clear();
+                            FocusedObject = FocusedObjects[0];
+                            FocusedObjects.Clear();
                             CheckObject();
                         }
                         else
@@ -358,9 +344,9 @@ public class Controls : MonoBehaviour {
 
             case ControlMode.Checking:
 
-                if (_focusedObject is Planete)
+                if (FocusedObject is Planete)
                 {
-                    Planete planete = (Planete)_focusedObject;
+                    Planete planete = (Planete)FocusedObject;
                     if (planete.Shaping)
                     {
                         return;
@@ -373,17 +359,17 @@ public class Controls : MonoBehaviour {
                     _mainPanel.SetAllStatPanelsActiveState(false);
                     if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1<<16)))
                     {
-                        if (_focusedObject is Twippie)
+                        if (FocusedObject is Twippie)
                         {
-                            Twippie t = (Twippie)_focusedObject;
+                            Twippie t = (Twippie)FocusedObject;
                             if (t != null)
                             {
                                 t.LineRenderer.enabled = false;
                             }
                         }
-                        _focusedObject.SetSelectionActive(false);
+                        FocusedObject.SetSelectionActive(false);
                         MainPanel.Instance.SetActive(false);
-                        _focusedObject = null;
+                        FocusedObject = null;
                         ctrl = ControlMode.Waiting;
                     }
                     else
@@ -395,7 +381,7 @@ public class Controls : MonoBehaviour {
             case ControlMode.CheckingMultiple:
                 if ((Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && Input.mousePosition.x < Screen.width * 3/5)
                 {
-                    foreach (ManageableObjet obj in _focusedObjects)
+                    foreach (ManageableObjet obj in FocusedObjects)
                     {
                         if (obj is Twippie)
                         {
@@ -404,7 +390,7 @@ public class Controls : MonoBehaviour {
                         }
                         obj.SetSelectionActive(false);
                     }
-                    _focusedObjects.Clear();
+                    FocusedObjects.Clear();
                     _ui.InfoGUI = false;
                     _mainPanel.SetAllStatPanelsActiveState(false);
                     MainPanel.Instance.SetActive(false);
@@ -424,12 +410,12 @@ public class Controls : MonoBehaviour {
 
     private void DefineOriginClick()
     {
-        _originClic = Input.mousePosition;
+        OriginClic = Input.mousePosition;
         switch (clic)
         {
             case ClicMode.LeftClic:
             case ClicMode.RightClic:
-                if (_focusedObject != null)
+                if (FocusedObject != null)
                 {
                     ctrl = ControlMode.Clicking;
                 }
@@ -455,7 +441,7 @@ public class Controls : MonoBehaviour {
         {
             Vector3 currPos = Input.mousePosition;
             Vector2 invertedCurrent = new Vector2(currPos.x, Screen.height - currPos.y);
-            Vector2 invertedOrigin = new Vector2(_originClic.x, Screen.height - _originClic.y);
+            Vector2 invertedOrigin = new Vector2(OriginClic.x, Screen.height - OriginClic.y);
             Vector2 mixX = new Vector2(invertedCurrent.x, invertedOrigin.y);
             Vector2 mixY = new Vector2(invertedOrigin.x, invertedCurrent.y);
             Rect rect = new Rect();
@@ -475,7 +461,7 @@ public class Controls : MonoBehaviour {
             {
                 rect = new Rect(invertedCurrent, invertedOrigin - invertedCurrent);
             }
-            if (!_focusedObjects.Exists(x=>x is Twippie))
+            if (!FocusedObjects.Exists(x=>x is Twippie))
             {
                 DrawScreenRect(rect, new Color(1, 1, 1, .4f));
                 DrawScreenRectBorder(rect, 2f, Color.white);
@@ -505,26 +491,26 @@ public class Controls : MonoBehaviour {
 
     private void CheckObject()
     {
-        if (_focusedObject is Twippie)
+        if (FocusedObject is Twippie)
         {
-            Twippie t = (Twippie)_focusedObject;
+            Twippie t = (Twippie)FocusedObject;
             t.LineRenderer.enabled = true;
         }
-        _mainPanel.SetStatPanelActiveState(true, _focusedObject.Type);
+        _mainPanel.SetStatPanelActiveState(true, FocusedObject.Type);
         StatPanel activePanel = _mainPanel.StatPanels.Find(x => x.Active);
-        _focusedObject.GetStatManager();
-        _focusedObject.PopulateStats();
+        FocusedObject.GetStatManager();
+        FocusedObject.PopulateStats();
         activePanel.Tab.SetFocus(true);
         activePanel.StatManager.GetStat("Amount").SetActive(false);
         MainPanel.Instance.SetActive(true);
-        _ui.SetPreviewCam(_focusedObject);
+        _ui.SetPreviewCam(FocusedObject);
         _ui.InfoGUI = true;
         ctrl = ControlMode.Checking;
     }
 
     private void CheckObjects()
     {
-        foreach (ManageableObjet obj in _focusedObjects)
+        foreach (ManageableObjet obj in FocusedObjects)
         {
             if (obj is Twippie)
             {
@@ -543,56 +529,5 @@ public class Controls : MonoBehaviour {
         ctrl = ControlMode.CheckingMultiple;
     }
 
-    public ManageableObjet FocusedObject
-    {
-        get
-        {
-            return _focusedObject;
-        }
 
-        set
-        {
-            _focusedObject = value;
-        }
-    }
-
-    public List<ManageableObjet> FocusedObjects
-    {
-        get
-        {
-            return _focusedObjects;
-        }
-    }
-
-    public Vector2 OriginClic
-    {
-        get
-        {
-            return _originClic;
-        }
-    }
-
-    public bool NewObject
-    {
-        get
-        {
-            return _newObject;
-        }
-        set
-        {
-            _newObject = value;
-        }
-    }
-
-    public int FocusedLayer
-    {
-        get
-        {
-            return _focusedLayer;
-        }
-        set
-        {
-            _focusedLayer = value;
-        }
-    }
 }

@@ -58,8 +58,6 @@ public class Twippie : DraggableObjet, ILightnable {
     protected State _state, _previousState;
     protected List<Need> _needs;
     protected GoalType _goalType;
-    private LineRenderer _lineRenderer;
-
     [SerializeField]
     private LayerMask _mask;
     private float _sleepiness;
@@ -69,8 +67,7 @@ public class Twippie : DraggableObjet, ILightnable {
     private int _initialStepsBeforeReproduce;
     [SerializeField]
     private float _health;
-    private float _sicknessDuration, _maxSicknessDuration;
-    private int _nbGeneration;
+    private float _sicknessDuration;
     protected bool _healthy;
     private IConsumable _consumable;
     private float _ageSize;
@@ -86,7 +83,16 @@ public class Twippie : DraggableObjet, ILightnable {
     protected Coroutine _contemplation, _drink, _eat, _reproduce;
     protected float _contemplateTime;
 
-    private bool _reproducing;
+    private readonly bool _reproducing;
+
+    public Twippie Papa { get { return _papa; } protected set { _papa = value; } }
+    public List<Twippie> KnownTwippies { get { return _knownTwippies; } set { _knownTwippies = value; } }
+    public Twippie Maman { get { return _maman; } protected set { _maman = value; } }
+    public float Health { get { return _health; } set { _health = value; } }
+    public LineRenderer LineRenderer { get; private set; }
+    public float MaxSicknessDuration { get; protected set; }
+    public Gender GenderName { get { return _gender; } }
+    public int NbGeneration { get; protected set; }
 
 
     protected override void Awake()
@@ -108,8 +114,8 @@ public class Twippie : DraggableObjet, ILightnable {
         _consumable = null;
         _knownZones = new List<Zone>();
         _knownTwippies = new List<Twippie>();
-        _lineRenderer = GetComponent<LineRenderer>();
-        _lineRenderer.enabled = false;
+        LineRenderer = GetComponent<LineRenderer>();
+        LineRenderer.enabled = false;
         _initSpeed = _speed;
         _outline.color = 3;
         _endurance = 10;// +Random.value * 10;
@@ -143,9 +149,9 @@ public class Twippie : DraggableObjet, ILightnable {
         {
             for (int a = 0; a < _pathFinder.Steps.Count; a++)
             {
-                _lineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center + ((_pathFinder.Steps[a].Zone.Center - _p.transform.position).normalized) / 2);
+                LineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center + ((_pathFinder.Steps[a].Zone.Center - _p.transform.position).normalized) / 2);
             }
-            _lineRenderer.SetPosition(_pathFinder.Steps.Count, transform.position + transform.up / 2);
+            LineRenderer.SetPosition(_pathFinder.Steps.Count, transform.position + transform.up / 2);
         }
 
         if (_state != State.Walking && _state != State.Sleeping)
@@ -180,7 +186,7 @@ public class Twippie : DraggableObjet, ILightnable {
                             if (_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go != null)
                                 Destroy(_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go);
                             _pathFinder.Steps.RemoveAt(_pathFinder.Steps.Count - 1);
-                            _lineRenderer.positionCount = _pathFinder.Steps.Count + 1;
+                            LineRenderer.positionCount = _pathFinder.Steps.Count + 1;
                         }
                     }
                     else
@@ -238,8 +244,17 @@ public class Twippie : DraggableObjet, ILightnable {
         {
             var oldZone = _zone;
             _zone = _zManager.GetZone(false, _zone, transform);
+            
             if (_zone != oldZone) // Si on a changé de zone
             {
+                if (!_zone.Twippies.Contains(this)) // Ajout de ce twippie à la liste des twippies de la nouvelle zone
+                {
+                    _zone.Twippies.Add(this);
+                }
+                if (oldZone.Twippies.Contains(this)) // Suppression de ce twippie de la liste des twippies de l'ancienne zone
+                {
+                    oldZone.Twippies.Remove(this);
+                }
                 if (_reproduce == null) { // S'ils ne sont pas déjà en train...
                     if (_healthy) // Faut être en forme
                     {
@@ -387,9 +402,9 @@ public class Twippie : DraggableObjet, ILightnable {
             _health = UpdateValue(_health);
             if (_sicknessDuration > 0)
             {
-                if (_sicknessDuration > _maxSicknessDuration)
+                if (_sicknessDuration > MaxSicknessDuration)
                 {
-                    _maxSicknessDuration = _sicknessDuration;
+                    MaxSicknessDuration = _sicknessDuration;
                     _sicknessDuration = 0;
                 }
             }
@@ -642,7 +657,7 @@ public class Twippie : DraggableObjet, ILightnable {
         {
             _goalObject.transform.position = zone.Center;
             _goalType = goal;
-            _lineRenderer.positionCount = _pathFinder.Steps.Count + 1;
+            LineRenderer.positionCount = _pathFinder.Steps.Count + 1;
             _state = State.Walking;
         }
         else
@@ -743,8 +758,11 @@ public class Twippie : DraggableObjet, ILightnable {
         _r.AddForce((transform.position - _p.transform.position).normalized, ForceMode.Impulse);
         Debug.Log("Twippie mort :( thirst : " + Mathf.FloorToInt(_thirst) + " hunger : " + Mathf.FloorToInt(_hunger) + " _fatigue : " + Mathf.FloorToInt(_sleepiness));
         _om.UpdateObjectList(this, false);
-        _stats.enabled = false;
-        Destroy(_lineRenderer);
+        if (_stats != null)
+        {
+            _stats.enabled = false;
+        }
+        Destroy(LineRenderer);
         _consumable?.Consume();
         Destroy(this);
     }
@@ -782,94 +800,6 @@ public class Twippie : DraggableObjet, ILightnable {
         }
         _needs.Insert(0, need);
 
-    }
-
-    public LineRenderer LineRenderer
-    {
-        get
-        {
-            return _lineRenderer;
-        }
-    }
-
-    public float Health
-    {
-        get
-        {
-            return _health;
-        }
-        set
-        {
-            _health = value;
-        }
-    }
-
-    public float MaxSicknessDuration
-    {
-        get
-        {
-            return _maxSicknessDuration;
-        }
-        protected set
-        {
-            _maxSicknessDuration = value;
-        }
-    }
-
-    public List<Twippie> KnownTwippies
-    {
-        get
-        {
-            return _knownTwippies;
-        }
-        set
-        {
-            _knownTwippies = value;
-        }
-    }
-
-    public Gender GenderName
-    {
-        get
-        {
-            return _gender;
-        }
-    }
-
-    public int NbGeneration
-    {
-        get
-        {
-            return _nbGeneration;
-        }
-        protected set
-        {
-            _nbGeneration = value;
-        }
-    }
-
-    public Twippie Papa
-    {
-        get
-        {
-            return _papa;
-        }
-        protected set
-        {
-            _papa = value;
-        }
-    }
-
-    public Twippie Maman
-    {
-        get
-        {
-            return _maman;
-        }
-        protected set
-        {
-            _maman = value;
-        }
     }
 
     public void FinishExternalAction()

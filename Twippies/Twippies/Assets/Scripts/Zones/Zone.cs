@@ -5,47 +5,51 @@ public class Zone : MonoBehaviour {
 
     [SerializeField]
     private int _id;
-    private float _minHeight, _maxHeight, _meanHeight, _deltaHeight;
-    private Color _color;
-    private int _centerId;
-    private List<Twippie> _twippies;
-    private MeshCollider _collider;
-    private MeshRenderer _renderer;
+    //private MeshRenderer _renderer;
     private ObjetManager _om;
-    private ZoneManager _zManager;
-    private Vector3 _centerZone;
-    private List<int> _verticeIds;
-    private GameObject _zoneObject;
-    private List<Zone> _neighbours;
-    private List<PathCost> _pathCosts;
-    private bool _accessible;
-    private bool _taken;
-    private List<Ressource> _ressources;
+    private DisplayMode _previousDisplay;
 
+    public Color Col { get; private set; }
+    public List<int> VerticeIds { get; set; }
+    public bool Accessible { get; set; }
+    public bool Taken { get; set; }
+    public Vector3 Center { get; set; }
+    public float MinHeight { get; private set; }
+    public float MaxHeight { get; private set; }
+    public float MeanHeight { get; set; }
+    public float DeltaHeight { get; set; }
+    public int CenterId { get; set; }
+    //public GameObject ZoneObject { get { return _zoneObject; } set { _zoneObject = value; } }
+    public DisplayMode Display { get; set; }
+    public ZoneManager ZManager { get; set; }
+    public List<Zone> Neighbours { get; set; }
+    public List<PathCost> PathCosts { get; set; }
+    public int Id { get { return _id; } set { _id = value; } }
+    public List<Ressource> Ressources { get; set; }
+    public List<Twippie> Twippies { get; private set; }
+    public Color Color { get { return Col; } set { Col = value; } }
 
     public enum DisplayMode
     {
-        Population,
-        Height,
-        Needs,
-        Groups,
-        Accessible,
-        Water,
-        Food,
-        None
+        None = 0,
+        Population = 1,
+        Height = 2,
+        Accessible = 3,
+        Water = 4,
+        Food = 5,
+        Needs = 6,
+        Groups = 7
     }
-
-    private DisplayMode _displayMode; 
 
     private void Awake()
     {
-        _verticeIds = new List<int>();
-        _neighbours = new List<Zone>();
+        VerticeIds = new List<int>();
+        Neighbours = new List<Zone>();
         _om = ObjetManager.Instance;
-        _pathCosts = new List<PathCost>();
-        _ressources = new List<Ressource>();
-        _twippies = new List<Twippie>();
-        _color = new Color(Random.value, Random.value, Random.value);
+        PathCosts = new List<PathCost>();
+        Ressources = new List<Ressource>();
+        Twippies = new List<Twippie>();
+        Col = new Color(Random.value, Random.value, Random.value);
     }
 
     private void Update()
@@ -53,102 +57,111 @@ public class Zone : MonoBehaviour {
 
         foreach (Zone z in Neighbours)
         {
-            Debug.DrawLine(_centerZone, z._centerZone);
+            Debug.DrawLine(Center, z.Center);
         }
 
-        _centerZone = _zManager.transform.TransformPoint(_zManager.Vertices[_centerId]);
-        if (_collider == null)
+        Center = ZManager.transform.TransformPoint(ZManager.Vertices[CenterId]);
+        //if (_collider == null)
+        //{
+        //    if (_zoneObject != null) {
+        //        _collider = _zoneObject.GetComponent<MeshCollider>();
+        //        _renderer = _zoneObject.GetComponent<MeshRenderer>();
+        //    }
+        //}
+
+        //if (!_renderer.enabled)
+        //{
+        //    _renderer.enabled = true;
+        //}
+        switch (Display)
         {
-            if (_zoneObject != null) {
-                _collider = _zoneObject.GetComponent<MeshCollider>();
-                _renderer = _zoneObject.GetComponent<MeshRenderer>();
-            }
-        }
+            case DisplayMode.None:
+                Col = SetColor(1, 1, 1);
+                break;
+            case DisplayMode.Population:
 
-        if (_displayMode == DisplayMode.None)
-        {
-            if (_renderer.enabled)
-            {
-                _renderer.enabled = false;
-            }
-        }
-        else
-        {
-            if (!_renderer.enabled)
-            {
-                _renderer.enabled = true;
-            }
-            switch (_displayMode)
-            {
-                case DisplayMode.Population:
+                Col = SetColor(Twippies.Count * 50 / _om.allObjects.Count, .3f, .3f + (Twippies.Count * 100) / _om.allObjects.Count);
+                //_renderer.material.color = new Color(Mathf.Lerp(_renderer.material.color.r, (Twippies.Count * 50) / _om.allObjects.Count, Time.deltaTime * 2), 
+                //                                    .3f, 
+                //                                    Mathf.Lerp(_renderer.material.color.b, .3f + (Twippies.Count * 100) / _om.allObjects.Count, Time.deltaTime * 2), 
+                //                                    .4f);
 
-                    _renderer.material.color = new Color(Mathf.Lerp(_renderer.material.color.r, (_twippies.Count * 50) / _om.allObjects.Count, Time.deltaTime * 2), 
-                                                        .3f, 
-                                                        Mathf.Lerp(_renderer.material.color.b, .3f + (_twippies.Count * 100) / _om.allObjects.Count, Time.deltaTime * 2), 
-                                                        .4f);
-
-                    break;
+                break;
 
 
-                case DisplayMode.Height:
-
-                    _renderer.material.color = new Color(1, ((_minHeight+_maxHeight)/2 - 4) / 2, 0, .4f);
-                    break;
-
-
-                case DisplayMode.Needs:
-                    break;
+            case DisplayMode.Height:
+                Col = SetColor(1, ((MinHeight + MaxHeight) / 2 - 4) / 2, 0);
+                //_renderer.material.color = new Color(1, ((MinHeight+MaxHeight)/2 - 4) / 2, 0, .4f);
+                break;
 
 
-                case DisplayMode.Groups:
-                    break;
+            case DisplayMode.Needs:
+                break;
 
-                case DisplayMode.Accessible:
 
-                    if (_accessible)
-                    {
-                        _renderer.material.color = new Color(0, 1, 1, .4f);
-                    }else
-                    {
-                        _renderer.material.color = new Color(1, 0, 0, .4f);
-                    }
+            case DisplayMode.Groups:
+                break;
 
-                    break;
+            case DisplayMode.Accessible:
 
-                case DisplayMode.Water:
-                    if (_ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Drink))
-                    {
-                        _renderer.material.color = new Color(0, .8f, 1, .6f);
-                    }
-                    else
-                    {
-                        _renderer.material.color = new Color(0, 0, 0, .3f);
-                    }
-                    break;
+                if (Accessible)
+                {
+                    Col = SetColor(0, 1, 1);
+                    //_renderer.material.color = new Color(0, 1, 1, .4f);
+                }
+                else
+                {
+                    Col = SetColor(1, 0, 0);
+                    //_renderer.material.color = new Color(1, 0, 0, .4f);
+                }
 
-                case DisplayMode.Food:
-                    if (_ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Food))
-                    {
-                        _renderer.material.color = new Color(0, 1, 0, .6f);
-                    }
-                    else
-                    {
-                        _renderer.material.color = new Color(0, 0, 0, .3f);
-                    }
-                    break;
+                break;
+
+            case DisplayMode.Water:
+                if (Ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Drink))
+                {
+                    Col = SetColor(0, .8f, 1);
+                    //_renderer.material.color = new Color(0, .8f, 1, .6f);
+                }
+                else
+                {
+                    Col = SetColor(1, 1, 1);
+                    //_renderer.material.color = new Color(0, 0, 0, .3f);
+                }
+                break;
+
+            case DisplayMode.Food:
+                if (Ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Food))
+                {
+                    Col = SetColor(0, 1, 0);
+                    //_renderer.material.color = new Color(0, 1, 0, .6f);
+                }
+                else
+                {
+                    Col = SetColor(1, 1, 1);
+                    //_renderer.material.color = new Color(0, 0, 0, .3f);
+                }
+                break;
                
-            }
         }
+
+            
+        foreach (int vertexId in VerticeIds)
+        {
+            ZManager.Colors[vertexId] = Col;
+        }
+        ZManager.SetColors();
+        _previousDisplay = Display;
     }
 
     public bool CheckRessourceInNeighbours(Ressource.RessourceType ressourceType)
     {
-        if (_ressources.Exists(x => x.ressourceType == ressourceType))
+        if (Ressources.Exists(x => x.ressourceType == ressourceType))
             return true;
 
         foreach (Zone neighbour in Neighbours)
         {
-            if (neighbour._ressources.Exists(x => x.ressourceType == ressourceType))
+            if (neighbour.Ressources.Exists(x => x.ressourceType == ressourceType))
                 return true;
         }
 
@@ -158,79 +171,66 @@ public class Zone : MonoBehaviour {
     public void SetMinHeight(Vector3 center)
     {
         float height = float.PositiveInfinity;
-        foreach (int v in _verticeIds)
+        foreach (int v in VerticeIds)
         {
-            float distance = Vector3.Distance(_zManager.Vertices[v], center);
+            float distance = Vector3.Distance(ZManager.Vertices[v], center);
             if (distance < height)
             {
                 height = distance;
             }
         }
-        _minHeight = height;
+        MinHeight = height;
     }
 
 
     public void SetMaxHeight(Vector3 center)
     {
         float height = 0;
-        foreach (int v in _verticeIds)
+        foreach (int v in VerticeIds)
         {
-            float distance = Vector3.Distance(_zManager.Vertices[v], center);
+            float distance = Vector3.Distance(ZManager.Vertices[v], center);
             if (distance > height)
             {
                 height = distance;
             }
         }
-        _maxHeight = height;
+        MaxHeight = height;
     }
 
-    private void OnTriggerEnter(Collider other)
+    private Color SetColor(float r, float g, float b)
     {
-        if (other.tag == "Twippie")
-        {
-            Twippie twippie = other.transform.parent.GetComponent<Twippie>();
-            if (twippie != null)
-            {
-                if (!_twippies.Contains(twippie))
-                {
-                    _twippies.Add(twippie);
-                }
-            }
-        }
+        return new Color(Mathf.Lerp(Col.r, r, Time.deltaTime * 3),
+            Mathf.Lerp(Col.g, g, Time.deltaTime * 3),
+            Mathf.Lerp(Col.b, b, Time.deltaTime * 3));
     }
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.tag == "Twippie")
-        {
-            Twippie twippie = other.transform.parent.GetComponent<Twippie>();
-            if (twippie != null)
-            {
-                if (_twippies.Contains(twippie))
-                {
-                    _twippies.Remove(twippie);
-                }
-            }
-        }
-    }
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    if (other.tag == "Twippie")
+    //    {
+    //        Twippie twippie = other.transform.parent.GetComponent<Twippie>();
+    //        if (twippie != null)
+    //        {
+    //            if (!Twippies.Contains(twippie))
+    //            {
+    //                Twippies.Add(twippie);
+    //            }
+    //        }
+    //    }
+    //}
 
-    public Color Col { get { return _color; } }
-    public List<int> VerticeIds { get { return _verticeIds; } set { _verticeIds = value; } }
-    public bool Accessible { get { return _accessible; } set { _accessible = value; } }
-    public bool Taken { get { return _taken; } set { _taken = value; } }
-    public Vector3 Center { get { return _centerZone; } set { _centerZone = value; } }
-    public float MinHeight { get { return _minHeight; } }
-    public float MaxHeight { get { return _maxHeight; } }
-    public float MeanHeight { get { return _meanHeight; } set { _meanHeight = value; } }
-    public float DeltaHeight { get { return _deltaHeight; } set { _deltaHeight = value; } }
-    public int CenterId { get { return _centerId; } set { _centerId = value; } }
-    public GameObject ZoneObject { get { return _zoneObject; } set { _zoneObject = value; } }
-    public DisplayMode Display { get { return _displayMode; } set { _displayMode = value; } }
-    public ZoneManager ZManager { get { return _zManager; } set { _zManager = value; } }
-    public List<Zone> Neighbours { get { return _neighbours; } set { _neighbours = value; } }
-    public List<PathCost> PathCosts { get { return _pathCosts; } set { _pathCosts = value; } }
-    public int Id { get { return _id; } set { _id = value; } }
-    public List<Ressource> Ressources { get { return _ressources; } set { _ressources = value; } }
-    public List<Twippie> Twippies { get { return _twippies; } }
-    public Color Color { get { return _color; } set { _color = value; } }
+    //private void OnTriggerExit(Collider other)
+    //{
+    //    if (other.tag == "Twippie")
+    //    {
+    //        Twippie twippie = other.transform.parent.GetComponent<Twippie>();
+    //        if (twippie != null)
+    //        {
+    //            if (Twippies.Contains(twippie))
+    //            {
+    //                Twippies.Remove(twippie);
+    //            }
+    //        }
+    //    }
+    //}
 }

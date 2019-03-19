@@ -9,7 +9,7 @@ public class Tab : GraphicElement
     private StatPanel _panel;
     [SerializeField]
     private TextMeshProUGUI _textField;
-    private bool _focus;
+    public bool Focus { get; private set; }
 
     public void SetFocus(bool focus)
     {
@@ -41,7 +41,7 @@ public class Tab : GraphicElement
             _panel.transform.SetSiblingIndex(_panel.MainStatPanel.StatPanels.Count - 1 - _panel.MainStatPanel.StatPanels.IndexOf(_panel));
         }
         _panel.SetVisible(focus);
-        _focus = focus;
+        Focus = focus;
     }
 
     public override void Init()
@@ -52,5 +52,5 @@ public class Tab : GraphicElement
         _textField.outlineColor = _panel.StatManager.Color - new Color(.5f, .5f, .5f);
     }
 
-    public bool Focus { get { return _focus; } }
+
 }
