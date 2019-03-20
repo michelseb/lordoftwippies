@@ -4,99 +4,39 @@ using UnityEngine;
 
 public struct Step
 {
-    private GameObject _go;
-    private Zone _zone;
+    public GameObject Go { get; }
+    public Zone Zone { get; }
+
     public Step(Zone zone, GameObject go = null)
     {
-        _go = go;
-        _zone = zone;
+        Go = go;
+        Zone = zone;
     }
-
-    public GameObject Go
-    {
-        get
-        {
-            return _go;
-        }
-    }
-
-    public Zone Zone
-    {
-        get
-        {
-            return _zone;
-        }
-    }
-
 }
 
 public struct PathCost
 {
-    private Twippie _twippie;
-    private int _gCost, _hCost, _fCost;
-    private Zone _parent;
+    public Twippie Twippie { get; }
+    public int FCost { get; set; }
+    public int HCost { get; }
+    public int GCost { get; set; }
+    public Zone Parent { get; }
+
     public PathCost(Twippie twippie, int gCost, int hCost)
     {
-        _twippie = twippie;
-        _gCost = gCost;
-        _hCost = hCost;
-        _fCost = _gCost + _hCost;
-        _parent = null;
+        Twippie = twippie;
+        GCost = gCost;
+        HCost = hCost;
+        FCost = GCost + HCost;
+        Parent = null;
     }
     public PathCost(Twippie twippie, int gCost, int hCost, Zone parent)
     {
-        _twippie = twippie;
-        _gCost = gCost;
-        _hCost = hCost;
-        _fCost = _gCost + _hCost;
-        _parent = parent;
-    }
-    public Twippie Twippie
-    {
-        get
-        {
-            return _twippie;
-        }
-    }
-
-    public int FCost
-    {
-        get
-        {
-            return _fCost;
-        }
-        set
-        {
-            _fCost = value;
-        }
-    }
-
-    public int HCost
-    {
-        get
-        {
-            return _hCost;
-        }
-    }
-
-    public int GCost
-    {
-        get
-        {
-            return _gCost;
-        }
-        set
-        {
-            _gCost = value;
-        }
-    }
-
-    public Zone Parent
-    {
-        get
-        {
-            return _parent;
-        }
+        Twippie = twippie;
+        GCost = gCost;
+        HCost = hCost;
+        FCost = GCost + HCost;
+        Parent = parent;
     }
 }
 
@@ -106,18 +46,11 @@ public class PathFinder : MonoBehaviour {
     private bool _displayPath;
     private Twippie _twippie;
     private List<Zone> _openList, _closeList;
-    private List<Step> _steps;
+    public List<Step> Steps { get; private set; }
+
     private void Awake () {
         _twippie = gameObject.GetComponent<Twippie>();
 	}
-
-    public List<Step> Steps
-    {
-        get
-        {
-            return _steps;
-        }
-    }
 
     public Zone FindPath(Zone destination)
     {
@@ -288,7 +221,7 @@ public class PathFinder : MonoBehaviour {
     private void DisplaySteps(List<Zone> result, bool obj)
     {
         Color col = new Color(Random.value, Random.value, Random.value);
-        _steps = new List<Step>();
+        Steps = new List<Step>();
         Step step;
         foreach (Zone z in result)
         {
@@ -306,7 +239,7 @@ public class PathFinder : MonoBehaviour {
             {
                 step = new Step(z);
             }
-            _steps.Add(step);
+            Steps.Add(step);
         }
     }
 

@@ -4,98 +4,34 @@ using UnityEngine.UI;
 
 public class ValueStat : Stat {
 
-    private float _value;
-    private int _minValue;
-    private int _maxValue;
-    private string _label;
-    private bool _readOnly;
     [SerializeField]
     private TextMeshProUGUI _labelField;
     [SerializeField]
     private Slider _slider;
 
+    public float Value { get; set; }
+    public string Label { get; set; }
+    public int MinValue { get; set; }
+    public int MaxValue { get; set; }
+    public bool ReadOnly { get; set; }
+
     private void Start()
     {
-        _slider.minValue = _minValue;
-        _slider.maxValue = _maxValue;
-        _slider.value = _value;
+        _slider.minValue = MinValue;
+        _slider.maxValue = MaxValue;
+        _slider.value = Value;
     }
 
     private void Update()
     {
-        _labelField.text = _label;
-        if (_readOnly)
+        _labelField.text = Label;
+        if (ReadOnly)
         {
-            _slider.value = _value;
+            _slider.value = Value;
         }
         else
         {
-            _value = _slider.value;
-        }
-    }
-
-    public float Value
-    {
-        get
-        {
-            return _value;
-        }
-
-        set
-        {
-            _value = value;
-        }
-    }
-
-    public string Label
-    {
-        get
-        {
-            return _label;
-        }
-
-        set
-        {
-            _label = value;
-        }
-    }
-
-    public int MinValue
-    {
-        get
-        {
-            return _minValue;
-        }
-
-        set
-        {
-            _minValue = value;
-        }
-    }
-
-    public int MaxValue
-    {
-        get
-        {
-            return _maxValue;
-        }
-
-        set
-        {
-            _maxValue = value;
-        }
-    }
-
-    public bool ReadOnly
-    {
-        get
-        {
-            return _readOnly;
-        }
-
-        set
-        {
-            _readOnly = value;
+            Value = _slider.value;
         }
     }
 
@@ -103,11 +39,11 @@ public class ValueStat : Stat {
     {
         _statType = StatType.Value;
         _name = "value";
-        _value = value;
-        _minValue = minValue;
-        _maxValue = maxValue;
-        _label = label;
-        _readOnly = readOnly;
+        Value = value;
+        MinValue = minValue;
+        MaxValue = maxValue;
+        Label = label;
+        ReadOnly = readOnly;
         _specificName = statName;
     }
 }

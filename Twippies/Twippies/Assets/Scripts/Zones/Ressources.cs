@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class Ressource {
+﻿public class Ressource {
 
     public enum RessourceType
     {

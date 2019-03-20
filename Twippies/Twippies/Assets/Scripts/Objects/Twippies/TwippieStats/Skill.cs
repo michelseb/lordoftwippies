@@ -8,16 +8,12 @@
 
 public class Skill {
 
-    private SkillType _skillType;
-    private float _value;
+    public float SkillValue { get; set; }
+    public SkillType Type { get; set; }
 
     public Skill(SkillType skillType, float value)
     {
-        _skillType = skillType;
-        _value = value;
+        Type = skillType;
+        SkillValue = value;
     }
-
-    public float SkillValue { get { return _value; } set { _value = value; } }
-    public SkillType Type { get { return _skillType; } set { _skillType = value; } }
-
 }

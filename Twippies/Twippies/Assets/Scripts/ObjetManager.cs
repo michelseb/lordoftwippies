@@ -7,24 +7,16 @@ using UnityEngine;
 public class ObjetManager : MonoBehaviour {
 
     public List<ManageableObjet> allObjects;
-    private Planete _activePlanet;
     private ObjectGenerator _og;
     private static ObjetManager _instance;
-    public static ObjetManager Instance
-    {
-        get
-        {
-            if (_instance == null)
-                _instance = FindObjectOfType<ObjetManager>();
 
-            return _instance;
-        }
-    }
+    public Planete ActivePlanet { get; set; }
+    public static ObjetManager Instance { get { if (_instance == null) _instance = FindObjectOfType<ObjetManager>(); return _instance; } }
 
     private void Awake()
     {
         _og = ObjectGenerator.Instance;
-        _activePlanet = FindObjectOfType<Planete>();
+        ActivePlanet = FindObjectOfType<Planete>();
     }
 
     public List<ManageableObjet> AllObjects<T>()
@@ -32,19 +24,6 @@ public class ObjetManager : MonoBehaviour {
         List<ManageableObjet> result = new List<ManageableObjet>();
         result = allObjects.FindAll(o => o is T);
         return result;
-    }
-
-
-    public Planete ActivePlanet
-    {
-        get
-        {
-            return _activePlanet;
-        }
-        set
-        {
-            _activePlanet = value;
-        }
     }
 
     public void OnGUI()

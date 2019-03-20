@@ -96,14 +96,7 @@ public class ZoneManager : MonoBehaviour {
                 }
                 zone.Center = deformedVertices[zone.CenterId];
                 zonesToUpdate.Add(zone);
-
-                //if (zone.ZoneObject != null)
-                //{
-                //    Destroy(zone.ZoneObject);
-                //}
-                //zone.ZoneObject = MeshMaker.CreateSelection(this, zone, transform.position, deformedVertices);
-                //zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
-                _planeteMesh.colors = Colors;
+                SetColors();
             }
 
         }
@@ -168,25 +161,9 @@ public class ZoneManager : MonoBehaviour {
         }
 
         GetZoneInfo();
-        //GenerateZoneObjects();
-        //_planeteMesh.colors = Colors;
         Vertices = _planeteMesh.vertices;
 
     }
-
-    //public void GenerateZoneObjects()
-    //{
-    //    foreach (Zone zone in Zones)
-    //    {
-    //        if (zone.ZoneObject != null)
-    //        {
-    //            Destroy(zone.ZoneObject);
-    //        }
-    //        zone.ZoneObject = MeshMaker.CreateSelection(this, zone, transform.position);
-    //        zone.ZoneObject.transform.Translate((zone.gameObject.transform.position - transform.position).normalized * .1f);
-
-    //    }
-    //}
 
     public Zone GetZoneByRessourceInList(List<Zone> list, Ressource.RessourceType ressource, PathFinder p = null, bool checkTaken = false, bool checkAccessible = false)
     {

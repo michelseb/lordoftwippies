@@ -16,13 +16,14 @@ public abstract class DraggableObjet : ManageableObjet {
     protected Zone _zone;
     protected Sun _planetSun;
 
+    public Planete P { get { return _p; } set { _p = value; } }
+    public Zone Zone { get { return _zone; } set { _zone = value; } }
+    public ZoneManager ZoneManager { get { return _zManager; } }
 
     protected override void Awake()
     {
         base.Awake();
-        
         _r = GetComponent<Rigidbody>();
-        
     }
 
 
@@ -89,30 +90,6 @@ public abstract class DraggableObjet : ManageableObjet {
         {
             _dragging = false;
         }
-        
-        /*
-        if (_zone.MinHeight < P.Water.Radius/2)
-        {
-            
-            foreach (Transform child in transform)
-            {
-                if (child.gameObject.GetComponent<MeshRenderer>() != null)
-                {
-                    child.gameObject.GetComponent<MeshRenderer>().material.color = Color.red;
-                }
-            }
-        }
-        else
-        {
-            foreach (Transform child in transform)
-            {
-                if (child.gameObject.GetComponent<MeshRenderer>() != null)
-                {
-                    child.gameObject.GetComponent<MeshRenderer>().material.color = Color.white;
-                }
-            }
-        }*/
-
         MakeAttraction();
     }
 
@@ -127,7 +104,6 @@ public abstract class DraggableObjet : ManageableObjet {
 
     private void SetPlanete()
     {
-        //Debug.Log("Setting planete for " +GetType());
         float dist = float.PositiveInfinity;
         foreach(Planete p in _om.AllObjects<Planete>())
         {
@@ -143,7 +119,7 @@ public abstract class DraggableObjet : ManageableObjet {
     {
         if (_p)
         {
-            if (_dragging)
+            if (_dragging || IsGrounded())
             {
                 if (Input.GetMouseButton(0))
                     _p.Face(transform);
@@ -155,38 +131,22 @@ public abstract class DraggableObjet : ManageableObjet {
         }
     }
 
-   
-
-    public Planete P
+    protected virtual void SetRigidbodyState()
     {
-        get
+        if (IsGrounded() && !_r.isKinematic)
         {
-            return _p;
+            _r.isKinematic = true;
         }
-
-        set
+        else if (!IsGrounded() && _r.isKinematic)
         {
-            _p = value;
+            _r.isKinematic = false;
         }
     }
 
-    public Zone Zone
+
+    protected bool IsGrounded()
     {
-        get
-        {
-            return _zone;
-        }
-        set
-        {
-            _zone = value;
-        }
-    }
-    public ZoneManager ZoneManager
-    {
-        get
-        {
-            return _zManager;
-        }
+        return Physics.Raycast(transform.position, -transform.up, .5f);
     }
 
 }

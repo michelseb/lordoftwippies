@@ -7,7 +7,6 @@ public class Zone : MonoBehaviour {
     private int _id;
     //private MeshRenderer _renderer;
     private ObjetManager _om;
-    private DisplayMode _previousDisplay;
 
     public Color Col { get; private set; }
     public List<int> VerticeIds { get; set; }
@@ -55,103 +54,57 @@ public class Zone : MonoBehaviour {
     private void Update()
     {
 
-        foreach (Zone z in Neighbours)
-        {
-            Debug.DrawLine(Center, z.Center);
-        }
-
         Center = ZManager.transform.TransformPoint(ZManager.Vertices[CenterId]);
-        //if (_collider == null)
-        //{
-        //    if (_zoneObject != null) {
-        //        _collider = _zoneObject.GetComponent<MeshCollider>();
-        //        _renderer = _zoneObject.GetComponent<MeshRenderer>();
-        //    }
-        //}
-
-        //if (!_renderer.enabled)
-        //{
-        //    _renderer.enabled = true;
-        //}
+        Vector3 colValue;
         switch (Display)
         {
             case DisplayMode.None:
-                Col = SetColor(1, 1, 1);
+                colValue = new Vector3(1, 1, 1);
                 break;
+
             case DisplayMode.Population:
-
-                Col = SetColor(Twippies.Count * 50 / _om.allObjects.Count, .3f, .3f + (Twippies.Count * 100) / _om.allObjects.Count);
-                //_renderer.material.color = new Color(Mathf.Lerp(_renderer.material.color.r, (Twippies.Count * 50) / _om.allObjects.Count, Time.deltaTime * 2), 
-                //                                    .3f, 
-                //                                    Mathf.Lerp(_renderer.material.color.b, .3f + (Twippies.Count * 100) / _om.allObjects.Count, Time.deltaTime * 2), 
-                //                                    .4f);
-
+                colValue = new Vector3(Twippies.Count * 50 / _om.allObjects.Count, .3f, .3f + (Twippies.Count * 100) / _om.allObjects.Count);
                 break;
-
 
             case DisplayMode.Height:
-                Col = SetColor(1, ((MinHeight + MaxHeight) / 2 - 4) / 2, 0);
-                //_renderer.material.color = new Color(1, ((MinHeight+MaxHeight)/2 - 4) / 2, 0, .4f);
+                colValue = new Vector3(1, ((MinHeight + MaxHeight) / 2 - 4) / 2, 0);
                 break;
-
 
             case DisplayMode.Needs:
+                colValue = new Vector3(1, 1, 1);
                 break;
 
-
             case DisplayMode.Groups:
+                colValue = new Vector3(1, 1, 1);
                 break;
 
             case DisplayMode.Accessible:
-
-                if (Accessible)
-                {
-                    Col = SetColor(0, 1, 1);
-                    //_renderer.material.color = new Color(0, 1, 1, .4f);
-                }
-                else
-                {
-                    Col = SetColor(1, 0, 0);
-                    //_renderer.material.color = new Color(1, 0, 0, .4f);
-                }
-
+                if (Accessible) { colValue = new Vector3(0, 1, 1); }
+                else { colValue = new Vector3(1, 0, 0); }
                 break;
 
             case DisplayMode.Water:
-                if (Ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Drink))
-                {
-                    Col = SetColor(0, .8f, 1);
-                    //_renderer.material.color = new Color(0, .8f, 1, .6f);
-                }
-                else
-                {
-                    Col = SetColor(1, 1, 1);
-                    //_renderer.material.color = new Color(0, 0, 0, .3f);
-                }
+                if (Ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Drink)) { colValue = new Vector3(0, .8f, 1); }
+                else { colValue = new Vector3(1, 1, 1); }
                 break;
 
             case DisplayMode.Food:
-                if (Ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Food))
-                {
-                    Col = SetColor(0, 1, 0);
-                    //_renderer.material.color = new Color(0, 1, 0, .6f);
-                }
-                else
-                {
-                    Col = SetColor(1, 1, 1);
-                    //_renderer.material.color = new Color(0, 0, 0, .3f);
-                }
+                if (Ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Food)) { colValue = new Vector3(0, 1, 0); }
+                else { colValue = new Vector3(1, 1, 1); }
                 break;
-               
+            default:
+                colValue = new Vector3(1, 1, 1);
+                break;
         }
 
-            
-        foreach (int vertexId in VerticeIds)
+        if (SetColor(colValue.x, colValue.y, colValue.z))
         {
-            ZManager.Colors[vertexId] = Col;
-        }
-        ZManager.SetColors();
-        _previousDisplay = Display;
+            foreach (int vertexId in VerticeIds)
+            {
+                ZManager.Colors[vertexId] = Col;
+            }
+            ZManager.SetColors();
+        }    
     }
 
     public bool CheckRessourceInNeighbours(Ressource.RessourceType ressourceType)
@@ -197,40 +150,14 @@ public class Zone : MonoBehaviour {
         MaxHeight = height;
     }
 
-    private Color SetColor(float r, float g, float b)
+    private bool SetColor(float r, float g, float b)
     {
-        return new Color(Mathf.Lerp(Col.r, r, Time.deltaTime * 3),
+        var newCol = new Color(Mathf.Lerp(Col.r, r, Time.deltaTime * 3),
             Mathf.Lerp(Col.g, g, Time.deltaTime * 3),
             Mathf.Lerp(Col.b, b, Time.deltaTime * 3));
+        if (Col == newCol)
+            return false;
+        Col = newCol;
+        return true;
     }
-
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    if (other.tag == "Twippie")
-    //    {
-    //        Twippie twippie = other.transform.parent.GetComponent<Twippie>();
-    //        if (twippie != null)
-    //        {
-    //            if (!Twippies.Contains(twippie))
-    //            {
-    //                Twippies.Add(twippie);
-    //            }
-    //        }
-    //    }
-    //}
-
-    //private void OnTriggerExit(Collider other)
-    //{
-    //    if (other.tag == "Twippie")
-    //    {
-    //        Twippie twippie = other.transform.parent.GetComponent<Twippie>();
-    //        if (twippie != null)
-    //        {
-    //            if (Twippies.Contains(twippie))
-    //            {
-    //                Twippies.Remove(twippie);
-    //            }
-    //        }
-    //    }
-    //}
 }

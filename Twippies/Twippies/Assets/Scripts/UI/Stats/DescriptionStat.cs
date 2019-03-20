@@ -8,10 +8,6 @@ public class DescriptionStat : Stat
     [SerializeField]
     private TextStat _textStat;
 
-    private void Start()
-    {
-        
-    }
     public void Populate(Sprite icon, string description, int maxChar, float fontSize, string statName)
     {
         _icon.sprite = icon;

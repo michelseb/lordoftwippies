@@ -15,6 +15,12 @@ public class Objet : MonoBehaviour {
     
     protected Camera _cam;
 
+    public int WoodCost { get { return WOODCOST; } }
+    public int WaterCost { get { return WATERCOST; } }
+    public int StoneCost { get { return STONECOST; } }
+    public Sprite Icon { get { return _icon; } }
+    public Vector3 CurrentSize { get { return _currentSize; } set { _currentSize = value; } }
+
     protected virtual void Awake()
     {
         _om = ObjetManager.Instance;
@@ -26,50 +32,6 @@ public class Objet : MonoBehaviour {
     {
         _initSize = transform.lossyScale;
         _currentSize = _initSize;
-    }
-
-    public int WoodCost
-    {
-        get
-        {
-            return WOODCOST;
-        }
-    }
-
-    public int WaterCost
-    {
-        get
-        {
-            return WATERCOST;
-        }
-    }
-
-    public int StoneCost
-    {
-        get
-        {
-            return STONECOST;
-        }
-    }
-
-    public Sprite Icon
-    {
-        get
-        {
-            return _icon;
-        }
-    }
-
-    public Vector3 CurrentSize
-    {
-        get
-        {
-            return _currentSize;
-        }
-        set
-        {
-            _currentSize = value;
-        }
     }
 
     protected bool CoinFlip(float chance = .5f)

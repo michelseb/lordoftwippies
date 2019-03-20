@@ -3,52 +3,29 @@ using UnityEngine;
 
 public class TextStat : Stat {
 
-    private string _value;
-    private int _maxChar;
     private float _fontSize;
     [SerializeField]
     private TMP_InputField _textField;
 
+    public string Value { get; set; }
+    public int MaxChar { get; set; }
+
     private void Start()
     {
-        _textField.text = _value;
+        _textField.text = Value;
     }
 
     private void Update()
     {
-        _value = _textField.text;
-    }
-
-    public string Value
-    {
-        get
-        {
-            return _value;
-        }
-
-        set
-        {
-            _value = value;
-        }
-    }
-    public int MaxChar
-    {
-        get
-        {
-            return _maxChar;
-        }
-        set
-        {
-            _maxChar = value;
-        }
+        Value = _textField.text;
     }
 
     public void Populate(string value, int maxChar, float fontSize)
     {
         _statType = StatType.Text;
         _name = "texte";
-        _value = value;
-        _maxChar = maxChar;
+        Value = value;
+        MaxChar = maxChar;
         _fontSize = fontSize;
     }
 }

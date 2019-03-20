@@ -11,13 +11,14 @@ public class UIResources : MonoBehaviour {
     private ThingBuilder _builder;
     [SerializeField]
     private Text _woodText, _waterText, _stoneText;
-    private bool _selected;
-    private bool _mouseOver;
     private bool _resourcesShowing;
     private int _woodAmount, _waterAmount, _stoneAmount;
-
     private static UIResources _instance;
+
+    public bool Selected { get; set; }
+    public bool MouseOver { get; private set; }
     public static UIResources Instance { get { if (_instance == null) _instance = FindObjectOfType<UIResources>(); return _instance; } }
+
     private void Start()
     {
         _woodText.text = "Wood : " + _woodAmount;
@@ -52,16 +53,16 @@ public class UIResources : MonoBehaviour {
 
     private void Update()
     {
-        if (_selected)
+        if (Selected)
         {
-            if (Input.GetMouseButtonDown(0) && _mouseOver == false)
+            if (Input.GetMouseButtonDown(0) && MouseOver == false)
             {
                 PlayMouthClose();
                 foreach (SpriteRenderer s in sprites)
                 {
                     s.material.color = new Color(1, 1, 1);
                 }
-                _selected = false;
+                Selected = false;
             }
         }
     }
@@ -79,8 +80,8 @@ public class UIResources : MonoBehaviour {
 
     private void OnMouseOver()
     {
-        _mouseOver = true;
-        if (_selected == false)
+        MouseOver = true;
+        if (Selected == false)
         {
             foreach (SpriteRenderer s in sprites)
             {
@@ -91,8 +92,8 @@ public class UIResources : MonoBehaviour {
 
     private void OnMouseExit()
     {
-        _mouseOver = false;
-        if (_selected == false)
+        MouseOver = false;
+        if (Selected == false)
         {
             foreach (SpriteRenderer s in sprites)
             {
@@ -103,9 +104,9 @@ public class UIResources : MonoBehaviour {
 
     private void OnMouseDown()
     {
-        if (_selected == false)
+        if (Selected == false)
         {
-            _selected = true;
+            Selected = true;
             PlayMouthOpen();
             foreach (SpriteRenderer s in sprites)
             {
@@ -113,7 +114,4 @@ public class UIResources : MonoBehaviour {
             }
         }
     }
-
-    public bool Selected { get { return _selected; } set { _selected = value; } }
-    public bool MouseOver { get { return _mouseOver; } }
 }

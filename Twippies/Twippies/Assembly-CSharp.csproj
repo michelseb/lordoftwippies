@@ -124,6 +124,9 @@
     <Compile Include="Assets\Scripts\UI\3D\HealthBar.cs" />
     <Compile Include="Assets\Scripts\UI\Abstract\GraphicElement.cs" />
     <Compile Include="Assets\Scripts\UI\MainPanel.cs" />
+    <Compile Include="Assets\Scripts\UI\RadialButton.cs" />
+    <Compile Include="Assets\Scripts\UI\RadialLayout.cs" />
+    <Compile Include="Assets\Scripts\UI\RadialPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Resources\Mask.cs" />
     <Compile Include="Assets\Scripts\UI\Resources\UIObject.cs" />
     <Compile Include="Assets\Scripts\UI\Resources\UIResources.cs" />

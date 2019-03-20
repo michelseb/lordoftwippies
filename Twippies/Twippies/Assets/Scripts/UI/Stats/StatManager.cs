@@ -6,11 +6,14 @@ using UnityEngine;
 public class StatManager : MonoBehaviour {
     [SerializeField]
     private List<Stat> _statsList;
-    private StatPanel _statPanel;
-    private UIContent _specificStatsPanel;
     private ObjectGenerator _og;
     [SerializeField]
     private Color _color;
+
+    public List<Stat> StatsList { get { return _statsList; } set { _statsList = value; } }
+    public Color Color { get { return _color; } set { _color = value; } }
+    public UIContent SpecificStatPanel { get; private set; }
+    public StatPanel StatPanel { get; set; }
 
     private void Awake()
     {
@@ -42,13 +45,13 @@ public class StatManager : MonoBehaviour {
 
     public void CreateSpecificPanel(Transform parent)
     {
-        _specificStatsPanel = Instantiate(_og.SpecificStatPanel, parent);
-        _specificStatsPanel.name = "Specific stat panel";
+        SpecificStatPanel = Instantiate(_og.SpecificStatPanel, parent);
+        SpecificStatPanel.name = "Specific stat panel";
     }
 
     public T GenerateStat<T>(string statType, bool mainStat = false, string name = "") where T:Stat
     {
-        GameObject obj = Instantiate(_og.GetStat<T>(name != ""?name:null), mainStat?_statPanel.transform.Find("Mask").Find("Panel"):_specificStatsPanel.Content.transform);
+        GameObject obj = Instantiate(_og.GetStat<T>(name != ""?name:null), mainStat?StatPanel.transform.Find("Mask").Find("Panel"):SpecificStatPanel.Content.transform);
         if (mainStat)
         {
             obj.transform.SetAsFirstSibling();
@@ -80,9 +83,4 @@ public class StatManager : MonoBehaviour {
         _statsList = new List<Stat>();
         enabled = false;
     }
-
-    public List<Stat> StatsList { get { return _statsList; } set { _statsList = value; } }
-    public UIContent SpecificStatPanel { get { return _specificStatsPanel; } }
-    public Color Color { get { return _color; } set { _color = value; } }
-    public StatPanel StatPanel { get { return _statPanel; } set { _statPanel = value; } }
 }

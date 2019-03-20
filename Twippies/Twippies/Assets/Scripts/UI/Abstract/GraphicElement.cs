@@ -8,6 +8,8 @@ public abstract class GraphicElement : MonoBehaviour {
     protected bool _visible;
     protected Canvas _canvas;
     protected UIManager _uiManager;
+    public Image Image { get { return _image; } }
+    public bool Active { get { return _active; } }
 
     public virtual void SetActive(bool active)
     { 
@@ -41,7 +43,4 @@ public abstract class GraphicElement : MonoBehaviour {
 
         return new Rect(x, y, size.x, size.y);
     }
-
-    public Image Image { get { return _image; } }
-    public bool Active { get { return _active; } }
 }

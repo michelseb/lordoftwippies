@@ -376,6 +376,11 @@ public class Twippie : DraggableObjet, ILightnable {
         }
     }
 
+    protected override void SetRigidbodyState()
+    {
+        return;
+    }
+
     protected override void OnMouseOver()
     {
         base.OnMouseOver();

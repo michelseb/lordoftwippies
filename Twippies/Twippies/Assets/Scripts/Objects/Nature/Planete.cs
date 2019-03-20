@@ -76,45 +76,6 @@ public class Planete : ManageableObjet {
             {
                 z.Display = _displayMode;
             }
-            //switch (_displayMode)
-            //{
-            //    case 0:
-            //        foreach (Zone z in ZManager.Zones)
-            //        {
-            //            z.Display = Zone.DisplayMode.None;
-            //        }
-            //        break;
-            //    case 1:
-            //        foreach (Zone z in ZManager.Zones)
-            //        {
-            //            z.Display = Zone.DisplayMode.Population;
-            //        }
-            //        break;
-            //    case 2:
-            //        foreach (Zone z in ZManager.Zones)
-            //        {
-            //            z.Display = Zone.DisplayMode.Height;
-            //        }
-            //        break;
-            //    case 5:
-            //        foreach (Zone z in ZManager.Zones)
-            //        {
-            //            z.Display = Zone.DisplayMode.Accessible;
-            //        }
-            //        break;
-            //    case 6:
-            //        foreach (Zone z in ZManager.Zones)
-            //        {
-            //            z.Display = Zone.DisplayMode.Water;
-            //        }
-            //        break;
-            //    case 7:
-            //        foreach (Zone z in ZManager.Zones)
-            //        {
-            //            z.Display = Zone.DisplayMode.Food;
-            //        }
-            //        break;
-            //}
         }
         if (Shaping)
         {
@@ -144,8 +105,6 @@ public class Planete : ManageableObjet {
                 _water.Coll.enabled = true;
             }
         }
-
-        
     }
 
     public void Attract(Transform t, Rigidbody r)

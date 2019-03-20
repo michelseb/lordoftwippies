@@ -17,21 +17,8 @@ public abstract class Stat : GraphicElement {
     protected bool _main;
     protected string _specificName;
 
-    public string Name
-    {
-        get { return _name; }
-    }
-
-    public bool Main
-    {
-        get { return _main; }
-        set { _main = value; }
-    }
-
-    public string SpecificName
-    {
-        get { return _specificName; }
-        set { _specificName = value; }
-    }
+    public string Name { get { return _name; } }
+    public bool Main { get { return _main; } set { _main = value; } }
+    public string SpecificName { get { return _specificName; } set { _specificName = value; } }
 }
 

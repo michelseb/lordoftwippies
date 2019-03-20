@@ -45,6 +45,8 @@ public class Controls : MonoBehaviour {
     private ObjetManager _om;
     private MainPanel _mainPanel;
     private Texture2D _whiteTexture;
+    [SerializeField]
+    private RadialPanel _radialPanel;
 
     public ClicMode clic;
     public ControlMode ctrl;
@@ -66,6 +68,7 @@ public class Controls : MonoBehaviour {
         _ui = UIManager.Instance;
         _uiR = UIResources.Instance;
         _om = ObjetManager.Instance;
+        _radialPanel = RadialPanel.Instance;
         _mainPanel = MainPanel.Instance;
     }
 
@@ -357,6 +360,7 @@ public class Controls : MonoBehaviour {
                     _ui.DisablePreviewCam();
                     _ui.InfoGUI = false;
                     _mainPanel.SetAllStatPanelsActiveState(false);
+                    _radialPanel.Animator.SetBool("Opened", false);
                     if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1<<16)))
                     {
                         if (FocusedObject is Twippie)
@@ -393,6 +397,7 @@ public class Controls : MonoBehaviour {
                     FocusedObjects.Clear();
                     _ui.InfoGUI = false;
                     _mainPanel.SetAllStatPanelsActiveState(false);
+                    _radialPanel.Animator.SetBool("Opened", false);
                     MainPanel.Instance.SetActive(false);
                     if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1 << 16)))
                     {
@@ -496,6 +501,7 @@ public class Controls : MonoBehaviour {
             Twippie t = (Twippie)FocusedObject;
             t.LineRenderer.enabled = true;
         }
+        _radialPanel.Animator.SetBool("Opened", true);
         _mainPanel.SetStatPanelActiveState(true, FocusedObject.Type);
         StatPanel activePanel = _mainPanel.StatPanels.Find(x => x.Active);
         FocusedObject.GetStatManager();

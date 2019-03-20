@@ -19,16 +19,8 @@ public class UIManager : MonoBehaviour {
     }
 
     private static UIManager _instance;
-    public static UIManager Instance
-    {
-        get
-        {
-            if (_instance == null)
-                _instance = FindObjectOfType<UIManager>();
-
-            return _instance;
-        }
-    }
+    public Camera UICam { get { return _UICam; } }
+    public static UIManager Instance { get { if (_instance == null) _instance = FindObjectOfType<UIManager>(); return _instance; } }
 
     private void Awake()
     {
@@ -39,7 +31,6 @@ public class UIManager : MonoBehaviour {
 
     private void Update()
     {
-
         if (_infoGUI)
         {
             if (!MainPanel.Instance.Active)
@@ -99,6 +90,4 @@ public class UIManager : MonoBehaviour {
         }
         
     }
-
-    public Camera UICam { get { return _UICam; } }
 }
