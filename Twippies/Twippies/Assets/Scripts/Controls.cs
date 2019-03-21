@@ -355,12 +355,12 @@ public class Controls : MonoBehaviour {
                         return;
                     }
                 }
-                if ((Input.GetButtonDown("Fire1")||Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && Input.mousePosition.x < Screen.width * 3/5)
+                if ((Input.GetButtonDown("Fire1")||Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && VoidClic())
                 {
                     _ui.DisablePreviewCam();
                     _ui.InfoGUI = false;
                     _mainPanel.SetAllStatPanelsActiveState(false);
-                    _radialPanel.Animator.SetBool("Opened", false);
+                    _radialPanel.Animator.SetTrigger("Close");
                     if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1<<16)))
                     {
                         if (FocusedObject is Twippie)
@@ -383,7 +383,7 @@ public class Controls : MonoBehaviour {
                 }
                 break;
             case ControlMode.CheckingMultiple:
-                if ((Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && Input.mousePosition.x < Screen.width * 3/5)
+                if ((Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && VoidClic())
                 {
                     foreach (ManageableObjet obj in FocusedObjects)
                     {
@@ -397,7 +397,7 @@ public class Controls : MonoBehaviour {
                     FocusedObjects.Clear();
                     _ui.InfoGUI = false;
                     _mainPanel.SetAllStatPanelsActiveState(false);
-                    _radialPanel.Animator.SetBool("Opened", false);
+                    _radialPanel.Animator.SetTrigger("Close");
                     MainPanel.Instance.SetActive(false);
                     if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1 << 16)))
                     {
@@ -438,6 +438,12 @@ public class Controls : MonoBehaviour {
         }
         
         
+    }
+
+    private bool VoidClic()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        return !Physics.Raycast(ray);
     }
 
     private void OnGUI()
@@ -501,7 +507,7 @@ public class Controls : MonoBehaviour {
             Twippie t = (Twippie)FocusedObject;
             t.LineRenderer.enabled = true;
         }
-        _radialPanel.Animator.SetBool("Opened", true);
+        _radialPanel.Animator.SetTrigger("Open");
         _mainPanel.SetStatPanelActiveState(true, FocusedObject.Type);
         StatPanel activePanel = _mainPanel.StatPanels.Find(x => x.Active);
         FocusedObject.GetStatManager();

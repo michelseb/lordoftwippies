@@ -20,7 +20,7 @@ MonoBehaviour:
   m_ShowMode: 4
   m_Title: 
   m_RootView: {fileID: 2}
-  m_MinSize: {x: 950, y: 542}
+  m_MinSize: {x: 950, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
 --- !u!114 &2
 MonoBehaviour:
@@ -43,7 +43,7 @@ MonoBehaviour:
     y: 0
     width: 1920
     height: 997
-  m_MinSize: {x: 950, y: 542}
+  m_MinSize: {x: 950, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
 --- !u!114 &3
 MonoBehaviour:
@@ -105,10 +105,10 @@ MonoBehaviour:
     y: 30
     width: 1920
     height: 947
-  m_MinSize: {x: 681, y: 492}
-  m_MaxSize: {x: 12006, y: 14042}
+  m_MinSize: {x: 683, y: 492}
+  m_MaxSize: {x: 12008, y: 14042}
   vertical: 1
-  controlID: 118
+  controlID: 88
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -129,10 +129,10 @@ MonoBehaviour:
     y: 0
     width: 1920
     height: 947
-  m_MinSize: {x: 681, y: 492}
-  m_MaxSize: {x: 12006, y: 14042}
+  m_MinSize: {x: 683, y: 492}
+  m_MaxSize: {x: 12008, y: 14042}
   vertical: 1
-  controlID: 119
+  controlID: 89
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -154,10 +154,10 @@ MonoBehaviour:
     y: 0
     width: 1920
     height: 676
-  m_MinSize: {x: 681, y: 221}
-  m_MaxSize: {x: 12006, y: 4021}
+  m_MinSize: {x: 683, y: 221}
+  m_MaxSize: {x: 12008, y: 4021}
   vertical: 0
-  controlID: 120
+  controlID: 90
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -176,8 +176,8 @@ MonoBehaviour:
     y: 0
     width: 403
     height: 676
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 202, y: 221}
+  m_MaxSize: {x: 4002, y: 4021}
   m_ActualView: {fileID: 13}
   m_Panes:
   - {fileID: 13}
@@ -370,24 +370,24 @@ MonoBehaviour:
     height: 655
   m_PersistentViewDataDictionary: {fileID: 0}
   m_TreeViewState:
-    scrollPos: {x: 0, y: 130}
-    m_SelectedIDs: d4fbffff
-    m_LastClickedID: -1068
-    m_ExpandedIDs: 0046b8ff0646b8ffda6ab8ffc68ab9ffd68ab9ffde8ab9ff04b1c4ff06b1c4ffe292c5ff1c48c7ff6a09caff6c09caff6e09caffec0acafff40acaffc880cbffd080cbffd880cbff9ea7cbffd0a7cbffd4a7cbff74e6cdffc40bceffd448ceffe0d5ceff20deceffc684f9ffe0bcf9ffdecffeff9e81ffff18ebffffd2fbffffd4fbffffe6fbffff00000000f0280000402900006c290000ae290000e0290000022a0000
+    scrollPos: {x: 0, y: 0}
+    m_SelectedIDs: d8f9ffff
+    m_LastClickedID: -1576
+    m_ExpandedIDs: eaf9ffffecf9ffffe6fbffff0000000000480000644800003e4900006a490000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: WorldCanvas
-      m_OriginalName: WorldCanvas
+      m_Name: 
+      m_OriginalName: 
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 10754
+      m_UserData: 0
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 0
+      m_OriginalEventType: 11
       m_IsRenamingFilename: 0
       m_ClientGUIView: {fileID: 8}
     m_SearchString: 
@@ -831,34 +831,34 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts/UI/Actions
+    - Assets/3D
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Scripts/UI/Actions
+  - Assets/3D
   m_LastFoldersGridSize: -1
-  m_LastProjectPath: D:\smichel\lordoftwippies\Twippies\Twippies
+  m_LastProjectPath: C:\Users\Sebela\Documents\GitHub\AugmentedTwippies\Twippies\Twippies
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 271}
-    m_SelectedIDs: 189b0000
-    m_LastClickedID: 39704
-    m_ExpandedIDs: 00000000660b0000da0b0000240c0000400c0000d00d00000e0e00001c0f00009e0f0000d60f00006a12000092120000e2120000fe120000481400009814000056150000b2150000dc150000881600002a170000341700006c180000ac190000c2190000d4190000f01b0000f21b0000a01c0000f81c0000001f00009a1f00005c20000032220000342200000c2300000c24000034240000c82400001c250000e62500005e2600007a27000000ca9a3b
+    scrollPos: {x: 0, y: 95}
+    m_SelectedIDs: be3f0000
+    m_LastClickedID: 16318
+    m_ExpandedIDs: 00000000022c0000462c0000942c0000b02c0000b42d0000f02d0000fe2e0000802f0000bc2f00005032000078320000c6320000e23200002e34000082340000403500009c350000c635000076360000143700001e37000038380000583900006e39000080390000643b0000663b0000183c0000763c0000603e0000ec3e0000b83f000090410000924100006e4200005a43000088430000f84300004e440000184500009a4500008246000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: book
-      m_OriginalName: book
+      m_Name: 
+      m_OriginalName: 
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 6004
+      m_UserData: 0
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 0
+      m_OriginalEventType: 11
       m_IsRenamingFilename: 1
       m_ClientGUIView: {fileID: 11}
     m_SearchString: 
@@ -872,7 +872,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000660b0000da0b0000400c00000e0e0000380e00001c0f00003c0f00009e0f0000d60f00000a110000521200006a12000092120000fe120000481400009814000056150000b2150000dc15000034170000ac190000c2190000d4190000f01b0000a01c0000001f00005c200000342200000c2300000c240000342400001c2500005e26000096260000
+    m_ExpandedIDs: 00000000022c0000462c0000942c0000b02c0000b42d0000f02d0000fe2e0000802f0000bc2f00005032000078320000c6320000e23200002e34000082340000403500009c350000c635000076360000143700001e37000038380000583900006e39000080390000643b0000663b0000183c0000763c0000603e0000ec3e0000b83f000090410000924100006e4200005a43000088430000f84300004e440000184500009a45000082460000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

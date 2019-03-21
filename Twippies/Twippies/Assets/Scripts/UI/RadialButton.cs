@@ -3,23 +3,14 @@ using UnityEngine.EventSystems;
 
 public class RadialButton : GraphicElement, IPointerEnterHandler, IPointerExitHandler
 {
-
+    [SerializeField]
+    private Animator _subMenuAnimator;
     public Animator Animator { get; set; }
 
     private void Awake()
     {
         Animator = GetComponent<Animator>();
     }
-
-    //private void OnMouseEnter()
-    //{
-    //    SetOpenState(true);
-    //}
-
-    //private void OnMouseExit()
-    //{
-    //    SetOpenState(false);
-    //}
 
     public void SetOpenState(bool open)
     {
@@ -34,5 +25,6 @@ public class RadialButton : GraphicElement, IPointerEnterHandler, IPointerExitHa
     public void OnPointerExit(PointerEventData eventData)
     {
         SetOpenState(false);
+        _subMenuAnimator.SetTrigger("Close");
     }
 }
