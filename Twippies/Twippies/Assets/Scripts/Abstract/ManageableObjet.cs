@@ -231,6 +231,11 @@ public abstract class ManageableObjet : Objet {
         return value;
     }
 
+    public virtual void GenerateActions()
+    {
+
+    }
+
     public virtual void GenerateStats(StatPanel statPanel, string type)
     {
         statPanel.StatManager.CreateSpecificPanel(statPanel.transform.Find("Mask").Find("Panel"));

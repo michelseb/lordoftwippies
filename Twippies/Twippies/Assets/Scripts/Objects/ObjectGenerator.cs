@@ -18,6 +18,8 @@ public class ObjectGenerator : MonoBehaviour {
     [SerializeField]
     public List<Stat> StatFactory;
     [SerializeField]
+    public List<UserAction> ActionFactory;
+    [SerializeField]
     private int _nbTwippies;
     [SerializeField]
     private int _nbTrees;
@@ -152,6 +154,14 @@ public class ObjectGenerator : MonoBehaviour {
         ManageableObjet obj = ObjectFactory.FirstOrDefault(x => x is T);
         if (obj != null)
             return obj.gameObject;
+        return null;
+    }
+
+    public GameObject GetAction<T>() where T : UserAction
+    {
+        UserAction action = ActionFactory.Find(x => x is T);
+        if (action != null)
+            return action.gameObject;
         return null;
     }
 

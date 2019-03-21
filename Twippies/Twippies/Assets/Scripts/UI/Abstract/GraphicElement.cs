@@ -6,7 +6,7 @@ public abstract class GraphicElement : MonoBehaviour {
     protected Image _image;
     protected bool _active;
     protected bool _visible;
-    protected Canvas _canvas;
+    protected Canvas _screenCanvas, _worldCanvas;
     protected UIManager _uiManager;
     public Image Image { get { return _image; } }
     public bool Active { get { return _active; } }
@@ -29,9 +29,9 @@ public abstract class GraphicElement : MonoBehaviour {
     public virtual void Init()
     {
         _image = GetComponent<Image>();
-        _canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+        _screenCanvas = GameObject.Find("ScreenCanvas").GetComponent<Canvas>();
+        _worldCanvas = GameObject.Find("WorldCanvas").GetComponent<Canvas>();
         _uiManager = UIManager.Instance;
-        //transform.rotation = MainPanel.Instance.transform.rotation;
         SetActive(_active);
     }
 
