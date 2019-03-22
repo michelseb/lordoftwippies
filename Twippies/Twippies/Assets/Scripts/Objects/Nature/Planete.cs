@@ -203,12 +203,12 @@ public class Planete : ManageableObjet {
         }
     }
 
-    public override void GenerateStats(StatPanel statPanel, string type)
+    public override void GenerateStats(StatPanel statPanel)
     {
-        base.GenerateStats(statPanel, type);
-        statPanel.StatManager.GenerateStat<BoolStat>(type).Populate(true, "Don't press this", "Destroy");
-        statPanel.StatManager.GenerateStat<BoolStat>(type).Populate(false, "Shape mode", "Shape");
-        statPanel.StatManager.GenerateStat<ChoiceStat>(type).Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode");
+        base.GenerateStats(statPanel);
+        statPanel.StatManager.GenerateStat<BoolStat>().Populate(true, "Don't press this", "Destroy");
+        statPanel.StatManager.GenerateStat<BoolStat>().Populate(false, "Shape mode", "Shape");
+        statPanel.StatManager.GenerateStat<ChoiceStat>().Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode");
 
     }
 

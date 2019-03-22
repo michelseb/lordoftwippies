@@ -577,16 +577,16 @@ public class Twippie : DraggableObjet, ILightnable {
         //TODO : Calculer si évolution de twippie primitif à avancé
     }
 
-    public override void GenerateStats(StatPanel statPanel, string type)
+    public override void GenerateStats(StatPanel statPanel)
     {
-        base.GenerateStats(statPanel, type);
-        statPanel.StatManager.GenerateStat<LabelStat>(type, name: "Label").Populate(_gender.ToString(), "Gender");
-        statPanel.StatManager.GenerateStat<ValueStat>(type, name: "Label").Populate(0, 0, 100, "Hunger", true, "Hunger");
-        statPanel.StatManager.GenerateStat<ValueStat>(type, name: "Label").Populate(0, 0, 100, "Thirst", true, "Thirst");
-        statPanel.StatManager.GenerateStat<ValueStat>(type, name: "Label").Populate(0, 0, 100, "Fatigue", true, "Sleep");
-        statPanel.StatManager.GenerateStat<LabelStat>(type, name: "Label").Populate("Main need : ", "Need");
-        statPanel.StatManager.GenerateStat<LabelStat>(type, name: "Label").Populate("Emotion : ", "Emotion");
-        statPanel.StatManager.GenerateStat<LabelStat>(type, name: "Label").Populate("Action : " + _state.ToString(), "Action");
+        base.GenerateStats(statPanel);
+        statPanel.StatManager.GenerateStat<LabelStat>( name: "Label").Populate(_gender.ToString(), "Gender");
+        statPanel.StatManager.GenerateStat<ValueStat>(name: "Label").Populate(0, 0, 100, "Hunger", true, "Hunger");
+        statPanel.StatManager.GenerateStat<ValueStat>(name: "Label").Populate(0, 0, 100, "Thirst", true, "Thirst");
+        statPanel.StatManager.GenerateStat<ValueStat>(name: "Label").Populate(0, 0, 100, "Fatigue", true, "Sleep");
+        statPanel.StatManager.GenerateStat<LabelStat>(name: "Label").Populate("Main need : ", "Need");
+        statPanel.StatManager.GenerateStat<LabelStat>(name: "Label").Populate("Emotion : ", "Emotion");
+        statPanel.StatManager.GenerateStat<LabelStat>(name: "Label").Populate("Action : " + _state.ToString(), "Action");
     }
 
     public override void PopulateStats()

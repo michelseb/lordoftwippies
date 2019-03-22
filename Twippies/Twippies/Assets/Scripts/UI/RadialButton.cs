@@ -1,30 +1,29 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class RadialButton : GraphicElement, IPointerEnterHandler, IPointerExitHandler
+public class RadialButton : RadialElement, IPointerEnterHandler, ISelectHandler
 {
-    [SerializeField]
-    private Animator _subMenuAnimator;
-    public Animator Animator { get; set; }
-
-    private void Awake()
+    public string Type { get; set; }
+    public UserAction Action { get; internal set; }
+    protected override void Awake()
     {
-        Animator = GetComponent<Animator>();
+        Action = transform.GetComponentInParent<UserAction>();
+        _animator = transform.GetComponentInParent<Animator>();
     }
-
-    public void SetOpenState(bool open)
-    {
-        Animator.SetBool("Open", open);
-    }
-
     public void OnPointerEnter(PointerEventData eventData)
     {
-        SetOpenState(true);
+        Open();
     }
-
-    public void OnPointerExit(PointerEventData eventData)
+    public void OnSelect(BaseEventData eventData)
     {
-        SetOpenState(false);
-        _subMenuAnimator.SetTrigger("Close");
+        foreach(RadialButton button in RadialPanel.Instance.RadialButtons)
+        {
+            if (button == this)
+                continue;
+            button.Close();
+        }
+        _subMenu.Open();
+        Selected = true;
     }
 }

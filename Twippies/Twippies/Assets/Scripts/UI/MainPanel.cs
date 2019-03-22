@@ -9,7 +9,6 @@ public class MainPanel : GraphicElement {
     [SerializeField]
     public GameObject TabContainer;
     public List<StatPanel> StatPanels;
-    private Animator _animator;
     private static MainPanel _instance;
     public static MainPanel Instance
     {
@@ -33,8 +32,8 @@ public class MainPanel : GraphicElement {
         Type t = obj.GetType();
         if (panel != null)
         {
-            t.GetMethod("GenerateStats").Invoke(obj, new object[] { panel, obj.Type });
-            panel.StatManager.GenerateStat<ValueStat>(obj.Type, mainStat: true, name: "Amount").Populate(0, 0, 100, "Nombre de " + obj.Type.Split(' ')[0] + "s", true, "Amount");
+            t.GetMethod("GenerateStats").Invoke(obj, new object[] { panel });
+            panel.StatManager.GenerateStat<ValueStat>(mainStat: true, name: "Amount").Populate(0, 0, 100, "Nombre de " + obj.Type.Split(' ')[0] + "s", true, "Amount");
             UpdateGlobalStat(panel, 1);
             panel.StatManager.GetStat("Amount").SetActive(false);
         }
@@ -74,12 +73,5 @@ public class MainPanel : GraphicElement {
         {
             statPanel.StatManager.StatToValue(statPanel.StatManager.GetStat("Amount")).Value += value;
         }
-    }
-
-    public override void SetActive(bool active)
-    {
-        base.SetActive(active);
-        _animator.SetBool("Opening", active);
-
     }
 }

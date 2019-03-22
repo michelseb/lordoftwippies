@@ -8,8 +8,11 @@ public abstract class GraphicElement : MonoBehaviour {
     protected bool _visible;
     protected Canvas _screenCanvas, _worldCanvas;
     protected UIManager _uiManager;
+    protected Animator _animator;
+    public bool Selected { get; internal set; }
     public Image Image { get { return _image; } }
     public bool Active { get { return _active; } }
+    public Animator Animator { get { return _animator; } }
 
     public virtual void SetActive(bool active)
     { 
@@ -42,5 +45,19 @@ public abstract class GraphicElement : MonoBehaviour {
         float y = Screen.height - transform.position.y - transform.anchoredPosition.y;
 
         return new Rect(x, y, size.x, size.y);
+    }
+
+    protected AnimationClip GetAnimationClip(string name)
+    {
+        if (_animator == null)
+            return null;
+        var anims = _animator.runtimeAnimatorController.animationClips;
+        for (int i = 0; i < anims.Length; i++)
+        {
+            if (anims[i].name == name)
+                return anims[i];
+        }
+        Debug.Log("Anim "+name+" not found for " +gameObject.name);
+        return null;
     }
 }

@@ -231,17 +231,17 @@ public abstract class ManageableObjet : Objet {
         return value;
     }
 
-    public virtual void GenerateActions()
+    public virtual void GenerateActions(StatManager statManager)
     {
-
+        statManager.GenerateAction<DescriptionAction>();
     }
 
-    public virtual void GenerateStats(StatPanel statPanel, string type)
+    public virtual void GenerateStats(StatPanel statPanel)
     {
         statPanel.StatManager.CreateSpecificPanel(statPanel.transform.Find("Mask").Find("Panel"));
-        statPanel.StatManager.GenerateStat<ValueStat>(type, true).Populate(0, 0, 100, "Age", true, "Age");
-        statPanel.StatManager.GenerateStat<DescriptionStat>(type, true).Populate(_icon, _name, 20, 14, "Description");
-        statPanel.StatManager.GenerateStat<LabelStat>(type, true, "Titre").Populate(_type, "Titre");
+        statPanel.StatManager.GenerateStat<ValueStat>(true).Populate(0, 0, 100, "Age", true, "Age");
+        statPanel.StatManager.GenerateStat<DescriptionStat>(true).Populate(_icon, _name, 20, 14, "Description");
+        statPanel.StatManager.GenerateStat<LabelStat>(true, "Titre").Populate(_type, "Titre");
 
     }
 

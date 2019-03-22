@@ -14,12 +14,12 @@ public class Sun : AerialObjet {
     private bool _on;
 
 
-    public override void GenerateStats(StatPanel statPanel, string type)
+    public override void GenerateStats(StatPanel statPanel)
     {
-        base.GenerateStats(statPanel, type);
-        statPanel.StatManager.GenerateStat<BoolStat>(type).Populate(true, "On/Off", "Active");
-        statPanel.StatManager.GenerateStat<ValueStat>(type).Populate(1, 0, 10, "Brightness", false, "Strength");
-        statPanel.StatManager.GenerateStat<ValueStat>(type).Populate(2, 0, 20, "Rotation speed", false, "Speed");
+        base.GenerateStats(statPanel);
+        statPanel.StatManager.GenerateStat<BoolStat>().Populate(true, "On/Off", "Active");
+        statPanel.StatManager.GenerateStat<ValueStat>().Populate(1, 0, 10, "Brightness", false, "Strength");
+        statPanel.StatManager.GenerateStat<ValueStat>().Populate(2, 0, 20, "Rotation speed", false, "Speed");
     }
 
     public override void PopulateStats()

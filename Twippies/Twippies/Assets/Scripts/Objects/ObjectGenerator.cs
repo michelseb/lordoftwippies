@@ -20,6 +20,8 @@ public class ObjectGenerator : MonoBehaviour {
     [SerializeField]
     public List<UserAction> ActionFactory;
     [SerializeField]
+    public List<RadialButton> WorldStatFactory;
+    [SerializeField]
     private int _nbTwippies;
     [SerializeField]
     private int _nbTrees;
@@ -62,6 +64,7 @@ public class ObjectGenerator : MonoBehaviour {
             statPanel.StatManager.SpecificStatPanel.Init();
             statPanel.Image.color = statPanel.StatManager.Color;
             statPanel.StatManager.enabled = false;
+            RadialPanel.Instance.GenerateObjectActions(objet, objet.Stats);
         }
 
     }

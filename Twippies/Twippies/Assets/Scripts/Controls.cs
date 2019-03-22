@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Controls : MonoBehaviour {
 
@@ -90,7 +91,47 @@ public class Controls : MonoBehaviour {
         _zoomAmount = Mathf.Clamp(_zoomAmount, _initZoomAmount - _maxZoom, _initZoomAmount + _maxZoom);
         _cam.fieldOfView = Mathf.Lerp(_cam.fieldOfView, _zoomAmount, Time.deltaTime * _zoomSpeed);
         _frontCam.fieldOfView = _cam.fieldOfView;
-        
+
+
+        if (AnyClic() && MousePosVoid())
+        {
+            _ui.DisablePreviewCam();
+            _ui.InfoGUI = false;
+            _mainPanel.SetAllStatPanelsActiveState(false);
+            _radialPanel.Close();
+
+            foreach (ManageableObjet obj in FocusedObjects)
+            {
+                if (obj is Twippie)
+                {
+                    Twippie t = (Twippie)obj;
+                    t.LineRenderer.enabled = false;
+                }
+                obj.SetSelectionActive(false);
+            }
+            FocusedObjects.Clear();
+
+            if (FocusedObject != null)
+            {
+                if (FocusedObject is Twippie)
+                {
+                    Twippie t = (Twippie)FocusedObject;
+                    if (t != null)
+                    {
+                        t.LineRenderer.enabled = false;
+                    }
+                }
+                FocusedObject.SetSelectionActive(false);
+                FocusedObject = null;
+            }
+            MainPanel.Instance.SetActive(false);
+            ctrl = ControlMode.Waiting;
+        }
+        else if (AnyClic())
+        {
+            DefineOriginClick();
+        }
+
         switch (ctrl)
         {
 
@@ -355,59 +396,8 @@ public class Controls : MonoBehaviour {
                         return;
                     }
                 }
-                if ((Input.GetButtonDown("Fire1")||Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && VoidClic())
-                {
-                    _ui.DisablePreviewCam();
-                    _ui.InfoGUI = false;
-                    _mainPanel.SetAllStatPanelsActiveState(false);
-                    _radialPanel.Animator.SetTrigger("Close");
-                    if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1<<16)))
-                    {
-                        if (FocusedObject is Twippie)
-                        {
-                            Twippie t = (Twippie)FocusedObject;
-                            if (t != null)
-                            {
-                                t.LineRenderer.enabled = false;
-                            }
-                        }
-                        FocusedObject.SetSelectionActive(false);
-                        MainPanel.Instance.SetActive(false);
-                        FocusedObject = null;
-                        ctrl = ControlMode.Waiting;
-                    }
-                    else
-                    {
-                        DefineOriginClick();
-                    }
-                }
                 break;
             case ControlMode.CheckingMultiple:
-                if ((Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3")) && VoidClic())
-                {
-                    foreach (ManageableObjet obj in FocusedObjects)
-                    {
-                        if (obj is Twippie)
-                        {
-                            Twippie t = (Twippie)obj;
-                            t.LineRenderer.enabled = false;
-                        }
-                        obj.SetSelectionActive(false);
-                    }
-                    FocusedObjects.Clear();
-                    _ui.InfoGUI = false;
-                    _mainPanel.SetAllStatPanelsActiveState(false);
-                    _radialPanel.Animator.SetTrigger("Close");
-                    MainPanel.Instance.SetActive(false);
-                    if (!Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), float.MaxValue, ~(1 << 16)))
-                    {
-                        ctrl = ControlMode.Waiting;
-                    }
-                    else
-                    {
-                        DefineOriginClick();
-                    }
-                }
                 break;
         }
         
@@ -440,10 +430,16 @@ public class Controls : MonoBehaviour {
         
     }
 
-    private bool VoidClic()
+    private bool MousePosVoid()
     {
+        if (EventSystem.current.IsPointerOverGameObject()) return false;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         return !Physics.Raycast(ray);
+    }
+
+    private bool AnyClic()
+    {
+        return Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3");
     }
 
     private void OnGUI()
@@ -507,7 +503,7 @@ public class Controls : MonoBehaviour {
             Twippie t = (Twippie)FocusedObject;
             t.LineRenderer.enabled = true;
         }
-        _radialPanel.Animator.SetTrigger("Open");
+        _radialPanel.Open();
         _mainPanel.SetStatPanelActiveState(true, FocusedObject.Type);
         StatPanel activePanel = _mainPanel.StatPanels.Find(x => x.Active);
         FocusedObject.GetStatManager();

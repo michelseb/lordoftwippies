@@ -158,11 +158,11 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
         _currentSize = UpdateVector(_currentSize, (100 - _age) / 100 * .03f, 0, 10);
     }
 
-    public override void GenerateStats(StatPanel statPanel, string type)
+    public override void GenerateStats(StatPanel statPanel)
     {
-        base.GenerateStats(statPanel, type);
-        statPanel.StatManager.GenerateStat<ValueStat>(type).Populate(0, 0, 100, "Water Amount", true, "Water");
-        statPanel.StatManager.GenerateStat<ValueStat>(type).Populate(30, 0, 100, "Sun Amount", true, "Sun");
+        base.GenerateStats(statPanel);
+        statPanel.StatManager.GenerateStat<ValueStat>().Populate(0, 0, 100, "Water Amount", true, "Water");
+        statPanel.StatManager.GenerateStat<ValueStat>().Populate(30, 0, 100, "Sun Amount", true, "Sun");
     }
 
     public override void PopulateStats()

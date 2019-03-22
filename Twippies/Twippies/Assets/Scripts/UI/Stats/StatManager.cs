@@ -59,7 +59,7 @@ public class StatManager : MonoBehaviour {
         _actions.Add(action);
         return action;
     }
-    public T GenerateStat<T>(string statType, bool mainStat = false, string name = "") where T:Stat
+    public T GenerateStat<T>(bool mainStat = false, string name = "") where T:Stat
     {
         GameObject obj = Instantiate(_og.GetStat<T>(name != ""?name:null), mainStat?StatPanel.transform.Find("Mask").Find("Panel"):SpecificStatPanel.Content.transform);
         if (mainStat)
