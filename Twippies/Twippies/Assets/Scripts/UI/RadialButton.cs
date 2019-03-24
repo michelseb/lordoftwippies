@@ -2,7 +2,7 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class RadialButton : RadialElement, IPointerEnterHandler, ISelectHandler
+public class RadialButton : RadialElement, IPointerEnterHandler, ISelectHandler, IPointerExitHandler
 {
     public string Type { get; set; }
     public UserAction Action { get; internal set; }
@@ -22,8 +22,17 @@ public class RadialButton : RadialElement, IPointerEnterHandler, ISelectHandler
             if (button == this)
                 continue;
             button.Close();
+            button.Selected = false;
         }
         _subMenu.Open();
         Selected = true;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (!Selected)
+        {
+            Close();
+        }
     }
 }

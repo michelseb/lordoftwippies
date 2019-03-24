@@ -13,10 +13,12 @@ public class RadialElement : GraphicElement
 
     public void Open()
     {
+        _animator.ResetTrigger("Close");
         _animator.SetTrigger("Open");
     }
     public virtual void Close()
     {
+        _animator.ResetTrigger("Open");
         _animator.SetTrigger("Close");
         if (_subMenu != null)
         {

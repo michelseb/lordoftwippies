@@ -70,6 +70,7 @@ public class RadialPanel : RadialElement {
     public override void Close()
     {
         base.Close();
+        Selected = false;
         RadialButtons.ForEach(x => x.Close());
     }
 
