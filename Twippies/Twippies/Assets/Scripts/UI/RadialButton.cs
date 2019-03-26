@@ -4,11 +4,8 @@ using UnityEngine.UI;
 
 public class RadialButton : RadialElement, IPointerEnterHandler, ISelectHandler, IPointerExitHandler
 {
-    public string Type { get; set; }
-    public UserAction Action { get; internal set; }
     protected override void Awake()
     {
-        Action = transform.GetComponentInParent<UserAction>();
         _animator = transform.GetComponentInParent<Animator>();
     }
     public void OnPointerEnter(PointerEventData eventData)
@@ -17,12 +14,12 @@ public class RadialButton : RadialElement, IPointerEnterHandler, ISelectHandler,
     }
     public void OnSelect(BaseEventData eventData)
     {
-        foreach(RadialButton button in RadialPanel.Instance.RadialButtons)
+        foreach(UserAction action in RadialPanel.Instance.UserActions)
         {
-            if (button == this)
+            if (action.Button == this)
                 continue;
-            button.Close();
-            button.Selected = false;
+            action.Button.Close();
+            action.Button.Selected = false;
         }
         _subMenu.Open();
         Selected = true;

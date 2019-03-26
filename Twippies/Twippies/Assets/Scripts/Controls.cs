@@ -97,6 +97,7 @@ public class Controls : MonoBehaviour {
         {
             _ui.DisablePreviewCam();
             _ui.InfoGUI = false;
+            _radialPanel.SetAllActionsActiveState(false, 1);
             _mainPanel.SetAllStatPanelsActiveState(false);
             _radialPanel.Close();
 
@@ -505,6 +506,7 @@ public class Controls : MonoBehaviour {
         }
         _radialPanel.Open();
         _mainPanel.SetStatPanelActiveState(true, FocusedObject.Type);
+        _radialPanel.SetActionsActiveState(true, FocusedObject.Type);
         StatPanel activePanel = _mainPanel.StatPanels.Find(x => x.Active);
         FocusedObject.GetStatManager();
         FocusedObject.PopulateStats();
@@ -528,6 +530,7 @@ public class Controls : MonoBehaviour {
                     t.LineRenderer.enabled = true;
                 }
             }
+            _radialPanel.SetActionsActiveState(true, obj.Type);
             if (!_mainPanel.SetStatPanelActiveState(true, obj.Type)) { Debug.Log("global stat not found"); } else { Debug.Log("global stat "+obj.GetType().ToString()+ " a été updaté !"); }
         }
         List<StatPanel> activePanels = _mainPanel.StatPanels.FindAll(x => x.Active);

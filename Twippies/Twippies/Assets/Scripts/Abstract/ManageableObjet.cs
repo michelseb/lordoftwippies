@@ -231,9 +231,9 @@ public abstract class ManageableObjet : Objet {
         return value;
     }
 
-    public virtual void GenerateActions(StatManager statManager)
+    public virtual void GenerateActions(ManageableObjet obj)
     {
-        statManager.GenerateAction<DescriptionAction>();
+        obj.Stats.GenerateAction<DescriptionAction>(obj);
     }
 
     public virtual void GenerateStats(StatPanel statPanel)

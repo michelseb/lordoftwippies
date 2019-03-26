@@ -1,23 +1,26 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public class RadialPanel : RadialElement {
 
-    public List<RadialButton> RadialButtons { get; internal set; }
+    public List<UserAction> UserActions { get; internal set; }
 
     private static RadialPanel _instance;
     public static RadialPanel Instance { get { if (_instance == null) _instance = FindObjectOfType<RadialPanel>(); return _instance; } }
 
-    private void Start()
+    protected override void Awake()
     {
-        RadialButtons = FindObjectsOfType<RadialButton>().ToList();
+        base.Awake();
+        UserActions = new List<UserAction>();
     }
 
-    public void GenerateObjectActions(ManageableObjet obj, StatManager statManager)
+    public void GenerateObjectActions(ManageableObjet obj)
     {
         Type t = obj.GetType();
-        t.GetMethod("GenerateActions").Invoke(obj, new object[] { statManager });
+        t.GetMethod("GenerateActions").Invoke(obj, new object[] { obj });
     }
 
     public void GenerateStatsForRadialButton(RadialButton button, ManageableObjet obj)
@@ -39,23 +42,24 @@ public class RadialPanel : RadialElement {
 
     public bool SetActionsActiveState(bool active, string type)
     {
-        List<RadialButton> buttons = RadialButtons.FindAll(x => x.Type == type);
-        if (buttons != null && buttons.Count > 0)
+        List<UserAction> actions = UserActions.FindAll(x => x.Type == type);
+        if (actions != null && actions.Count > 0)
         {
-            foreach (RadialButton button in buttons)
+            foreach (UserAction action in actions)
             {
-                button.SetActive(active);
+                action.SetActive(active);
             }
             return true;
         }
         return false;
     }
 
-    public void SetAllStatPanelsActiveState(bool active)
+    public IEnumerator SetAllActionsActiveState(bool active, float delay = 0f)
     {
-        foreach (RadialButton button in RadialButtons)
+        yield return (delay != 0 ? new WaitForSeconds(delay) : null); 
+        foreach (UserAction action in UserActions)
         {
-            button.SetActive(active);
+            action.SetActive(active);
         }
     }
 
@@ -71,7 +75,7 @@ public class RadialPanel : RadialElement {
     {
         base.Close();
         Selected = false;
-        RadialButtons.ForEach(x => x.Close());
+        UserActions.ForEach(x => x.Button.Close());
     }
 
 }

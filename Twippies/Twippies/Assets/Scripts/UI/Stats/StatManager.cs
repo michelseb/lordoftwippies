@@ -6,14 +6,11 @@ using UnityEngine;
 public class StatManager : MonoBehaviour {
     [SerializeField]
     private List<Stat> _statsList;
-    [SerializeField]
-    private List<UserAction> _actions;
     private ObjectGenerator _og;
     [SerializeField]
     private Color _color;
 
     public List<Stat> StatsList { get { return _statsList; } set { _statsList = value; } }
-    public List<UserAction> Actions { get { return _actions; } set { _actions = value; } }
     public Color Color { get { return _color; } set { _color = value; } }
     public UIContent SpecificStatPanel { get; private set; }
     public StatPanel StatPanel { get; set; }
@@ -22,7 +19,6 @@ public class StatManager : MonoBehaviour {
     {
         _og = ObjectGenerator.Instance;
         _statsList = new List<Stat>();
-        _actions = new List<UserAction>();
         enabled = false;
     }
 
@@ -52,11 +48,14 @@ public class StatManager : MonoBehaviour {
         SpecificStatPanel = Instantiate(_og.SpecificStatPanel, parent);
         SpecificStatPanel.name = "Specific stat panel";
     }
-    public T GenerateAction<T>() where T: UserAction
+    public T GenerateAction<T>(ManageableObjet obj) where T: UserAction
     {
         GameObject actionObj = Instantiate(_og.GetAction<T>(), RadialPanel.Instance.transform);
         T action = actionObj.GetComponent<T>();
-        _actions.Add(action);
+        action.Type = obj.Type;
+        action.Image.color = obj.Stats.Color;
+        RadialPanel.Instance.UserActions.Add(action);
+        action.SetActive(false);
         return action;
     }
     public T GenerateStat<T>(bool mainStat = false, string name = "") where T:Stat
