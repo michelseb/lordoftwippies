@@ -48,6 +48,7 @@ public class RadialPanel : RadialElement {
             foreach (UserAction action in actions)
             {
                 action.SetActive(active);
+                action.Button.SetActive(active);
             }
             return true;
         }

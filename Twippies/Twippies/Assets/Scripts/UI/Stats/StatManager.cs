@@ -53,9 +53,10 @@ public class StatManager : MonoBehaviour {
         GameObject actionObj = Instantiate(_og.GetAction<T>(), RadialPanel.Instance.transform);
         T action = actionObj.GetComponent<T>();
         action.Type = obj.Type;
-        action.Image.color = obj.Stats.Color;
+        action.Init();
+        action.Button.Init();
+        action.Button.Image.color = obj.Stats.Color;
         RadialPanel.Instance.UserActions.Add(action);
-        action.SetActive(false);
         return action;
     }
     public T GenerateStat<T>(bool mainStat = false, string name = "") where T:Stat
