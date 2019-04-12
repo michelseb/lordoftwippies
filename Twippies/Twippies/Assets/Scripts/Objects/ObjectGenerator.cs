@@ -20,8 +20,6 @@ public class ObjectGenerator : MonoBehaviour {
     [SerializeField]
     public List<UserAction> ActionFactory;
     [SerializeField]
-    public List<RadialButton> WorldStatFactory;
-    [SerializeField]
     private int _nbTwippies;
     [SerializeField]
     private int _nbTrees;

@@ -57,6 +57,7 @@ public class StatManager : MonoBehaviour {
         action.Button.Init();
         action.Button.Image.color = obj.Stats.Color;
         RadialPanel.Instance.UserActions.Add(action);
+        obj.GenerateStatsForAction(action, this);
         return action;
     }
     public T GenerateStat<T>(bool mainStat = false, string name = "") where T:Stat
@@ -73,6 +74,15 @@ public class StatManager : MonoBehaviour {
         {
             stat.SpecificName = name;
         }
+        _statsList.Add(stat);
+        return stat;
+    }
+
+    public T GenerateWorldStat<T>(RadialSubMenu subMenu) where T : Stat
+    {
+        GameObject obj = Instantiate(_og.GetStat<T>(), subMenu.transform);
+        T stat = obj.GetComponent<T>();
+        //stat.Fill.color = button.Image.color;
         _statsList.Add(stat);
         return stat;
     }
