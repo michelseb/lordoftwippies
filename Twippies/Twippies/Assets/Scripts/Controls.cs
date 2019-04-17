@@ -44,6 +44,7 @@ public class Controls : MonoBehaviour {
     private UIManager _ui;
     private UIResources _uiR;
     private ObjetManager _om;
+    private ObjectGenerator _og;
     private MainPanel _mainPanel;
     private Texture2D _whiteTexture;
     [SerializeField]
@@ -69,6 +70,7 @@ public class Controls : MonoBehaviour {
         _ui = UIManager.Instance;
         _uiR = UIResources.Instance;
         _om = ObjetManager.Instance;
+        _og = ObjectGenerator.Instance;
         _radialPanel = RadialPanel.Instance;
         _mainPanel = MainPanel.Instance;
     }
@@ -97,7 +99,7 @@ public class Controls : MonoBehaviour {
         {
             _ui.DisablePreviewCam();
             _ui.InfoGUI = false;
-            _radialPanel.SetAllActionsActiveState(false, 1);
+            StartCoroutine(_radialPanel.SetAllActionsActiveStateWithDelay(false, 1));
             _mainPanel.SetAllStatPanelsActiveState(false);
             _radialPanel.Close();
 
@@ -369,6 +371,7 @@ public class Controls : MonoBehaviour {
                     clic = ClicMode.None;
                     if (FocusedObjects.Count > 0)
                     {
+                        
                         if (FocusedObjects.Count == 1)
                         {
                             FocusedObject = FocusedObjects[0];
@@ -506,6 +509,7 @@ public class Controls : MonoBehaviour {
         }
         _radialPanel.Open();
         _mainPanel.SetStatPanelActiveState(true, FocusedObject.Type);
+        _radialPanel.SetAllActionsActiveState(false, FocusedObject.Type);
         _radialPanel.SetActionsActiveState(true, FocusedObject.Type);
         StatPanel activePanel = _mainPanel.StatPanels.Find(x => x.Active);
         FocusedObject.GetStatManager();
@@ -520,6 +524,13 @@ public class Controls : MonoBehaviour {
 
     private void CheckObjects()
     {
+        foreach (ManageableObjet obj in _og.ObjectFactory)
+        {
+            if (!FocusedObjects.Contains(obj))
+            {
+                _radialPanel.SetActionsActiveState(false, obj.Type);
+            }
+        }
         foreach (ManageableObjet obj in FocusedObjects)
         {
             if (obj is Twippie)

@@ -55,7 +55,18 @@ public class RadialPanel : RadialElement {
         return false;
     }
 
-    public IEnumerator SetAllActionsActiveState(bool active, float delay = 0f)
+    public void SetAllActionsActiveState(bool active, string exceptionType = null)
+    {
+        foreach (UserAction action in UserActions)
+        {
+            if (exceptionType != null && exceptionType == action.Type)
+                continue;
+
+            action.SetActive(active);
+        }
+    }
+
+    public IEnumerator SetAllActionsActiveStateWithDelay(bool active, float delay = 0f)
     {
         yield return (delay != 0 ? new WaitForSeconds(delay) : null); 
         foreach (UserAction action in UserActions)

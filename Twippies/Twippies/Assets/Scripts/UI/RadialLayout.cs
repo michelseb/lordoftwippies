@@ -54,21 +54,24 @@ public class RadialLayout : LayoutGroup
         float fOffsetAngle = ((MaxAngle - MinAngle)) / (transform.childCount - 1);
 
         float fAngle = StartAngle;
-        for (int i = 0; i < transform.childCount; i++)
+        foreach (Transform child in transform)
         {
-            RectTransform child = (RectTransform)transform.GetChild(i);
-            if (child != null)
+            if (!child.gameObject.activeSelf)
+                continue;
+
+            RectTransform rectChild = (RectTransform)child;
+            if (rectChild != null)
             {
                 //Adding the elements to the tracker stops the user from modifiying their positions via the editor.
-                m_Tracker.Add(this, child,
+                m_Tracker.Add(this, rectChild,
                 DrivenTransformProperties.Anchors |
                 DrivenTransformProperties.AnchoredPosition |
                 DrivenTransformProperties.Pivot);
                 Vector3 vPos = new Vector3(Mathf.Cos(fAngle * Mathf.Deg2Rad), Mathf.Sin(fAngle * Mathf.Deg2Rad), 0);
-                child.localRotation = Quaternion.Euler(0, 0, fAngle - 90);
-                child.localPosition = vPos * fDistance;
+                rectChild.localRotation = Quaternion.Euler(0, 0, fAngle - 90);
+                rectChild.localPosition = vPos * fDistance;
                 //Force objects to be center aligned, this can be changed however I'd suggest you keep all of the objects with the same anchor points.
-                child.anchorMin = child.anchorMax = child.pivot = new Vector2(0.5f, 0.5f);
+                rectChild.anchorMin = rectChild.anchorMax = rectChild.pivot = new Vector2(0.5f, 0.5f);
                 fAngle += fOffsetAngle;
             }
         }
