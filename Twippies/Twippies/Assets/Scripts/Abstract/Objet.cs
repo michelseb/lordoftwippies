@@ -10,6 +10,7 @@ public class Objet : MonoBehaviour {
     protected ObjetManager _om;
     protected ObjectGenerator _og;
     protected float _posX, _posY;
+    protected Mesh _mesh;
     [SerializeField]
     protected int WOODCOST, WATERCOST, STONECOST;
     
@@ -26,6 +27,20 @@ public class Objet : MonoBehaviour {
         _om = ObjetManager.Instance;
         _og = ObjectGenerator.Instance;
         _cam = Camera.main;
+
+        if (GetComponent<MeshFilter>() != null)
+        {
+            _mesh = GetComponent<MeshFilter>().mesh;
+        }
+        else
+        {
+            foreach (Transform child in transform)
+            {
+                _mesh = child.gameObject.GetComponent<MeshFilter>().mesh;
+                if (_mesh != null)
+                    continue;
+            }
+        }
     }
 
     protected virtual void Start()

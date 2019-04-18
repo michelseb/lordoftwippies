@@ -77,6 +77,7 @@ public class Twippie : DraggableObjet, ILightnable {
     private int _stepsBeforeReproduce;
     [SerializeField]
     protected float _speed;
+    private Vector3[] _originalVertices, _deformedVertices;
 
     protected float _initSpeed;
 
@@ -86,8 +87,8 @@ public class Twippie : DraggableObjet, ILightnable {
     private readonly bool _reproducing;
 
     public Twippie Papa { get { return _papa; } protected set { _papa = value; } }
-    public List<Twippie> KnownTwippies { get { return _knownTwippies; } set { _knownTwippies = value; } }
     public Twippie Maman { get { return _maman; } protected set { _maman = value; } }
+    public List<Twippie> KnownTwippies { get { return _knownTwippies; } set { _knownTwippies = value; } }
     public float Health { get { return _health; } set { _health = value; } }
     public LineRenderer LineRenderer { get; private set; }
     public float MaxSicknessDuration { get; protected set; }
@@ -109,7 +110,8 @@ public class Twippie : DraggableObjet, ILightnable {
         _displayIntervals = 5;
         _previousState = State.None;
         _goalType = GoalType.Wander;
-        
+        _originalVertices = _mesh.vertices;
+        _deformedVertices = _originalVertices;
         _stepsBeforeReproduce = _initialStepsBeforeReproduce;
         _consumable = null;
         _knownZones = new List<Zone>();
@@ -381,6 +383,12 @@ public class Twippie : DraggableObjet, ILightnable {
         return;
     }
 
+    protected override void OnMouseEnter()
+    {
+        base.OnMouseEnter();
+        StartCoroutine(Deform(2));
+    }
+
     protected override void OnMouseOver()
     {
         base.OnMouseOver();
@@ -392,6 +400,33 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         base.OnMouseExit();
         _speed = _initSpeed;
+        Reform();
+
+    }
+
+    private void Reform()
+    {
+        _mesh.vertices = _originalVertices;
+        _mesh.RecalculateNormals();
+    }
+
+    private IEnumerator Deform(float time)
+    {
+        var currTime = 0f;
+        while (currTime < time)
+        {
+            for (int i = 0; i < _originalVertices.Length; i++)
+            {
+                Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
+                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude, 1, 6), currTime);
+                _deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y - Mathf.Clamp(direction.magnitude - 2.5f, 0, 10) * 4, currTime);
+                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude, 1, 3), currTime);
+            }
+            currTime += _timeReference;
+            _mesh.vertices = _deformedVertices;
+            yield return null;
+        }
+        _mesh.RecalculateNormals();
     }
 
     private void UpdateHealth()

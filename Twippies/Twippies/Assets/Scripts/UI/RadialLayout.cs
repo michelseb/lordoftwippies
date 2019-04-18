@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 /*
 Radial Layout Group by Just a Pixel (Danny Goodayle) - http://www.justapixel.co.uk
@@ -49,29 +50,37 @@ public class RadialLayout : LayoutGroup
     void CalculateRadial()
     {
         m_Tracker.Clear();
-        if (transform.childCount == 0)
-            return;
-        float fOffsetAngle = ((MaxAngle - MinAngle)) / (transform.childCount - 1);
-
-        float fAngle = StartAngle;
+        List<RectTransform> children = new List<RectTransform>();
         foreach (Transform child in transform)
         {
             if (!child.gameObject.activeSelf)
                 continue;
-
-            RectTransform rectChild = (RectTransform)child;
+            var rectChild = (RectTransform)child;
             if (rectChild != null)
             {
+                children.Add(rectChild);
+            }
+        }
+        if (children.Count == 0)
+            return;
+
+        float fOffsetAngle = ((MaxAngle - MinAngle)) / (children.Count - 1);
+
+        float fAngle = StartAngle;
+        foreach (RectTransform child in children)
+        {
+            if (child != null)
+            {
                 //Adding the elements to the tracker stops the user from modifiying their positions via the editor.
-                m_Tracker.Add(this, rectChild,
+                m_Tracker.Add(this, child,
                 DrivenTransformProperties.Anchors |
                 DrivenTransformProperties.AnchoredPosition |
                 DrivenTransformProperties.Pivot);
                 Vector3 vPos = new Vector3(Mathf.Cos(fAngle * Mathf.Deg2Rad), Mathf.Sin(fAngle * Mathf.Deg2Rad), 0);
-                rectChild.localRotation = Quaternion.Euler(0, 0, fAngle - 90);
-                rectChild.localPosition = vPos * fDistance;
+                child.localRotation = Quaternion.Euler(0, 0, fAngle - 90);
+                child.localPosition = vPos * fDistance;
                 //Force objects to be center aligned, this can be changed however I'd suggest you keep all of the objects with the same anchor points.
-                rectChild.anchorMin = rectChild.anchorMax = rectChild.pivot = new Vector2(0.5f, 0.5f);
+                child.anchorMin = child.anchorMax = child.pivot = new Vector2(0.5f, 0.5f);
                 fAngle += fOffsetAngle;
             }
         }

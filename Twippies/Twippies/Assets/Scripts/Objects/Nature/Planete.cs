@@ -17,7 +17,6 @@ public class Planete : ManageableObjet {
     private LayerMask _layerMask;
     [SerializeField]
     private float _deformSize;
-    private Mesh _mesh;
     private MeshCollider _meshCollider;
     private Vector3[] _originalVertices, _newVertices;
     private SortedDictionary<int, Vector3> _deformedVertices;
@@ -38,22 +37,9 @@ public class Planete : ManageableObjet {
     protected override void Start()
     {
         base.Start();
+        _meshCollider = GetComponent<MeshCollider>();
         ZManager = GetComponent<ZoneManager>();
         _outline.color = 2;
-        _meshCollider = GetComponent<MeshCollider>();
-        if (GetComponent<MeshFilter>() != null)
-        {
-            _mesh = GetComponent<MeshFilter>().mesh;
-        }
-        else
-        {
-            foreach (Transform child in transform)
-            {
-                _mesh = child.gameObject.GetComponent<MeshFilter>().mesh;
-                if (_mesh != null)
-                    continue;
-            }
-        }
         _originalVertices = _mesh.vertices;
         _newVertices = _originalVertices;
         _deformedVertices = new SortedDictionary<int, Vector3>();
@@ -206,6 +192,11 @@ public class Planete : ManageableObjet {
     public override void GenerateActions(ManageableObjet obj)
     {
         base.GenerateActions(obj);
+        obj.Stats.GenerateAction<AddAction>(obj);
+        obj.Stats.GenerateAction<AddAction>(obj);
+        obj.Stats.GenerateAction<AddAction>(obj);
+        obj.Stats.GenerateAction<AddAction>(obj);
+        obj.Stats.GenerateAction<AddAction>(obj);
         obj.Stats.GenerateAction<AddAction>(obj);
     }
 
