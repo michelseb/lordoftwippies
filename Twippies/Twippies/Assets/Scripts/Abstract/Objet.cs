@@ -11,6 +11,7 @@ public class Objet : MonoBehaviour {
     protected ObjectGenerator _og;
     protected float _posX, _posY;
     protected Mesh _mesh;
+    protected MeshCollider _meshCollider;
     [SerializeField]
     protected int WOODCOST, WATERCOST, STONECOST;
     
@@ -41,6 +42,21 @@ public class Objet : MonoBehaviour {
                     continue;
             }
         }
+
+        if (GetComponent<MeshFilter>() != null)
+        {
+            _meshCollider = GetComponent<MeshCollider>();
+        }
+        else
+        {
+            foreach (Transform child in transform)
+            {
+                _meshCollider = child.gameObject.GetComponent<MeshCollider>();
+                if (_meshCollider != null)
+                    continue; 
+            }
+        }
+
     }
 
     protected virtual void Start()

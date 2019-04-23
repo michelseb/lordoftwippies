@@ -17,7 +17,6 @@ public class Planete : ManageableObjet {
     private LayerMask _layerMask;
     [SerializeField]
     private float _deformSize;
-    private MeshCollider _meshCollider;
     private Vector3[] _originalVertices, _newVertices;
     private SortedDictionary<int, Vector3> _deformedVertices;
     private bool _deforming;
@@ -37,7 +36,6 @@ public class Planete : ManageableObjet {
     protected override void Start()
     {
         base.Start();
-        _meshCollider = GetComponent<MeshCollider>();
         ZManager = GetComponent<ZoneManager>();
         _outline.color = 2;
         _originalVertices = _mesh.vertices;

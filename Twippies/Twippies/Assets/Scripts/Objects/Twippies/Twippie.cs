@@ -16,6 +16,7 @@ public class Twippie : DraggableObjet, ILightnable {
         Eating,
         Contemplating,
         Reproducing,
+        BeingChecked,
         None
     }
 
@@ -75,6 +76,7 @@ public class Twippie : DraggableObjet, ILightnable {
     private int _placeMemory;
     private int _peopleMemory;
     private int _stepsBeforeReproduce;
+    private bool _isDeforming;
     [SerializeField]
     protected float _speed;
     private Vector3[] _originalVertices, _deformedVertices;
@@ -110,8 +112,8 @@ public class Twippie : DraggableObjet, ILightnable {
         _displayIntervals = 5;
         _previousState = State.None;
         _goalType = GoalType.Wander;
-        _originalVertices = _mesh.vertices;
-        _deformedVertices = _originalVertices;
+        _originalVertices = _mesh.vertices.ToArray();
+        _deformedVertices = _originalVertices.ToArray();
         _stepsBeforeReproduce = _initialStepsBeforeReproduce;
         _consumable = null;
         _knownZones = new List<Zone>();
@@ -156,7 +158,7 @@ public class Twippie : DraggableObjet, ILightnable {
             LineRenderer.SetPosition(_pathFinder.Steps.Count, transform.position + transform.up / 2);
         }
 
-        if (_state != State.Walking && _state != State.Sleeping)
+        if (_state != State.Walking && _state != State.Sleeping && _state != State.BeingChecked)
         {
             if (Vector3.Distance(transform.position, _goalObject.transform.position) > 1)
             {
@@ -378,6 +380,14 @@ public class Twippie : DraggableObjet, ILightnable {
         }
     }
 
+    protected override void MakeAttraction()
+    {
+        if (_state != State.BeingChecked)
+        {
+            base.MakeAttraction();
+        }
+    }
+
     protected override void SetRigidbodyState()
     {
         return;
@@ -386,47 +396,84 @@ public class Twippie : DraggableObjet, ILightnable {
     protected override void OnMouseEnter()
     {
         base.OnMouseEnter();
-        StartCoroutine(Deform(2));
+        if (!_isDeforming)
+        {
+            StartCoroutine(Deform(4));
+        }
     }
 
     protected override void OnMouseOver()
     {
         base.OnMouseOver();
+        ChangeState(State.BeingChecked);
+        transform.LookAt(_cam.transform);
         _currentSize = _initSize * _sizeMultiplier;
+        _r.velocity = Vector3.zero;
+        _r.angularVelocity = Vector3.zero;
         _speed = 0;
     }
 
     protected override void OnMouseExit()
     {
         base.OnMouseExit();
+        ChangeState(_previousState);
         _speed = _initSpeed;
-        Reform();
+        StartCoroutine(Reform(4));
 
     }
 
-    private void Reform()
+    private IEnumerator Reform(float time)
     {
+        while (_isDeforming)
+        {
+            yield return null;
+        }
+        if (_mouseOver)
+            yield break;
+
+        var currTime = 0f;
+
+        while (currTime < time)
+        {
+            for (int i = 0; i < _deformedVertices.Length; i++)
+            {
+                Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
+                _deformedVertices[i].x = Mathf.Lerp(_deformedVertices[i].x, _originalVertices[i].x, currTime / time);
+                //_deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y - Mathf.Clamp(direction.magnitude - 2.5f, 0, 10) * 10, currTime/time);
+                _deformedVertices[i].z = Mathf.Lerp(_deformedVertices[i].z, _originalVertices[i].z, currTime / time);
+            }
+            currTime += .1f * _timeReference;
+            _mesh.vertices = _deformedVertices;
+            yield return null;
+        }
+
+        _deformedVertices = _originalVertices.ToArray();
         _mesh.vertices = _originalVertices;
         _mesh.RecalculateNormals();
+        _meshCollider.sharedMesh = _mesh;
     }
 
     private IEnumerator Deform(float time)
     {
+        _isDeforming = true;
         var currTime = 0f;
+        
         while (currTime < time)
         {
-            for (int i = 0; i < _originalVertices.Length; i++)
+            for (int i = 0; i < _deformedVertices.Length; i++)
             {
                 Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
-                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude, 1, 6), currTime);
-                _deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y - Mathf.Clamp(direction.magnitude - 2.5f, 0, 10) * 4, currTime);
-                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude, 1, 3), currTime);
+                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude, 1, 20) * 3, currTime/time);
+                //_deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y - Mathf.Clamp(direction.magnitude - 2.5f, 0, 10) * 10, currTime/time);
+                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude, 1, 3), currTime/time);
             }
-            currTime += _timeReference;
+            currTime += .1f * _timeReference;
             _mesh.vertices = _deformedVertices;
             yield return null;
         }
         _mesh.RecalculateNormals();
+        _meshCollider.sharedMesh = _mesh;
+        _isDeforming = false;
     }
 
     private void UpdateHealth()
@@ -495,7 +542,7 @@ public class Twippie : DraggableObjet, ILightnable {
         {
             if (_thirst > 90)
             {
-                _renderer.material.color = Color.blue;
+                _renderer.material.color = Color.cyan;
                 Need thirst = _needs.FirstOrDefault(x => x.Type == NeedType.Drink);
                 SetCurrentNeed(thirst != null?thirst:new Need(NeedType.Drink));
                 
@@ -513,7 +560,7 @@ public class Twippie : DraggableObjet, ILightnable {
             }
             else if (_thirst >= 50 && _thirst > _hunger - 10 && _thirst > _sleepiness - 20)
             {
-                _renderer.material.color = Color.blue;
+                _renderer.material.color = Color.cyan;
                 Need thirst = _needs.FirstOrDefault(x => x.Type == NeedType.Drink);
                 SetCurrentNeed(thirst != null ? thirst : new Need(NeedType.Drink));
             }
