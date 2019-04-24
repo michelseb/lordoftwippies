@@ -80,7 +80,7 @@ public class Twippie : DraggableObjet, ILightnable {
     [SerializeField]
     protected float _speed;
     private Vector3[] _originalVertices, _deformedVertices;
-
+    private CapsuleCollider _capsuleCollider;
     protected float _initSpeed;
 
     protected Coroutine _contemplation, _drink, _eat, _reproduce;
@@ -104,6 +104,7 @@ public class Twippie : DraggableObjet, ILightnable {
         _name = "Twippie sans défenses";
         _gender = CoinFlip() ? Gender.Male : Gender.Female;
         _needs = new List<Need> { new Need(NeedType.None) };
+        _capsuleCollider = transform.GetComponentInChildren<CapsuleCollider>();
     }
 
     protected override void Start()
@@ -140,14 +141,7 @@ public class Twippie : DraggableObjet, ILightnable {
         base.Update();
         UpdateHealth();
         _ageSize = _age / 40;
-        if (!_mouseOver)
-        {
-            _currentSize = _initSize + Vector3.one * _ageSize;
-        }
-        else
-        {
-            _currentSize = _initSize * _sizeMultiplier + Vector3.one * _ageSize;
-        }
+        _currentSize = _initSize + Vector3.one * (_ageSize + Mathf.Exp(-_mouseProximity) * 10000);
 
         if (_pathFinder.Steps != null && _pathFinder.Steps.Count > 0)
         {
@@ -173,7 +167,10 @@ public class Twippie : DraggableObjet, ILightnable {
                 _r.angularVelocity = Vector3.zero;
                 _sleepiness = UpdateValue(_sleepiness, -3);
                 break;
-
+            case State.BeingChecked:
+                _r.velocity = Vector3.zero;
+                _r.angularVelocity = Vector3.zero;
+                break;
             case State.Walking:
                 if (_pathFinder.Steps != null)
                 {
@@ -382,7 +379,7 @@ public class Twippie : DraggableObjet, ILightnable {
 
     protected override void MakeAttraction()
     {
-        if (_state != State.BeingChecked)
+        if (_state != State.BeingChecked && !_isDeforming)
         {
             base.MakeAttraction();
         }
@@ -396,6 +393,8 @@ public class Twippie : DraggableObjet, ILightnable {
     protected override void OnMouseEnter()
     {
         base.OnMouseEnter();
+        SwitchCollider("mesh");
+        ChangeState(State.BeingChecked);
         if (!_isDeforming)
         {
             StartCoroutine(Deform(4));
@@ -405,21 +404,31 @@ public class Twippie : DraggableObjet, ILightnable {
     protected override void OnMouseOver()
     {
         base.OnMouseOver();
-        ChangeState(State.BeingChecked);
         transform.LookAt(_cam.transform);
-        _currentSize = _initSize * _sizeMultiplier;
-        _r.velocity = Vector3.zero;
-        _r.angularVelocity = Vector3.zero;
-        _speed = 0;
     }
 
     protected override void OnMouseExit()
     {
         base.OnMouseExit();
-        ChangeState(_previousState);
+        SwitchCollider("capsule");
         _speed = _initSpeed;
         StartCoroutine(Reform(4));
 
+    }
+
+    private void SwitchCollider(string collider)
+    {
+        switch (collider.ToUpper())
+        {
+            case "MESH":
+                _capsuleCollider.enabled = false;
+                _meshCollider.enabled = true;
+                break;
+            case "CAPSULE":
+                _capsuleCollider.enabled = true;
+                _meshCollider.enabled = false;
+                break;
+        }
     }
 
     private IEnumerator Reform(float time)
@@ -439,7 +448,6 @@ public class Twippie : DraggableObjet, ILightnable {
             {
                 Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
                 _deformedVertices[i].x = Mathf.Lerp(_deformedVertices[i].x, _originalVertices[i].x, currTime / time);
-                //_deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y - Mathf.Clamp(direction.magnitude - 2.5f, 0, 10) * 10, currTime/time);
                 _deformedVertices[i].z = Mathf.Lerp(_deformedVertices[i].z, _originalVertices[i].z, currTime / time);
             }
             currTime += .1f * _timeReference;
@@ -451,6 +459,7 @@ public class Twippie : DraggableObjet, ILightnable {
         _mesh.vertices = _originalVertices;
         _mesh.RecalculateNormals();
         _meshCollider.sharedMesh = _mesh;
+        ChangeState(_previousState);
     }
 
     private IEnumerator Deform(float time)
@@ -463,9 +472,8 @@ public class Twippie : DraggableObjet, ILightnable {
             for (int i = 0; i < _deformedVertices.Length; i++)
             {
                 Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
-                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude, 1, 20) * 3, currTime/time);
-                //_deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y - Mathf.Clamp(direction.magnitude - 2.5f, 0, 10) * 10, currTime/time);
-                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude, 1, 3), currTime/time);
+                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude, 1, 20) * 30, currTime/time);
+                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude, 1, 3)*10, currTime/time);
             }
             currTime += .1f * _timeReference;
             _mesh.vertices = _deformedVertices;

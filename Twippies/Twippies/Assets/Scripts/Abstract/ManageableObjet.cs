@@ -16,7 +16,6 @@ public abstract class ManageableObjet : Objet {
     protected float _age;
     protected Controls _c;
     protected float _rotSpeedX, _rotSpeedY, _rotSpeedMultiplier = 10;
-    protected float _sizeMultiplier = 2.3f;
     protected cakeslice.Outline _outline;
     protected Collider _coll;
     protected Renderer _renderer;
@@ -28,11 +27,11 @@ public abstract class ManageableObjet : Objet {
     public StatManager Stats { get { return _stats; } }
     public float Age { get { return _age; } set { _age = value; } }
     public string Type { get { return _type; } }
+    protected float _mouseProximity { get { return Vector3.Distance(_cam.WorldToScreenPoint(transform.position), Input.mousePosition); } }
 
     protected override void Awake()
     {
         base.Awake();
-        //_om.StartCoroutine((_om.WaitFor(_stats, ()=> GenerateStats())));
         _om.UpdateObjectList(this, true);
         _coll = GetComponent<Collider>();
         _renderer = GetComponent<Renderer>();
@@ -88,6 +87,7 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void Update()
     {
+        transform.localScale = _currentSize;
         if (!_outline.enabled)
         {
             if (_c.FocusedObjects.Contains(this))
