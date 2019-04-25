@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33470780770486796}
   - component: {fileID: 23718397124618680}
   - component: {fileID: 136604696652260050}
+  - component: {fileID: 64093391369636870}
   m_Layer: 13
   m_Name: puu2
   m_TagString: Untagged
@@ -67,7 +68,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1872517987282830}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.358218, y: 3.0090442, z: 15.7}
+  m_LocalPosition: {x: -11270.72, y: -17241.37, z: 39575.844}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4046722099976022}
@@ -131,6 +132,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!64 &64093391369636870
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1569749299902388}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 1
+  m_CookingOptions: 14
+  m_SkinWidth: 0.01
+  m_Mesh: {fileID: 4300000, guid: 9d785e8b5aa5adb44b7f22e313e1b12f, type: 3}
 --- !u!114 &114200954049039872
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -171,6 +186,18 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   _color: {r: 0, g: 1, b: 0, a: 1}
 --- !u!136 &136604696652260050
 CapsuleCollider:
@@ -180,7 +207,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 1569749299902388}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.5
   m_Height: 3.3
   m_Direction: 1

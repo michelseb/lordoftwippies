@@ -17,8 +17,8 @@ public class Planete : ManageableObjet {
     private LayerMask _layerMask;
     [SerializeField]
     private float _deformSize;
-    private Vector3[] _originalVertices, _newVertices;
-    private SortedDictionary<int, Vector3> _deformedVertices;
+    private Vector3[] _newVertices;
+    private SortedDictionary<int, Vector3> _deformedVerticesDictionnary;
     private bool _deforming;
     private Zone.DisplayMode _displayMode;
 
@@ -40,7 +40,7 @@ public class Planete : ManageableObjet {
         _outline.color = 2;
         _originalVertices = _mesh.vertices;
         _newVertices = _originalVertices;
-        _deformedVertices = new SortedDictionary<int, Vector3>();
+        _deformedVerticesDictionnary = new SortedDictionary<int, Vector3>();
     }
 
     protected override void Update()
@@ -76,8 +76,8 @@ public class Planete : ManageableObjet {
             if (!(Input.GetMouseButton(0) || Input.GetMouseButton(1)) && _deforming)
             {
                 ZManager.Vertices = _mesh.vertices;
-                ZManager.SetTriangles(_deformedVertices);
-                _deformedVertices.Clear();
+                ZManager.SetTriangles(_deformedVerticesDictionnary);
+                _deformedVerticesDictionnary.Clear();
                 _deforming = false;
             }
 
@@ -139,7 +139,7 @@ public class Planete : ManageableObjet {
                     Deform(transform.InverseTransformPoint(hit.point), -1, _deformSize);
                 }
 
-                foreach(KeyValuePair<int, Vector3> vertice in _deformedVertices)
+                foreach(KeyValuePair<int, Vector3> vertice in _deformedVerticesDictionnary)
                 {
                     _newVertices[vertice.Key] = vertice.Value;
                 }
@@ -163,6 +163,11 @@ public class Planete : ManageableObjet {
         }
     }
 
+    protected override Vector3 SetCurrentSize()
+    {
+        return _initSize;
+    }
+
     protected virtual void Deform(Vector3 point, float force, float size = 0)
     {
         for (int i = 0; i < _originalVertices.Length; i++)
@@ -176,13 +181,13 @@ public class Planete : ManageableObjet {
                 continue;
             Vector3 velocity = direction.normalized * attenuatedForce;
             velocity *= 1f - 10 * Time.deltaTime;
-            if (!_deformedVertices.ContainsKey(i))
+            if (!_deformedVerticesDictionnary.ContainsKey(i))
             {
-                _deformedVertices.Add(i, _originalVertices[i] + velocity * .2f); //Direction opposée au centre, force selon attenuatedForce stocké dans la liste des vertices déformés
+                _deformedVerticesDictionnary.Add(i, _originalVertices[i] + velocity * .2f); //Direction opposée au centre, force selon attenuatedForce stocké dans la liste des vertices déformés
             }
             else
             {
-                _deformedVertices[i] = _originalVertices[i] + velocity * .2f;
+                _deformedVerticesDictionnary[i] = _originalVertices[i] + velocity * .2f;
             }
         }
     }

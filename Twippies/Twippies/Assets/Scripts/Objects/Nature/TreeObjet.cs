@@ -155,7 +155,7 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
     {
         _sunAmount = UpdateValue(_sunAmount, -1);
         _waterAmount = UpdateValue(_waterAmount, -1);
-        _currentSize = UpdateVector(_currentSize, (100 - _age) / 100 * .03f, 0, 10);
+        _initSize = UpdateVector(_initSize, (100 - _age) / 100 * .03f, 0, 10);
     }
 
     public override void GenerateStats(StatPanel statPanel)

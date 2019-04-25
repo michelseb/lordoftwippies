@@ -71,15 +71,12 @@ public class Twippie : DraggableObjet, ILightnable {
     private float _sicknessDuration;
     protected bool _healthy;
     private IConsumable _consumable;
-    private float _ageSize;
     private float _endurance;
     private int _placeMemory;
     private int _peopleMemory;
     private int _stepsBeforeReproduce;
-    private bool _isDeforming;
     [SerializeField]
     protected float _speed;
-    private Vector3[] _originalVertices, _deformedVertices;
     private CapsuleCollider _capsuleCollider;
     protected float _initSpeed;
 
@@ -113,8 +110,6 @@ public class Twippie : DraggableObjet, ILightnable {
         _displayIntervals = 5;
         _previousState = State.None;
         _goalType = GoalType.Wander;
-        _originalVertices = _mesh.vertices.ToArray();
-        _deformedVertices = _originalVertices.ToArray();
         _stepsBeforeReproduce = _initialStepsBeforeReproduce;
         _consumable = null;
         _knownZones = new List<Zone>();
@@ -140,8 +135,6 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         base.Update();
         UpdateHealth();
-        _ageSize = _age / 40;
-        _currentSize = _initSize + Vector3.one * (_ageSize + Mathf.Exp(-_mouseProximity) * 10000);
 
         if (_pathFinder.Steps != null && _pathFinder.Steps.Count > 0)
         {
@@ -395,16 +388,12 @@ public class Twippie : DraggableObjet, ILightnable {
         base.OnMouseEnter();
         SwitchCollider("mesh");
         ChangeState(State.BeingChecked);
-        if (!_isDeforming)
-        {
-            StartCoroutine(Deform(4));
-        }
     }
 
     protected override void OnMouseOver()
     {
         base.OnMouseOver();
-        transform.LookAt(_cam.transform);
+        transform.LookAt(_cam.transform, (transform.position - _p.transform.position).normalized);
     }
 
     protected override void OnMouseExit()
@@ -412,8 +401,6 @@ public class Twippie : DraggableObjet, ILightnable {
         base.OnMouseExit();
         SwitchCollider("capsule");
         _speed = _initSpeed;
-        StartCoroutine(Reform(4));
-
     }
 
     private void SwitchCollider(string collider)
@@ -429,59 +416,6 @@ public class Twippie : DraggableObjet, ILightnable {
                 _meshCollider.enabled = false;
                 break;
         }
-    }
-
-    private IEnumerator Reform(float time)
-    {
-        while (_isDeforming)
-        {
-            yield return null;
-        }
-        if (_mouseOver)
-            yield break;
-
-        var currTime = 0f;
-
-        while (currTime < time)
-        {
-            for (int i = 0; i < _deformedVertices.Length; i++)
-            {
-                Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
-                _deformedVertices[i].x = Mathf.Lerp(_deformedVertices[i].x, _originalVertices[i].x, currTime / time);
-                _deformedVertices[i].z = Mathf.Lerp(_deformedVertices[i].z, _originalVertices[i].z, currTime / time);
-            }
-            currTime += .1f * _timeReference;
-            _mesh.vertices = _deformedVertices;
-            yield return null;
-        }
-
-        _deformedVertices = _originalVertices.ToArray();
-        _mesh.vertices = _originalVertices;
-        _mesh.RecalculateNormals();
-        _meshCollider.sharedMesh = _mesh;
-        ChangeState(_previousState);
-    }
-
-    private IEnumerator Deform(float time)
-    {
-        _isDeforming = true;
-        var currTime = 0f;
-        
-        while (currTime < time)
-        {
-            for (int i = 0; i < _deformedVertices.Length; i++)
-            {
-                Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
-                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude, 1, 20) * 30, currTime/time);
-                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude, 1, 3)*10, currTime/time);
-            }
-            currTime += .1f * _timeReference;
-            _mesh.vertices = _deformedVertices;
-            yield return null;
-        }
-        _mesh.RecalculateNormals();
-        _meshCollider.sharedMesh = _mesh;
-        _isDeforming = false;
     }
 
     private void UpdateHealth()
