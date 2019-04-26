@@ -109,15 +109,6 @@ public class Planete : ManageableObjet {
         t.rotation = targetRotation;//Quaternion.Slerp(t.rotation, targetRotation, 50f * Time.deltaTime);
     }
 
-    protected override void OnMouseExit()
-    {
-        _mouseOver = false;
-        if (_c.FocusedObject != this && !_c.FocusedObjects.Contains(this))
-        {
-            _outline.enabled = false;
-        }
-    }
-
     protected override void OnMouseOver()
     {
         _mouseOver = true;

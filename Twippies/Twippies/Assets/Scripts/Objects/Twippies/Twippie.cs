@@ -101,7 +101,7 @@ public class Twippie : DraggableObjet, ILightnable {
         _name = "Twippie sans défenses";
         _gender = CoinFlip() ? Gender.Male : Gender.Female;
         _needs = new List<Need> { new Need(NeedType.None) };
-        _capsuleCollider = transform.GetComponentInChildren<CapsuleCollider>();
+        _capsuleCollider = transform.GetComponent<CapsuleCollider>();
     }
 
     protected override void Start()
@@ -135,6 +135,7 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         base.Update();
         UpdateHealth();
+        Debug.Log(_state);
 
         if (_pathFinder.Steps != null && _pathFinder.Steps.Count > 0)
         {
@@ -161,13 +162,14 @@ public class Twippie : DraggableObjet, ILightnable {
                 _sleepiness = UpdateValue(_sleepiness, -3);
                 break;
             case State.BeingChecked:
+                transform.LookAt(_cam.transform, (transform.position - _p.transform.position).normalized);
                 _r.velocity = Vector3.zero;
                 _r.angularVelocity = Vector3.zero;
                 break;
             case State.Walking:
                 if (_pathFinder.Steps != null)
                 {
-                    if (_pathFinder.Steps.Count > 0)
+                    if (_pathFinder.Steps.Count > 0 && !_mouseOver)
                     {
                         
                         Vector3 direction = _pathFinder.Steps[_pathFinder.Steps.Count-1].Zone.Center - transform.position;
@@ -383,39 +385,17 @@ public class Twippie : DraggableObjet, ILightnable {
         return;
     }
 
-    protected override void OnMouseEnter()
+    protected override void OnMouseDown()
     {
-        base.OnMouseEnter();
-        SwitchCollider("mesh");
+        base.OnMouseDown();
         ChangeState(State.BeingChecked);
     }
 
-    protected override void OnMouseOver()
+    protected override IEnumerator Reform(float time)
     {
-        base.OnMouseOver();
-        transform.LookAt(_cam.transform, (transform.position - _p.transform.position).normalized);
-    }
-
-    protected override void OnMouseExit()
-    {
-        base.OnMouseExit();
-        SwitchCollider("capsule");
-        _speed = _initSpeed;
-    }
-
-    private void SwitchCollider(string collider)
-    {
-        switch (collider.ToUpper())
-        {
-            case "MESH":
-                _capsuleCollider.enabled = false;
-                _meshCollider.enabled = true;
-                break;
-            case "CAPSULE":
-                _capsuleCollider.enabled = true;
-                _meshCollider.enabled = false;
-                break;
-        }
+        Debug.Log("Reforming");
+        yield return StartCoroutine(base.Reform(time));
+        ChangeState(_previousState);
     }
 
     private void UpdateHealth()
@@ -687,12 +667,11 @@ public class Twippie : DraggableObjet, ILightnable {
             _goalObject.transform.position = zone.Center;
             _goalType = goal;
             LineRenderer.positionCount = _pathFinder.Steps.Count + 1;
-            _state = State.Walking;
         }
         else
         {
             _goalObject.transform.position = transform.position;
-            _state = State.Contemplating;
+            ChangeState(State.Contemplating);
         }
         _goalObject.transform.parent = P.transform;
         _arrival.SetArrival();
@@ -711,7 +690,6 @@ public class Twippie : DraggableObjet, ILightnable {
         }
         return GoalType.Wander;
     }
-
 
 
     private void ChangeState(State state)

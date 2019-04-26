@@ -49,6 +49,11 @@ public class Sun : AerialObjet {
             transform.Translate(_speed * Time.deltaTime, 0, 0);
     }
 
+    protected override void OnMouseEnter()
+    {
+        _outline.enabled = true;
+    }
+
     protected override void UpdateStats()
     {
         base.UpdateStats();
@@ -64,6 +69,5 @@ public class Sun : AerialObjet {
         _light.enabled = _on;
         _light.intensity = _stats.StatToValue(_stats.GetStat("Strength")).Value;
     }
-
 
 }

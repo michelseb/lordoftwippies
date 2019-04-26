@@ -46,6 +46,11 @@ public class WaterObjet : ManageableObjet {
         }
     }
 
+    protected override Vector3 SetCurrentSize()
+    {
+        return _initSize;
+    }
+
     private void SetRadius()
     {
         SphereCollider s = (SphereCollider)_coll;

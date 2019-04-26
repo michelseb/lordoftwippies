@@ -6,8 +6,6 @@ public abstract class DraggableObjet : ManageableObjet {
     [SerializeField]
     protected Planete _p;
 
-    protected Rigidbody _r;
-
     private int _dragLayer;
     private Vector3 _lastPos;
     private bool _dragging;
@@ -34,6 +32,7 @@ public abstract class DraggableObjet : ManageableObjet {
         _r.constraints = RigidbodyConstraints.FreezeRotationZ;
         _dragLayer = LayerMask.GetMask("Positionning");
         _currentSize = _initSize;
+        _focusedSize = _initSize;
         SetPlanete();
         _zManager = P.gameObject.GetComponent<ZoneManager>();
         transform.parent = _p.gameObject.transform;

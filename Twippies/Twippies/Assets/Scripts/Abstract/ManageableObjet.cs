@@ -15,6 +15,7 @@ public abstract class ManageableObjet : Objet {
     protected string _name;
     protected float _age;
     protected Controls _c;
+    protected Rigidbody _r;
     protected float _rotSpeedX, _rotSpeedY, _rotSpeedMultiplier = 10;
     protected cakeslice.Outline _outline;
     protected Collider _coll;
@@ -22,7 +23,7 @@ public abstract class ManageableObjet : Objet {
     protected float _timeReference;
     protected bool _mouseOver;
     protected int _displayIntervals = 3;
-    protected bool _isDeforming;
+    protected bool _isDeforming, _isDeformed;
     protected Vector3[] _originalVertices, _deformedVertices;
 
     public Collider Coll { get { return _coll; } }
@@ -91,8 +92,13 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void Update()
     {
+        if (_isDeformed && _c.FocusedObject != this)
+        {
+            _r.isKinematic = false;
+            StartCoroutine(Reform(1));
+        }
         _currentSize = SetCurrentSize();
-        transform.localScale = _currentSize;
+        ScaleMe();
         if (!_outline.enabled)
         {
             if (_c.FocusedObjects.Contains(this))
@@ -149,10 +155,7 @@ public abstract class ManageableObjet : Objet {
     protected virtual void OnMouseEnter()
     {
         _outline.enabled = true;
-        if (!_isDeforming)
-        {
-            StartCoroutine(Deform(4));
-        }
+        _focusedSize = _currentSize;
     }
 
 
@@ -162,7 +165,6 @@ public abstract class ManageableObjet : Objet {
         {
             _outline.enabled = false;
         }
-        StartCoroutine(Reform(4));
         _mouseOver = false;
     }
 
@@ -175,9 +177,13 @@ public abstract class ManageableObjet : Objet {
         }
     }
 
-    private void OnMouseDown()
+    protected virtual void OnMouseDown()
     {
         SetFocus();
+        if (!_isDeforming)
+        {
+            StartCoroutine(Deform(1));
+        }
     }
 
     protected virtual void OnMouseOver()
@@ -191,7 +197,15 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual Vector3 SetCurrentSize()
     {
-        return _initSize + Vector3.one * 1 / (_mouseProximity * 20 + .01f) * 100;
+        if (_c.FocusedObject == this)
+            return _focusedSize;
+
+        return _initSize + Vector3.one * 1 / (_mouseProximity * 100 + .01f) * 5000 * _initSize.magnitude;
+    }
+
+    protected virtual void ScaleMe()
+    {
+        transform.localScale = _currentSize;
     }
 
     protected virtual void OnMouseDrag()
@@ -320,7 +334,7 @@ public abstract class ManageableObjet : Objet {
         _stats.StatToValue(_stats.GetStat("Age")).Value = _age;
     }
 
-    protected IEnumerator Reform(float time)
+    protected virtual IEnumerator Reform(float time)
     {
         while (_isDeforming)
         {
@@ -328,7 +342,7 @@ public abstract class ManageableObjet : Objet {
         }
         if (_mouseOver)
             yield break;
-
+        _isDeforming = true;
         var currTime = 0f;
 
         while (currTime < time)
@@ -349,10 +363,14 @@ public abstract class ManageableObjet : Objet {
         _mesh.vertices = _originalVertices;
         _mesh.RecalculateNormals();
         _meshCollider.sharedMesh = _mesh;
+        _isDeforming = false;
+        _isDeformed = false;
     }
 
     protected IEnumerator Deform(float time)
     {
+        _r.isKinematic = true;
+        _isDeformed = true;
         _isDeforming = true;
         var currTime = 0f;
 
@@ -361,9 +379,9 @@ public abstract class ManageableObjet : Objet {
             for (int i = 0; i < _deformedVertices.Length; i++)
             {
                 Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
-                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude, 1, 100) * 2, currTime / time);
-                _deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y * Mathf.Clamp(direction.magnitude, 1, 100), currTime / time);
-                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude, 1, 100), currTime / time);
+                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(Mathf.Exp(direction.magnitude /_initSize.magnitude - 1), .1f, 10) * 2, currTime / time);
+                _deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y * Mathf.Clamp(Mathf.Exp(direction.magnitude / _initSize.magnitude - 1), .1f, 10), currTime / time);
+                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(Mathf.Exp(direction.magnitude / _initSize.magnitude - 1), .1f, 10), currTime / time);
             }
             currTime += .1f * _timeReference;
             _mesh.vertices = _deformedVertices;

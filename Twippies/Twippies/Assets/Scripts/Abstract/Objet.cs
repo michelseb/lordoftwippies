@@ -6,7 +6,7 @@ public class Objet : MonoBehaviour {
     [SerializeField]
     protected Sprite _icon;
 
-    protected Vector3 _dist, _initSize, _currentSize;
+    protected Vector3 _dist, _initSize, _currentSize, _focusedSize;
     protected ObjetManager _om;
     protected ObjectGenerator _og;
     protected float _posX, _posY;
