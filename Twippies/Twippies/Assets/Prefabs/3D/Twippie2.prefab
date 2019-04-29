@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4698711178221614}
   - component: {fileID: 33317654522375702}
   - component: {fileID: 23048749132427554}
-  - component: {fileID: 64087644443267688}
+  - component: {fileID: 136412662776622600}
   m_Layer: 12
   m_Name: Twippie
   m_TagString: Twippie
@@ -187,7 +187,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1953714432734514}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -11260.896, y: -17244.137, z: 39572.22}
+  m_LocalPosition: {x: -11260.224, y: -17244.006, z: 39567.14}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_Children:
   - {fileID: 4698711178221614}
@@ -335,20 +335,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!64 &64087644443267688
-MeshCollider:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1066640460182580}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Convex: 1
-  m_CookingOptions: 14
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 4300004, guid: 971d62b0421aefd4085ff691379f0eab, type: 3}
 --- !u!65 &65728515974186524
 BoxCollider:
   m_ObjectHideFlags: 1
@@ -658,8 +644,21 @@ LineRenderer:
     alignment: 0
     textureMode: 0
     generateLightingData: 0
-  m_UseWorldSpace: 1
+  m_UseWorldSpace: 0
   m_Loop: 0
+--- !u!136 &136412662776622600
+CapsuleCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1066640460182580}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 1
+  m_Height: 5
+  m_Direction: 2
+  m_Center: {x: 0.3091011, y: -0.40971646, z: -2.216626}
 --- !u!222 &222138003922473144
 CanvasRenderer:
   m_ObjectHideFlags: 1

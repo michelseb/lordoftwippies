@@ -96,6 +96,7 @@ public abstract class ManageableObjet : Objet {
         {
             _r.isKinematic = false;
             StartCoroutine(Reform(1));
+            _isDeformed = false;
         }
         _currentSize = SetCurrentSize();
         ScaleMe();
@@ -227,7 +228,7 @@ public abstract class ManageableObjet : Objet {
         _rotSpeedY = rotationVector.y*.1f;
     }
 
-    private void SetFocus()
+    protected void SetFocus()
     {
         
         _c.FocusedObject = this;
@@ -362,12 +363,14 @@ public abstract class ManageableObjet : Objet {
         _deformedVertices = _originalVertices.ToArray();
         _mesh.vertices = _originalVertices;
         _mesh.RecalculateNormals();
-        _meshCollider.sharedMesh = _mesh;
+        if (_meshCollider != null)
+        {
+            _meshCollider.sharedMesh = _mesh;
+        }
         _isDeforming = false;
-        _isDeformed = false;
     }
 
-    protected IEnumerator Deform(float time)
+    protected virtual IEnumerator Deform(float time)
     {
         _r.isKinematic = true;
         _isDeformed = true;
@@ -379,16 +382,20 @@ public abstract class ManageableObjet : Objet {
             for (int i = 0; i < _deformedVertices.Length; i++)
             {
                 Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
-                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(Mathf.Exp(direction.magnitude /_initSize.magnitude - 1), .1f, 10) * 2, currTime / time);
-                _deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y * Mathf.Clamp(Mathf.Exp(direction.magnitude / _initSize.magnitude - 1), .1f, 10), currTime / time);
-                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(Mathf.Exp(direction.magnitude / _initSize.magnitude - 1), .1f, 10), currTime / time);
+                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude, .1f, 10) * 2, currTime / time);
+                _deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y * Mathf.Clamp(direction.magnitude, .1f, 10), currTime / time);
+                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude, .1f, 10), currTime / time);
             }
             currTime += .1f * _timeReference;
             _mesh.vertices = _deformedVertices;
             yield return null;
         }
+        
         _mesh.RecalculateNormals();
-        _meshCollider.sharedMesh = _mesh;
+        if (_meshCollider != null)
+        {
+            _meshCollider.sharedMesh = _mesh;
+        }
         _isDeforming = false;
     }
 

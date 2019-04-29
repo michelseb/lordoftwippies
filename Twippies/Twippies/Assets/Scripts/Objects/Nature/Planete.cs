@@ -154,6 +154,11 @@ public class Planete : ManageableObjet {
         }
     }
 
+    protected override void OnMouseDown()
+    {
+        SetFocus();
+    }
+
     protected override Vector3 SetCurrentSize()
     {
         return _initSize;

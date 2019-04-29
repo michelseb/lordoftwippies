@@ -217,7 +217,8 @@ public class Twippie : DraggableObjet, ILightnable {
                 break;
                 
             case State.Contemplating:
-
+                _r.velocity = Vector3.zero;
+                _r.angularVelocity = Vector3.zero;
                 break;
         }
 
@@ -393,8 +394,8 @@ public class Twippie : DraggableObjet, ILightnable {
 
     protected override IEnumerator Reform(float time)
     {
-        Debug.Log("Reforming");
         yield return StartCoroutine(base.Reform(time));
+        Debug.Log("Reformation in progress");
         ChangeState(_previousState);
     }
 
