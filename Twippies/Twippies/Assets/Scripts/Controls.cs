@@ -78,6 +78,7 @@ public class Controls : MonoBehaviour {
     private void Start()
     {
         ctrl = ControlMode.Waiting;
+        clic = ClicMode.None;
         _initZoomAmount = _cam.fieldOfView;
         _zoomAmount = _cam.fieldOfView;
         FocusedObjects = new List<ManageableObjet>();
@@ -273,7 +274,6 @@ public class Controls : MonoBehaviour {
                 }
                 else // Clic laché
                 {
-                    
                     if (clic == ClicMode.RightClic)
                     {
                         if (_uiR.MouseOver && FocusedObject is DraggableObjet)
