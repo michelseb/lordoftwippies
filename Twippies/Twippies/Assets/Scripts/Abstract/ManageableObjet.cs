@@ -23,7 +23,6 @@ public abstract class ManageableObjet : Objet {
     protected float _timeReference;
     protected bool _mouseOver;
     protected int _displayIntervals = 3;
-    protected bool _isDeforming, _isDeformed;
     protected Vector3[] _originalVertices, _deformedVertices;
 
     public Collider Coll { get { return _coll; } }
@@ -92,12 +91,6 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void Update()
     {
-        if (_isDeformed && _c.FocusedObject != this)
-        {
-            _r.isKinematic = false;
-            StartCoroutine(Reform(1));
-            _isDeformed = false;
-        }
         _currentSize = SetCurrentSize();
         ScaleMe();
         if (!_outline.enabled)
@@ -181,10 +174,6 @@ public abstract class ManageableObjet : Objet {
     protected virtual void OnMouseDown()
     {
         SetFocus();
-        if (!_isDeforming)
-        {
-            StartCoroutine(Deform(1));
-        }
     }
 
     protected virtual void OnMouseOver()
@@ -333,70 +322,6 @@ public abstract class ManageableObjet : Objet {
     protected virtual void UpdateStats()
     {
         _stats.StatToValue(_stats.GetStat("Age")).Value = _age;
-    }
-
-    protected virtual IEnumerator Reform(float time)
-    {
-        while (_isDeforming)
-        {
-            yield return null;
-        }
-        if (_mouseOver)
-            yield break;
-        _isDeforming = true;
-        var currTime = 0f;
-
-        while (currTime < time)
-        {
-            for (int i = 0; i < _deformedVertices.Length; i++)
-            {
-                Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
-                _deformedVertices[i].x = Mathf.Lerp(_deformedVertices[i].x, _originalVertices[i].x, currTime / time);
-                _deformedVertices[i].y = Mathf.Lerp(_deformedVertices[i].y, _originalVertices[i].y, currTime / time);
-                _deformedVertices[i].z = Mathf.Lerp(_deformedVertices[i].z, _originalVertices[i].z, currTime / time);
-            }
-            currTime += .1f * _timeReference;
-            _mesh.vertices = _deformedVertices;
-            yield return null;
-        }
-
-        _deformedVertices = _originalVertices.ToArray();
-        _mesh.vertices = _originalVertices;
-        _mesh.RecalculateNormals();
-        if (_meshCollider != null)
-        {
-            _meshCollider.sharedMesh = _mesh;
-        }
-        _isDeforming = false;
-    }
-
-    protected virtual IEnumerator Deform(float time)
-    {
-        _r.isKinematic = true;
-        _isDeformed = true;
-        _isDeforming = true;
-        var currTime = 0f;
-
-        while (currTime < time)
-        {
-            for (int i = 0; i < _deformedVertices.Length; i++)
-            {
-                Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
-                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude, .1f, 10) * 2, currTime / time);
-                _deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y * Mathf.Clamp(direction.magnitude, .1f, 10), currTime / time);
-                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude, .1f, 10), currTime / time);
-            }
-            currTime += .1f * _timeReference;
-            _mesh.vertices = _deformedVertices;
-            yield return null;
-        }
-        
-        _mesh.RecalculateNormals();
-        if (_meshCollider != null)
-        {
-            _meshCollider.sharedMesh = _mesh;
-        }
-        _isDeforming = false;
     }
 
 }

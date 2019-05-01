@@ -131,7 +131,7 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
         }
         twippie.FinishExternalAction();
         _om.UpdateObjectList(this, false);
-        _stats.enabled = false;
+        //_stats.enabled = false;
         Destroy(_r);
         Destroy(this);
     }

@@ -79,6 +79,7 @@ public class Twippie : DraggableObjet, ILightnable {
     protected float _speed;
     private CapsuleCollider _capsuleCollider;
     protected float _initSpeed;
+    protected bool _isDeforming, _isDeformed;
 
     protected Coroutine _contemplation, _drink, _eat, _reproduce;
     protected float _contemplateTime;
@@ -135,7 +136,13 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         base.Update();
         UpdateHealth();
-        Debug.Log(_state);
+
+        if (_isDeformed && _c.FocusedObject != this)
+        {
+            _r.isKinematic = false;
+            StartCoroutine(Reform(1));
+            _isDeformed = false;
+        }
 
         if (_pathFinder.Steps != null && _pathFinder.Steps.Count > 0)
         {
@@ -390,13 +397,10 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         base.OnMouseDown();
         ChangeState(State.BeingChecked);
-    }
-
-    protected override IEnumerator Reform(float time)
-    {
-        yield return StartCoroutine(base.Reform(time));
-        Debug.Log("Reformation in progress");
-        ChangeState(_previousState);
+        if (!_isDeforming)
+        {
+            StartCoroutine(Deform(1));
+        }
     }
 
     private void UpdateHealth()
@@ -787,6 +791,72 @@ public class Twippie : DraggableObjet, ILightnable {
         }
         return true;
     }
+
+    protected virtual IEnumerator Reform(float time)
+    {
+        while (_isDeforming)
+        {
+            yield return null;
+        }
+        if (_mouseOver)
+            yield break;
+        _isDeforming = true;
+        var currTime = 0f;
+
+        while (currTime < time)
+        {
+            for (int i = 0; i < _deformedVertices.Length; i++)
+            {
+                Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
+                _deformedVertices[i].x = Mathf.Lerp(_deformedVertices[i].x, _originalVertices[i].x, currTime / time);
+                _deformedVertices[i].y = Mathf.Lerp(_deformedVertices[i].y, _originalVertices[i].y, currTime / time);
+                _deformedVertices[i].z = Mathf.Lerp(_deformedVertices[i].z, _originalVertices[i].z, currTime / time);
+            }
+            currTime += .1f * _timeReference;
+            _mesh.vertices = _deformedVertices;
+            yield return null;
+        }
+
+        _deformedVertices = _originalVertices.ToArray();
+        _mesh.vertices = _originalVertices;
+        _mesh.RecalculateNormals();
+        if (_meshCollider != null)
+        {
+            _meshCollider.sharedMesh = _mesh;
+        }
+        _isDeforming = false;
+        ChangeState(_previousState);
+    }
+
+    protected virtual IEnumerator Deform(float time)
+    {
+        _r.isKinematic = true;
+        _isDeformed = true;
+        _isDeforming = true;
+        var currTime = 0f;
+
+        while (currTime < time)
+        {
+            for (int i = 0; i < _deformedVertices.Length; i++)
+            {
+                Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
+                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 5, currTime / time);
+                _deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 2, currTime / time);
+                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 2, currTime / time);
+            }
+            currTime += .1f * _timeReference;
+            _mesh.vertices = _deformedVertices;
+            yield return null;
+        }
+
+        _mesh.RecalculateNormals();
+        if (_meshCollider != null)
+        {
+            _meshCollider.sharedMesh = _mesh;
+        }
+        _isDeforming = false;
+    }
+
 
     protected override void UpdateStats()
     {
