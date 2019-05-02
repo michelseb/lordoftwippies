@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class RadialPanel : RadialElement {
 
@@ -87,7 +88,26 @@ public class RadialPanel : RadialElement {
     {
         base.Close();
         Selected = false;
-        UserActions.ForEach(x => x.Button.Close());
+        UserActions.ForEach(x => x.Button.DeSelect());
     }
 
+    public override void Select()
+    {
+    }
+
+    public override void DeSelect()
+    {
+    }
+
+    public override void OnPointerEnter(PointerEventData eventData)
+    {
+    }
+
+    public override void OnSelect(BaseEventData eventData)
+    {
+    }
+
+    public override void OnPointerExit(PointerEventData eventData)
+    {
+    }
 }

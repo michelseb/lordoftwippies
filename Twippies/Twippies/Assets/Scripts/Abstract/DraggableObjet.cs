@@ -72,7 +72,7 @@ public abstract class DraggableObjet : ManageableObjet {
             Ray pos = _cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(pos, out hit, 100, _dragLayer))
+            if (Physics.Raycast(pos, out hit, 100, _dragLayer, QueryTriggerInteraction.Collide))
             {
                 _lastPos = hit.point;
                 transform.position = Vector3.Lerp(transform.position, hit.point, .2f);

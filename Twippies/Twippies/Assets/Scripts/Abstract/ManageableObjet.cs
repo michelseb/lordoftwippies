@@ -268,15 +268,6 @@ public abstract class ManageableObjet : Objet {
         statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
         statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
         statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
     }
 
     public virtual void PopulateStats()

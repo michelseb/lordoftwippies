@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class RadialElement : GraphicElement
+public abstract class RadialElement : GraphicElement, IRadial
 {
     [SerializeField]
     protected RadialSubMenu _subMenu;
@@ -31,4 +31,9 @@ public class RadialElement : GraphicElement
             }
         }
     }
+    public abstract void Select();
+    public abstract void DeSelect();
+    public abstract void OnPointerEnter(PointerEventData eventData);
+    public abstract void OnSelect(BaseEventData eventData);
+    public abstract void OnPointerExit(PointerEventData eventData);
 }

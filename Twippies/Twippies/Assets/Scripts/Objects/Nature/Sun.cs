@@ -49,6 +49,11 @@ public class Sun : AerialObjet {
             transform.Translate(_speed * Time.deltaTime, 0, 0);
     }
 
+    protected override Vector3 SetCurrentSize()
+    {
+        return _initSize;
+    }
+
     protected override void OnMouseEnter()
     {
         _outline.enabled = true;

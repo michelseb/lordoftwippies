@@ -97,16 +97,16 @@ public class Planete : ManageableObjet {
         Vector3 localUp = t.up;
 
         r.AddForce(-gravityUp * _gravity * r.mass);
-        Quaternion targetRotation = Quaternion.FromToRotation(localUp, gravityUp) * t.rotation;
-        t.rotation = targetRotation;//Quaternion.Slerp(t.rotation, targetRotation, 50f * Time.deltaTime);
+        t.rotation = Quaternion.FromToRotation(localUp, gravityUp) * t.rotation;
+        //t.rotation = Quaternion.Slerp(t.rotation, targetRotation, 50f * Time.deltaTime);
     }
 
     public void Face(Transform t)
     {
         Vector3 gravityUp = (t.position - transform.position).normalized;
         Vector3 localUp = t.up;
-        Quaternion targetRotation = Quaternion.FromToRotation(localUp, gravityUp) * t.rotation;
-        t.rotation = targetRotation;//Quaternion.Slerp(t.rotation, targetRotation, 50f * Time.deltaTime);
+        t.rotation = Quaternion.FromToRotation(localUp, gravityUp) * t.rotation;
+        //t.rotation = Quaternion.Slerp(t.rotation, targetRotation, 50f * Time.deltaTime);
     }
 
     protected override void OnMouseOver()

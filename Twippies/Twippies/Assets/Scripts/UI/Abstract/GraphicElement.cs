@@ -9,6 +9,8 @@ public abstract class GraphicElement : MonoBehaviour {
     protected Canvas _screenCanvas, _worldCanvas;
     protected UIManager _uiManager;
     protected Animator _animator;
+    protected Vector3 _scaledSize;
+    protected Vector3 _initSize;
     public bool Selected { get; internal set; }
     public Image Image { get { return _image; } }
     public bool Active { get { return _active; } }

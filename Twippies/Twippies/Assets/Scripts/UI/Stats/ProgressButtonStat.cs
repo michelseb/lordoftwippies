@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ProgressButtonStat : Stat {
+public class ProgressButtonStat : Stat, IRadial {
 
     [SerializeField]
     private TMPro.TextMeshProUGUI _labelField;
@@ -17,6 +18,8 @@ public class ProgressButtonStat : Stat {
     private void Start()
     {
         _fillImage.fillAmount = Value;
+        _initSize = transform.parent.transform.localScale;
+        _scaledSize = _initSize * 2;
     }
 
     private void Update()
@@ -42,5 +45,47 @@ public class ProgressButtonStat : Stat {
         Label = label;
         ReadOnly = readOnly;
         _specificName = statName;
+    }
+
+    public void Open()
+    {
+    }
+
+    public void Close()
+    {
+    }
+
+    public void Select()
+    {
+        Selected = true;
+        transform.parent.transform.localScale = _scaledSize;
+        //foreach (ProgressButtonStat stat in StatManager.Instance.UserActions)
+        //{
+        //    if (stat.Button == this)
+        //        continue;
+        //    action.Button.DeSelect();
+        //}
+    }
+
+    public void DeSelect()
+    {
+        transform.parent.transform.localScale = _initSize;
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        Open();
+    }
+    public void OnSelect(BaseEventData eventData)
+    {
+        Select();
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (!Selected)
+        {
+            DeSelect();
+        }
     }
 }
