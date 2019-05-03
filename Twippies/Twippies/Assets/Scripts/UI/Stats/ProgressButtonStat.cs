@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -18,12 +19,13 @@ public class ProgressButtonStat : Stat, IRadial {
     private void Start()
     {
         _fillImage.fillAmount = Value;
-        _initSize = transform.parent.transform.localScale;
-        _scaledSize = _initSize * 2;
+        _initSize = transform.localScale;
+        _focusedSize = _initSize;
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
         _labelField.text = Label;
         if (ReadOnly)
         {
@@ -57,8 +59,10 @@ public class ProgressButtonStat : Stat, IRadial {
 
     public void Select()
     {
+        _focusedSize = GetCurrentSize();
         Selected = true;
-        transform.parent.transform.localScale = _scaledSize;
+        _controls.FocusedUI = this;
+        transform.parent.transform.localScale = _focusedSize;
         //foreach (ProgressButtonStat stat in StatManager.Instance.UserActions)
         //{
         //    if (stat.Button == this)
@@ -67,9 +71,10 @@ public class ProgressButtonStat : Stat, IRadial {
         //}
     }
 
-    public void DeSelect()
+    public IEnumerator DeSelect(float delay = 0)
     {
-        transform.parent.transform.localScale = _initSize;
+        //transform.parent.transform.localScale = _initSize;
+        yield break;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -88,4 +93,25 @@ public class ProgressButtonStat : Stat, IRadial {
             DeSelect();
         }
     }
+
+    protected override Vector3 GetCurrentSize()
+    {
+        if (Controls.FocusedUI != null)
+        {
+            if (Controls.FocusedUI == this)
+                return _focusedSize;
+        }
+        return Vector3.ClampMagnitude(Vector3.one * 1 / (_mouseProximity + .01f) * 50, _initSize.magnitude * 10);
+    }
+
+    protected override int GetCurrentSortingOrder()
+    {
+        if (Controls.FocusedUI != null)
+        {
+            if (Controls.FocusedUI == this)
+                return _focusedSortingOrder;
+        }
+        return Mathf.FloorToInt(1 / (_mouseProximity * 1000 + 1) * 5000);
+    }
+
 }

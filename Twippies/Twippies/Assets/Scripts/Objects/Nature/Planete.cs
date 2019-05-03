@@ -54,7 +54,7 @@ public class Planete : ManageableObjet {
             _displayMode = (Zone.DisplayMode)values.GetValue(random.Next(values.Length));
         }
 
-        if (_c.ctrl != Controls.ControlMode.Dragging)
+        if (_controls.ctrl != Controls.ControlMode.Dragging)
         {
             foreach(Zone z in ZManager.Zones)
             {
@@ -149,8 +149,8 @@ public class Planete : ManageableObjet {
             RotateObjet();
         }else
         {
-            _c.FocusedObject = this;
-            _c.ctrl = Controls.ControlMode.Checking;
+            _controls.FocusedObject = this;
+            _controls.ctrl = Controls.ControlMode.Checking;
         }
     }
 
@@ -192,26 +192,14 @@ public class Planete : ManageableObjet {
     {
         base.GenerateActions(obj);
         obj.Stats.GenerateAction<AddAction>(obj);
-        obj.Stats.GenerateAction<AddAction>(obj);
-        obj.Stats.GenerateAction<AddAction>(obj);
-        obj.Stats.GenerateAction<AddAction>(obj);
-        obj.Stats.GenerateAction<AddAction>(obj);
-        obj.Stats.GenerateAction<AddAction>(obj);
+        obj.Stats.GenerateAction<ModifyAction>(obj);
+        obj.Stats.GenerateAction<DescriptionAction>(obj);
     }
 
     public override void GenerateStatsForAction(UserAction action, StatManager statManager)
     {
         base.GenerateStatsForAction(action, statManager);
         var subMenu = action.SubMenu;
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
         statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
         statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
         statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");

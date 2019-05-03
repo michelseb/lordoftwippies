@@ -1,17 +1,19 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 public abstract class RadialElement : GraphicElement, IRadial
 {
     [SerializeField]
     protected RadialSubMenu _subMenu;
+    
 
     protected virtual void Awake()
     {
         _animator = GetComponent<Animator>();
     }
 
-    public void Open()
+    public virtual void Open()
     {
         if (gameObject.activeSelf)
         {
@@ -32,7 +34,7 @@ public abstract class RadialElement : GraphicElement, IRadial
         }
     }
     public abstract void Select();
-    public abstract void DeSelect();
+    public abstract IEnumerator DeSelect(float delay = 0);
     public abstract void OnPointerEnter(PointerEventData eventData);
     public abstract void OnSelect(BaseEventData eventData);
     public abstract void OnPointerExit(PointerEventData eventData);

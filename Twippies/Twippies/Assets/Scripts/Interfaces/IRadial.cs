@@ -6,5 +6,5 @@ public interface IRadial : IPointerEnterHandler, ISelectHandler, IPointerExitHan
     void Open();
     void Close();
     void Select();
-    void DeSelect();
+    IEnumerator DeSelect(float delay = 0);
 }

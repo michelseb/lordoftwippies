@@ -137,7 +137,7 @@ public class Twippie : DraggableObjet, ILightnable {
         base.Update();
         UpdateHealth();
 
-        if (_isDeformed && _c.FocusedObject != this)
+        if (_isDeformed && _controls.FocusedObject != this)
         {
             _r.isKinematic = false;
             StartCoroutine(Reform(1));

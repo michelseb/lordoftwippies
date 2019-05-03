@@ -124,13 +124,13 @@
     <Compile Include="Assets\Scripts\Triangulator.cs" />
     <Compile Include="Assets\Scripts\UI\3D\HealthBar.cs" />
     <Compile Include="Assets\Scripts\UI\Abstract\GraphicElement.cs" />
+    <Compile Include="Assets\Scripts\UI\Abstract\RadialElement.cs" />
     <Compile Include="Assets\Scripts\UI\Actions\AddAction.cs" />
     <Compile Include="Assets\Scripts\UI\Actions\DescriptionAction.cs" />
     <Compile Include="Assets\Scripts\UI\Actions\ModifyAction.cs" />
     <Compile Include="Assets\Scripts\UI\Actions\UserAction.cs" />
     <Compile Include="Assets\Scripts\UI\MainPanel.cs" />
     <Compile Include="Assets\Scripts\UI\RadialButton.cs" />
-    <Compile Include="Assets\Scripts\UI\RadialElement.cs" />
     <Compile Include="Assets\Scripts\UI\RadialLayout.cs" />
     <Compile Include="Assets\Scripts\UI\RadialPanel.cs" />
     <Compile Include="Assets\Scripts\UI\RadialSubMenu.cs" />

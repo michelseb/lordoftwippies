@@ -1,23 +1,38 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class GraphicElement : MonoBehaviour {
+public abstract class GraphicElement : MonoBehaviour
+{
 
+    protected Controls _controls;
+    protected Camera _cam;
     protected Image _image;
     protected bool _active;
     protected bool _visible;
     protected Canvas _screenCanvas, _worldCanvas;
     protected UIManager _uiManager;
     protected Animator _animator;
-    protected Vector3 _scaledSize;
-    protected Vector3 _initSize;
+    protected Vector3 _initSize, _focusedSize;
+    protected float _initZ, _focusedZ;
+    protected int _focusedSortingOrder;
+    protected Canvas _canvas;
+    public Canvas Canvas
+    {
+        get
+        {
+            _canvas = GetComponent<Canvas>();
+            return _canvas;
+        }
+    }
+    public Camera Cam { get { if (_cam == null) _cam = UIManager.Instance.UICam; return _cam; } }
+    public Controls Controls { get { if (_controls == null) _controls = Controls.Instance; return _controls; } }
     public bool Selected { get; internal set; }
     public Image Image { get { return _image; } }
     public bool Active { get { return _active; } }
     public Animator Animator { get { return _animator; } }
-
+    protected float _mouseProximity { get { return Vector3.Distance(Cam.WorldToScreenPoint(transform.position), Input.mousePosition); } }
     public virtual void SetActive(bool active)
-    { 
+    {
         _active = active;
         gameObject.SetActive(active);
     }
@@ -33,11 +48,27 @@ public abstract class GraphicElement : MonoBehaviour {
 
     public virtual void Init()
     {
+        _initSize = transform.localScale;
+        _focusedSize = _initSize;
+        _controls = Controls.Instance;
+        _cam = UIManager.Instance.UICam;
         _image = GetComponent<Image>();
         _screenCanvas = GameObject.Find("ScreenCanvas").GetComponent<Canvas>();
         _worldCanvas = GameObject.Find("WorldCanvas").GetComponent<Canvas>();
         _uiManager = UIManager.Instance;
         SetActive(_active);
+    }
+
+    protected virtual void Update()
+    {
+        if (_initSize != Vector3.zero)
+        {
+            transform.localScale = GetCurrentSize();
+        }
+        if (Canvas != null)
+        {
+            Canvas.sortingOrder = GetCurrentSortingOrder();
+        }
     }
 
     protected Rect RectTransformToScreenSpace(RectTransform transform)
@@ -59,7 +90,22 @@ public abstract class GraphicElement : MonoBehaviour {
             if (anims[i].name == name)
                 return anims[i];
         }
-        Debug.Log("Anim "+name+" not found for " +gameObject.name);
+        Debug.Log("Anim " + name + " not found for " + gameObject.name);
         return null;
+    }
+
+    protected virtual Vector3 GetCurrentSize()
+    {
+        return _initSize;
+    }
+
+    protected virtual float GetCurrentZPos()
+    {
+        return transform.position.z;
+    }
+
+    protected virtual int GetCurrentSortingOrder()
+    {
+        return 0;
     }
 }

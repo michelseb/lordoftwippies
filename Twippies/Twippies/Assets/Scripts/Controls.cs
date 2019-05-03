@@ -56,6 +56,7 @@ public class Controls : MonoBehaviour {
     const float DIST_TO_DRAG = 10.0f;
 
     public ManageableObjet FocusedObject { get; set; }
+    public GraphicElement FocusedUI { get; set; }
     public bool NewObject { get; set; }
     public int FocusedLayer { get; set; }
     public List<ManageableObjet> FocusedObjects { get; private set; }

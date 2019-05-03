@@ -14,7 +14,7 @@ public abstract class ManageableObjet : Objet {
     protected string _type;
     protected string _name;
     protected float _age;
-    protected Controls _c;
+    protected Controls _controls;
     protected Rigidbody _r;
     protected float _rotSpeedX, _rotSpeedY, _rotSpeedMultiplier = 10;
     protected cakeslice.Outline _outline;
@@ -49,7 +49,7 @@ public abstract class ManageableObjet : Objet {
                 }
             }
         }
-        _c = Controls.Instance;
+        _controls = Controls.Instance;
         _outline = GetComponent<cakeslice.Outline>();
         if (_outline == null)
         {
@@ -95,7 +95,7 @@ public abstract class ManageableObjet : Objet {
         ScaleMe();
         if (!_outline.enabled)
         {
-            if (_c.FocusedObjects.Contains(this))
+            if (_controls.FocusedObjects.Contains(this))
             {
                 _outline.enabled = true;
             }
@@ -108,7 +108,7 @@ public abstract class ManageableObjet : Objet {
 
         if (Input.GetButtonDown("Fire1"))
         {
-            if (_c.FocusedObject != this && _outline.enabled && Input.mousePosition.x < Screen.width * 2/3)
+            if (_controls.FocusedObject != this && _outline.enabled && Input.mousePosition.x < Screen.width * 2/3)
             {
                 _outline.enabled = false;
             }
@@ -116,22 +116,22 @@ public abstract class ManageableObjet : Objet {
 
         if (Input.GetButton("Fire3"))
         {
-            if (_c.FocusedObjects.Contains(this))
+            if (_controls.FocusedObjects.Contains(this))
             {
                 if (!IsWithinSelectionBounds())
                 {
-                    _c.FocusedObjects.Remove(this);
+                    _controls.FocusedObjects.Remove(this);
                     _outline.enabled = false;
                 }
             }
 
-            if (!_c.FocusedObjects.Contains(this))
+            if (!_controls.FocusedObjects.Contains(this))
             {
                 if (IsWithinSelectionBounds())
                 {
                     if (_renderer.isVisible)//if (!Physics.Linecast(_cam.transform.position, gameObject.transform.position + gameObject.transform.up))
                     {
-                        _c.FocusedObjects.Add(this);
+                        _controls.FocusedObjects.Add(this);
                     }
                 }
             }
@@ -155,7 +155,7 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void OnMouseExit()
     {
-        if (_c.FocusedObject != this && !_c.FocusedObjects.Contains(this))
+        if (_controls.FocusedObject != this && !_controls.FocusedObjects.Contains(this))
         {
             _outline.enabled = false;
         }
@@ -165,7 +165,7 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void OnMouseUp()
     {
-        if (_c.FocusedObject != this && !_c.FocusedObjects.Contains(this))
+        if (_controls.FocusedObject != this && !_controls.FocusedObjects.Contains(this))
         {
             _outline.enabled = false;
         }
@@ -187,7 +187,7 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual Vector3 SetCurrentSize()
     {
-        if (_c.FocusedObject == this)
+        if (_controls.FocusedObject == this)
             return _focusedSize;
 
         return _initSize + Vector3.one * 1 / (_mouseProximity * 100 + .01f) * 5000 * _initSize.magnitude;
@@ -220,7 +220,7 @@ public abstract class ManageableObjet : Objet {
     protected void SetFocus()
     {
         
-        _c.FocusedObject = this;
+        _controls.FocusedObject = this;
         _dist = _cam.WorldToScreenPoint(transform.position);
         _posX = Input.mousePosition.x - _dist.x;
         _posY = Input.mousePosition.y - _dist.y;
@@ -299,7 +299,7 @@ public abstract class ManageableObjet : Objet {
     public bool IsWithinSelectionBounds()
     {
         var viewportBounds =
-            GetViewportBounds(_c.OriginClic, Input.mousePosition);
+            GetViewportBounds(_controls.OriginClic, Input.mousePosition);
 
         return viewportBounds.Contains(
             _cam.WorldToViewportPoint(gameObject.transform.position));

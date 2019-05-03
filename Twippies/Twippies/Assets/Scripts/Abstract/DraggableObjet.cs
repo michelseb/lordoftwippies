@@ -39,7 +39,7 @@ public abstract class DraggableObjet : ManageableObjet {
         _p.Face(transform);
         _planetSun = _p.Sun;
         _initHeight = transform.position.x;
-        if (_c.ctrl != Controls.ControlMode.Dragging)
+        if (_controls.ctrl != Controls.ControlMode.Dragging)
         {
             if ((this is Twippie) == false)
             {
@@ -64,7 +64,7 @@ public abstract class DraggableObjet : ManageableObjet {
             _timeReference = _p.Sun.Speed;
         }
 
-        if (_c.ctrl == Controls.ControlMode.Dragging && _c.FocusedObject == this)
+        if (_controls.ctrl == Controls.ControlMode.Dragging && _controls.FocusedObject == this)
         {
             _dragging = true;
             _r.velocity = Vector3.zero;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -87,16 +86,30 @@ public class RadialPanel : RadialElement {
     public override void Close()
     {
         base.Close();
-        Selected = false;
-        UserActions.ForEach(x => x.Button.DeSelect());
+        StartCoroutine(DeSelect());
     }
+
+    public override void Open()
+    {
+        base.Open();
+        StartCoroutine(DeSelect());
+    }
+
 
     public override void Select()
     {
     }
 
-    public override void DeSelect()
+    public override IEnumerator DeSelect(float delay = 0)
     {
+        foreach (var child in transform.GetComponentsInChildren<RadialButton>(true))
+        {
+            if (!child.Selected)
+            {
+                StartCoroutine(child.DeSelect());
+            }
+        }
+        yield return null;
     }
 
     public override void OnPointerEnter(PointerEventData eventData)
