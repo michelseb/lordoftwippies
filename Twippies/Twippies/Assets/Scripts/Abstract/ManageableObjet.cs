@@ -265,9 +265,9 @@ public abstract class ManageableObjet : Objet {
     public virtual void GenerateStatsForAction(UserAction action, StatManager statManager)
     {
         var subMenu = action.SubMenu;
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
+        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu, action).Populate(0, 0, 100, "Age", true, "Age");
+        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu, action).Populate(0, 0, 100, "Age", true, "Age");
+        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu, action).Populate(0, 0, 100, "Age", true, "Age");
     }
 
     public virtual void PopulateStats()

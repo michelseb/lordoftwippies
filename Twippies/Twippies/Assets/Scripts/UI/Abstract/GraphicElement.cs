@@ -15,15 +15,6 @@ public abstract class GraphicElement : MonoBehaviour
     protected Vector3 _initSize, _focusedSize;
     protected float _initZ, _focusedZ;
     protected int _focusedSortingOrder;
-    protected Canvas _canvas;
-    public Canvas Canvas
-    {
-        get
-        {
-            _canvas = GetComponent<Canvas>();
-            return _canvas;
-        }
-    }
     public Camera Cam { get { if (_cam == null) _cam = UIManager.Instance.UICam; return _cam; } }
     public Controls Controls { get { if (_controls == null) _controls = Controls.Instance; return _controls; } }
     public bool Selected { get; internal set; }
@@ -65,10 +56,6 @@ public abstract class GraphicElement : MonoBehaviour
         {
             transform.localScale = GetCurrentSize();
         }
-        if (Canvas != null)
-        {
-            Canvas.sortingOrder = GetCurrentSortingOrder();
-        }
     }
 
     protected Rect RectTransformToScreenSpace(RectTransform transform)
@@ -97,15 +84,5 @@ public abstract class GraphicElement : MonoBehaviour
     protected virtual Vector3 GetCurrentSize()
     {
         return _initSize;
-    }
-
-    protected virtual float GetCurrentZPos()
-    {
-        return transform.position.z;
-    }
-
-    protected virtual int GetCurrentSortingOrder()
-    {
-        return 0;
     }
 }

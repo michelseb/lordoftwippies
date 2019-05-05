@@ -79,7 +79,7 @@ public class RadialLayout : LayoutGroup
                 child.localPosition = new Vector3(Mathf.Cos(fAngle * Mathf.Deg2Rad) * fDistance, Mathf.Sin(fAngle * Mathf.Deg2Rad) * fDistance, child.localPosition.z);
                 child.localRotation = Quaternion.Euler(0, 0, fAngle - 90);
                 //Force objects to be center aligned, this can be changed however I'd suggest you keep all of the objects with the same anchor points.
-                child.anchorMin = child.anchorMax = child.pivot = new Vector2(0.5f, 0.5f);
+                child.anchorMin = child.anchorMax = child.pivot = new Vector2(0.5f, 0.2f);
                 fAngle += fOffsetAngle;
             }
         }

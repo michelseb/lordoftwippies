@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class RadialButton : RadialElement
 {
@@ -13,6 +12,10 @@ public class RadialButton : RadialElement
     {
         _initSize = transform.parent.transform.localScale;
         _focusedSize = _initSize;
+        foreach(var element in transform.GetComponentsInChildren<GraphicElement>())
+        {
+            element.Image.color = _image.color;
+        }
     }
 
     protected override void Update()
@@ -30,7 +33,6 @@ public class RadialButton : RadialElement
     }
     public override void OnSelect(BaseEventData eventData)
     {
-        _focusedSize = GetCurrentSize();
         Select();
     }
 
@@ -38,9 +40,12 @@ public class RadialButton : RadialElement
     {
         if (!Selected)
         {
+            Close();
             _image.color = new Color(_image.color.r, _image.color.g, _image.color.b, .2f);
         }
     }
+
+    
 
     public override void Select()
     {
@@ -83,27 +88,13 @@ public class RadialButton : RadialElement
         {
             if (Controls.FocusedUI == this)
                 return _focusedSize;
+            foreach (var radial in transform.parent.transform.GetComponentsInChildren<IRadial>(true))
+            {
+                if (Controls.FocusedUI == radial)
+                    return _focusedSize;
+            }
         }
+        return _initSize;
         return Vector3.ClampMagnitude(_initSize + Vector3.one * 1 / (_mouseProximity * 100 + .01f) * 5000, _initSize.magnitude * 2);
-    }
-
-    protected override float GetCurrentZPos()
-    {
-        if (Controls.FocusedUI != null)
-        {
-            if (Controls.FocusedUI == this)
-                return _focusedZ;
-        }
-        return Mathf.Clamp(_initZ + 1 / (_mouseProximity * 1000 + .01f) * 5000, _initZ, _initZ * 2 + .1f);
-    }
-
-    protected override int GetCurrentSortingOrder()
-    {
-        if (Controls.FocusedUI != null)
-        {
-            if (Controls.FocusedUI == this)
-                return _focusedSortingOrder;
-        }
-        return Mathf.FloorToInt(1 / (_mouseProximity * 1000 + 1) * 5000);
     }
 }

@@ -78,10 +78,12 @@ public class StatManager : MonoBehaviour {
         return stat;
     }
 
-    public T GenerateWorldStat<T>(RadialSubMenu subMenu) where T : Stat
+    public T GenerateWorldStat<T>(RadialSubMenu subMenu, UserAction action) where T : Stat
     {
         GameObject obj = Instantiate(_og.GetStat<T>(), subMenu.transform);
         T stat = obj.GetComponent<T>();
+        stat.Init();
+        stat.Image.color = action.Button.Image.color;
         //stat.Fill.color = button.Image.color;
         _statsList.Add(stat);
         return stat;

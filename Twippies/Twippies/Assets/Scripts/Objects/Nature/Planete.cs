@@ -200,9 +200,9 @@ public class Planete : ManageableObjet {
     {
         base.GenerateStatsForAction(action, statManager);
         var subMenu = action.SubMenu;
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu).Populate(0, 0, 100, "Age", true, "Age");
+        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu, action).Populate(0, 0, 100, "Age", true, "Age");
+        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu, action).Populate(0, 0, 100, "Age", true, "Age");
+        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu, action).Populate(0, 0, 100, "Age", true, "Age");
     }
 
 
