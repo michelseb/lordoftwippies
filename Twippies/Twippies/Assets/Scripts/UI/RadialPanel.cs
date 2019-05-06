@@ -28,7 +28,7 @@ public class RadialPanel : RadialElement {
         Type t = obj.GetType();
         if (button != null)
         {
-            //button.StatManager.GenerateStat<ValueStat>(obj.Type, mainStat: true, name: "Amount").Populate(0, 0, 100, "Nombre de " + obj.Type.Split(' ')[0] + "s", true, "Amount");
+            //button.StatManager.GenerateStat<ProgressButtonStat>(obj.Type, mainStat: true, name: "Amount").Populate(0, 0, 100, "Nombre de " + obj.Type.Split(' ')[0] + "s", true, "Amount");
             //UpdateGlobalStat(button, 1);
             //button.StatManager.GetStat("Amount").SetActive(false);
         }

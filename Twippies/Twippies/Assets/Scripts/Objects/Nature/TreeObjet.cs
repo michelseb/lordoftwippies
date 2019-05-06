@@ -162,8 +162,8 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
     {
         base.GenerateStatsForAction(action, statManager);
         var subMenu = action.SubMenu;
-        statManager.GenerateWorldStat<ValueStat>(action).Populate(0, 0, 100, "Water Amount", true, "Water");
-        statManager.GenerateWorldStat<ValueStat>(action).Populate(30, 0, 100, "Sun Amount", true, "Sun");
+        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(0, 0, 100, "Water Amount", true, "Water");
+        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(30, 0, 100, "Sun Amount", true, "Sun");
     }
 
     public override void PopulateStats()

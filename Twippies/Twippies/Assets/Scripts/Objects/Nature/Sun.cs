@@ -18,8 +18,8 @@ public class Sun : AerialObjet {
         base.GenerateStatsForAction(action, statManager);
         var subMenu = action.SubMenu;
         statManager.GenerateWorldStat<BoolStat>(action).Populate(true, "On/Off", "Active");
-        statManager.GenerateWorldStat<ValueStat>(action).Populate(1, 0, 10, "Brightness", false, "Strength");
-        statManager.GenerateWorldStat<ValueStat>(action).Populate(2, 0, 20, "Rotation speed", false, "Speed");
+        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(1, 0, 10, "Brightness", false, "Strength");
+        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(2, 0, 20, "Rotation speed", false, "Speed");
     }
 
     public override void PopulateStats()

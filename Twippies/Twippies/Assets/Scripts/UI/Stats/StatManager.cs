@@ -47,7 +47,7 @@ public class StatManager : MonoBehaviour {
 
     public T GenerateAction<T>(ManageableObjet obj) where T: UserAction
     {
-        GameObject actionObj = Instantiate(_og.GetAction<T>(), RadialPanel.Instance.transform);
+        GameObject actionObj = Instantiate(ObjectGenerator.Instance.GetAction<T>(), RadialPanel.Instance.transform);
         T action = actionObj.GetComponent<T>();
         action.Type = obj.Type;
         action.Init();
@@ -60,7 +60,7 @@ public class StatManager : MonoBehaviour {
 
     public T GenerateWorldStat<T>(UserAction action) where T : Stat
     {
-        GameObject obj = Instantiate(_og.GetStat<T>(), action.SubMenu.transform);
+        GameObject obj = Instantiate(ObjectGenerator.Instance.GetStat<T>(), action.SubMenu.transform);
         T stat = obj.GetComponent<T>();
         stat.Init();
         if (stat.Image != null)

@@ -12,7 +12,7 @@ public class WaterObjet : ManageableObjet {
         base.GenerateStatsForAction(action, statManager);
         var subMenu = action.SubMenu;
         statManager.GenerateWorldStat<BoolStat>(action).Populate(false, "hard/soft", "Water");
-        statManager.GenerateWorldStat<ValueStat>(action).Populate(10, 0, 20, "niveau", false, "Level");
+        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(10, 0, 20, "niveau", false, "Level");
     }
 
     public float Radius { get; private set; }

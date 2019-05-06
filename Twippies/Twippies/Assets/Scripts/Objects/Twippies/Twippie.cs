@@ -591,9 +591,9 @@ public class Twippie : DraggableObjet, ILightnable {
         base.GenerateStatsForAction(action, statManager);
         var subMenu = action.SubMenu;
         statManager.GenerateWorldStat<LabelStat>(action).Populate(_gender.ToString(), "Gender");
-        statManager.GenerateWorldStat<ValueStat>(action).Populate(0, 0, 100, "Hunger", true, "Hunger");
-        statManager.GenerateWorldStat<ValueStat>(action).Populate(0, 0, 100, "Thirst", true, "Thirst");
-        statManager.GenerateWorldStat<ValueStat>(action).Populate(0, 0, 100, "Fatigue", true, "Sleep");
+        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(0, 0, 100, "Hunger", true, "Hunger");
+        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(0, 0, 100, "Thirst", true, "Thirst");
+        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(0, 0, 100, "Fatigue", true, "Sleep");
         statManager.GenerateWorldStat<LabelStat>(action).Populate("Main need : ", "Need");
         statManager.GenerateWorldStat<LabelStat>(action).Populate("Emotion : ", "Emotion");
         statManager.GenerateWorldStat<LabelStat>(action).Populate("Action : " + _state.ToString(), "Action");

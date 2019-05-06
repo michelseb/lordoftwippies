@@ -13,13 +13,13 @@ public class BoolStat : Stat {
 
     private void Start()
     {
-        _toggle.isOn = Value;
+        //_toggle.isOn = Value;
     }
 
     private void Update()
     {
         _labelField.text = Label;
-        Value = _toggle.isOn;
+        //Value = _toggle.isOn;
     }
 
     public void Populate(bool value, string label, string statName)

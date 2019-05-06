@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ProgressButtonStat : Stat, IRadial {
+public class ProgressButtonStat : Stat {
 
     [SerializeField]
     private TMPro.TextMeshProUGUI _labelField;
@@ -56,50 +56,6 @@ public class ProgressButtonStat : Stat, IRadial {
         Label = label;
         ReadOnly = readOnly;
         _specificName = statName;
-    }
-
-    public void Open()
-    {
-    }
-
-    public void Close()
-    {
-    }
-
-    public void Select()
-    {
-        Selected = true;
-        _controls.FocusedUI = this;
-        transform.localScale = _focusedSize;
-    }
-
-    public IEnumerator DeSelect(float delay = 0)
-    {
-        yield break;
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        Open();
-    }
-    public void OnSelect(BaseEventData eventData)
-    {
-        Select();
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        if (!Selected)
-        {
-            DeSelect();
-        }
-    }
-
-    protected override Vector3 GetCurrentSize()
-    {
-        if (Controls.FocusedUI == this)
-            return _focusedSize;
-        return Vector3.ClampMagnitude(Vector3.one * 1 / (_mouseProximity + .01f) * 50, _initSize.magnitude * 10);
     }
 
 }
