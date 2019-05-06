@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -22,6 +23,13 @@ public class Controls : MonoBehaviour {
         CentralClic,
         None
     }
+    
+    public enum ZoomMode
+    {
+        Initial,
+        Intermediate,
+        Focused
+    }
 
     [SerializeField]
     private float _zoomSpeed;
@@ -37,9 +45,10 @@ public class Controls : MonoBehaviour {
 
     [SerializeField]
     private Camera _frontCam;
-
+    private float _wheelSpeed;
     private float _zoomSensitivity = 15;
     private float _initZoomAmount, _zoomAmount, _maxZoom = 50;
+    private ZoomMode _autoZoom;
     private Camera _cam;
     private UIManager _ui;
     private UIResources _uiR;
@@ -90,8 +99,37 @@ public class Controls : MonoBehaviour {
 
     private void Update()
     {
-        float wheelSpeed = Input.GetAxis("Mouse ScrollWheel") * _zoomSensitivity;
-        _zoomAmount -= wheelSpeed;
+        if (FocusedUI == null)
+        {
+            if (_ui.InfoGUI)
+            {
+                if (_autoZoom != ZoomMode.Intermediate)
+                {
+                    _autoZoom = ZoomMode.Intermediate;
+                    StartCoroutine(AutoZoom(10));
+                }
+            }
+            else
+            {
+                if (_autoZoom != ZoomMode.Initial)
+                {
+                    StartCoroutine(AutoZoom(-1, true));
+                }
+                else
+                {
+                    _wheelSpeed = Input.GetAxis("Mouse ScrollWheel") * _zoomSensitivity;
+                }
+            }
+        }
+        else
+        {
+            if(_autoZoom != ZoomMode.Focused)
+            {
+                StartCoroutine(AutoZoom(30));
+                _autoZoom = ZoomMode.Focused;
+            }
+        }
+        _zoomAmount -= _wheelSpeed;
         _zoomAmount = Mathf.Clamp(_zoomAmount, _initZoomAmount - _maxZoom, _initZoomAmount + _maxZoom);
         _cam.fieldOfView = Mathf.Lerp(_cam.fieldOfView, _zoomAmount, Time.deltaTime * _zoomSpeed);
         _frontCam.fieldOfView = _cam.fieldOfView;
@@ -101,6 +139,7 @@ public class Controls : MonoBehaviour {
         {
             _ui.DisablePreviewCam();
             _ui.InfoGUI = false;
+            FocusedUI = null;
             StartCoroutine(_radialPanel.SetAllActionsActiveStateWithDelay(false, 1));
             _mainPanel.SetAllStatPanelsActiveState(false);
             _radialPanel.Close();
@@ -509,15 +548,10 @@ public class Controls : MonoBehaviour {
             t.LineRenderer.enabled = true;
         }
         _radialPanel.Open();
-        _mainPanel.SetStatPanelActiveState(true, FocusedObject.Type);
         _radialPanel.SetAllActionsActiveState(false, FocusedObject.Type);
         _radialPanel.SetActionsActiveState(true, FocusedObject.Type);
-        StatPanel activePanel = _mainPanel.StatPanels.Find(x => x.Active);
         FocusedObject.GetStatManager();
         FocusedObject.PopulateStats();
-        activePanel.Tab.SetFocus(true);
-        activePanel.StatManager.GetStat("Amount").SetActive(false);
-        MainPanel.Instance.SetActive(true);
         _ui.SetPreviewCam(FocusedObject);
         _ui.InfoGUI = true;
         ctrl = ControlMode.Checking;
@@ -545,12 +579,26 @@ public class Controls : MonoBehaviour {
             _radialPanel.SetActionsActiveState(true, obj.Type);
             if (!_mainPanel.SetStatPanelActiveState(true, obj.Type)) { Debug.Log("global stat not found"); } else { Debug.Log("global stat "+obj.GetType().ToString()+ " a été updaté !"); }
         }
-        List<StatPanel> activePanels = _mainPanel.StatPanels.FindAll(x => x.Active);
-        MainPanel.Instance.SetActive(true);
-        activePanels[0].Tab.SetFocus(true);
         _ui.InfoGUI = true;
         ctrl = ControlMode.CheckingMultiple;
     }
 
 
+    public IEnumerator AutoZoom(float amout, bool giveControl = false, float speed = 1)
+    {
+        float bigger = _initZoomAmount + amout + speed;
+        float smaller = _initZoomAmount + amout - speed;
+        _wheelSpeed = -speed * Mathf.Sign(amout);
+        while (!((_zoomAmount < bigger) && (_zoomAmount > smaller)))
+        {
+            Debug.Log("amount: " + _zoomAmount + " + speed: " + bigger + " - speed: " + smaller + " speed: "+ _wheelSpeed);
+            
+            yield return null;
+        }
+        _wheelSpeed = 0;
+        if (giveControl)
+        {
+            _autoZoom = ZoomMode.Initial;
+        }
+    }
 }

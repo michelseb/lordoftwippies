@@ -253,33 +253,25 @@ public abstract class ManageableObjet : Objet {
         obj.Stats.GenerateAction<DescriptionAction>(obj);
     }
 
-    public virtual void GenerateStats(StatPanel statPanel)
-    {
-        statPanel.StatManager.CreateSpecificPanel(statPanel.transform.Find("Mask").Find("Panel"));
-        statPanel.StatManager.GenerateStat<ValueStat>(true).Populate(0, 0, 100, "Age", true, "Age");
-        statPanel.StatManager.GenerateStat<DescriptionStat>(true).Populate(_icon, _name, 20, 14, "Description");
-        statPanel.StatManager.GenerateStat<LabelStat>(true, "Titre").Populate(_type, "Titre");
-
-    }
-
     public virtual void GenerateStatsForAction(UserAction action, StatManager statManager)
     {
         var subMenu = action.SubMenu;
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu, action).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu, action).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu, action).Populate(0, 0, 100, "Age", true, "Age");
+        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(0, 0, 100, "Age", true, "Age");
+        //statManager.GenerateWorldStat<DescriptionStat>(action).Populate(_icon, _name, 20, 14, "Description");
+        //statManager.GenerateWorldStat<LabelStat>(action).Populate(_type, "Titre");
     }
 
     public virtual void PopulateStats()
     {
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Age"), new object[] { _age, 0, 100, "Age", true, "Age" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Description"), new object[] { _icon, _name, 20, 14, "Description" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Titre"), new object[] { _type, "Titre" });
+        //_og.MainPanel.PopulateStatPanel(_stats.GetStat("Age"), new object[] { _age, 0, 100, "Age", true, "Age" });
+        //_og.MainPanel.PopulateStatPanel(_stats.GetStat("Description"), new object[] { _icon, _name, 20, 14, "Description" });
+        //_og.MainPanel.PopulateStatPanel(_stats.GetStat("Titre"), new object[] { _type, "Titre" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Age"), new object[] { _age, 0, 100, "Age", true, "Age" });
     }
 
     public void GetStatManager()
     {
-        _stats = _og.MainPanel.StatPanels.FirstOrDefault(x => x.Type == _type)?.StatManager;
+        _stats = _om.StatManagers.FirstOrDefault(x => x.Type == _type);
     }
 
     private Bounds GetViewportBounds(Vector3 screenPosition1, Vector3 screenPosition2)

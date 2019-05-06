@@ -14,7 +14,7 @@ public class ProgressButtonStat : Stat, IRadial {
     public string Label { get; set; }
     public int MinValue { get; set; }
     public int MaxValue { get; set; }
-    public bool ReadOnly { get; set; }
+    public bool ReadOnly { get; set; } = true;
 
     private void Start()
     {
@@ -97,11 +97,8 @@ public class ProgressButtonStat : Stat, IRadial {
 
     protected override Vector3 GetCurrentSize()
     {
-        if (Controls.FocusedUI != null)
-        {
-            if (Controls.FocusedUI == this)
-                return _focusedSize;
-        }
+        if (Controls.FocusedUI == this)
+            return _focusedSize;
         return Vector3.ClampMagnitude(Vector3.one * 1 / (_mouseProximity + .01f) * 50, _initSize.magnitude * 10);
     }
 

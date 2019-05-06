@@ -13,21 +13,21 @@ public class Sun : AerialObjet {
     [SerializeField]
     private bool _on;
 
-
-    public override void GenerateStats(StatPanel statPanel)
+    public override void GenerateStatsForAction(UserAction action, StatManager statManager)
     {
-        base.GenerateStats(statPanel);
-        statPanel.StatManager.GenerateStat<BoolStat>().Populate(true, "On/Off", "Active");
-        statPanel.StatManager.GenerateStat<ValueStat>().Populate(1, 0, 10, "Brightness", false, "Strength");
-        statPanel.StatManager.GenerateStat<ValueStat>().Populate(2, 0, 20, "Rotation speed", false, "Speed");
+        base.GenerateStatsForAction(action, statManager);
+        var subMenu = action.SubMenu;
+        statManager.GenerateWorldStat<BoolStat>(action).Populate(true, "On/Off", "Active");
+        statManager.GenerateWorldStat<ValueStat>(action).Populate(1, 0, 10, "Brightness", false, "Strength");
+        statManager.GenerateWorldStat<ValueStat>(action).Populate(2, 0, 20, "Rotation speed", false, "Speed");
     }
 
     public override void PopulateStats()
     {
         base.PopulateStats();
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Active"), new object[] { true, "On/Off", "Active" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Strength"), new object[] { 1, 0, 10, "Brightness", false, "Strength" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Speed"), new object[] { 2, 0, 20, "Rotation speed", false, "Speed" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Active"), new object[] { true, "On/Off", "Active" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Strength"), new object[] { 1, 0, 10, "Brightness", false, "Strength" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Speed"), new object[] { 2, 0, 20, "Rotation speed", false, "Speed" });
     }
     public float Speed { get { return _speed; } }
     protected override void Awake()

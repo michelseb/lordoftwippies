@@ -200,27 +200,18 @@ public class Planete : ManageableObjet {
     {
         base.GenerateStatsForAction(action, statManager);
         var subMenu = action.SubMenu;
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu, action).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu, action).Populate(0, 0, 100, "Age", true, "Age");
-        statManager.GenerateWorldStat<ProgressButtonStat>(subMenu, action).Populate(0, 0, 100, "Age", true, "Age");
-    }
-
-
-    public override void GenerateStats(StatPanel statPanel)
-    {
-        base.GenerateStats(statPanel);
-        statPanel.StatManager.GenerateStat<BoolStat>().Populate(true, "Don't press this", "Destroy");
-        statPanel.StatManager.GenerateStat<BoolStat>().Populate(false, "Shape mode", "Shape");
-        statPanel.StatManager.GenerateStat<ChoiceStat>().Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode");
+        statManager.GenerateWorldStat<BoolStat>(action).Populate(true, "Don't press this", "Destroy");
+        statManager.GenerateWorldStat<BoolStat>(action).Populate(false, "Shape mode", "Shape");
+        statManager.GenerateWorldStat<ChoiceStat>(action).Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode");
 
     }
 
     public override void PopulateStats()
     {
         base.PopulateStats();
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Destroy"), new object[] { true, "Don't press this", "Destroy" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Shape"), new object[] { false, "Shape mode", "Shape" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Mode"), new object[] { "Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Destroy"), new object[] { true, "Don't press this", "Destroy" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Shape"), new object[] { false, "Shape mode", "Shape" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Mode"), new object[] { "Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode" });
     }
 
 

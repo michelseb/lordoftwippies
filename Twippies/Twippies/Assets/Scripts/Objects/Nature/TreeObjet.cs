@@ -158,18 +158,19 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
         _initSize = UpdateVector(_initSize, (100 - _age) / 100 * .03f, 0, 10);
     }
 
-    public override void GenerateStats(StatPanel statPanel)
+    public override void GenerateStatsForAction(UserAction action, StatManager statManager)
     {
-        base.GenerateStats(statPanel);
-        statPanel.StatManager.GenerateStat<ValueStat>().Populate(0, 0, 100, "Water Amount", true, "Water");
-        statPanel.StatManager.GenerateStat<ValueStat>().Populate(30, 0, 100, "Sun Amount", true, "Sun");
+        base.GenerateStatsForAction(action, statManager);
+        var subMenu = action.SubMenu;
+        statManager.GenerateWorldStat<ValueStat>(action).Populate(0, 0, 100, "Water Amount", true, "Water");
+        statManager.GenerateWorldStat<ValueStat>(action).Populate(30, 0, 100, "Sun Amount", true, "Sun");
     }
 
     public override void PopulateStats()
     {
         base.PopulateStats();
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Water"), new object[] { 0, 0, 100, "Water Amount", true, "Water" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Sun"), new object[] { 30, 0, 100, "Sun Amount", true, "Sun" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Water"), new object[] { 0, 0, 100, "Water Amount", true, "Water" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Sun"), new object[] { 30, 0, 100, "Sun Amount", true, "Sun" });
     }
 
     protected override void UpdateStats()

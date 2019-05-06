@@ -7,17 +7,19 @@ public class StatManager : MonoBehaviour {
     [SerializeField]
     private List<Stat> _statsList;
     private ObjectGenerator _og;
+    private ObjetManager _om;
+    
     [SerializeField]
     private Color _color;
 
     public List<Stat> StatsList { get { return _statsList; } set { _statsList = value; } }
     public Color Color { get { return _color; } set { _color = value; } }
-    public UIContent SpecificStatPanel { get; private set; }
-    public StatPanel StatPanel { get; set; }
+    public string Type { get; set; }
 
     private void Awake()
     {
         _og = ObjectGenerator.Instance;
+        _om = ObjetManager.Instance;
         _statsList = new List<Stat>();
         enabled = false;
     }
@@ -43,11 +45,6 @@ public class StatManager : MonoBehaviour {
         return (ChoiceStat)s;
     }
 
-    public void CreateSpecificPanel(Transform parent)
-    {
-        SpecificStatPanel = Instantiate(_og.SpecificStatPanel, parent);
-        SpecificStatPanel.name = "Specific stat panel";
-    }
     public T GenerateAction<T>(ManageableObjet obj) where T: UserAction
     {
         GameObject actionObj = Instantiate(_og.GetAction<T>(), RadialPanel.Instance.transform);
@@ -60,31 +57,16 @@ public class StatManager : MonoBehaviour {
         obj.GenerateStatsForAction(action, this);
         return action;
     }
-    public T GenerateStat<T>(bool mainStat = false, string name = "") where T:Stat
-    {
-        GameObject obj = Instantiate(_og.GetStat<T>(name != ""?name:null), mainStat?StatPanel.transform.Find("Mask").Find("Panel"):SpecificStatPanel.Content.transform);
-        if (mainStat)
-        {
-            obj.transform.SetAsFirstSibling();
-        }
-        
-        T stat = obj.GetComponent<T>();
-        stat.Main = mainStat;
-        if (name != "")
-        {
-            stat.SpecificName = name;
-        }
-        _statsList.Add(stat);
-        return stat;
-    }
 
-    public T GenerateWorldStat<T>(RadialSubMenu subMenu, UserAction action) where T : Stat
+    public T GenerateWorldStat<T>(UserAction action) where T : Stat
     {
-        GameObject obj = Instantiate(_og.GetStat<T>(), subMenu.transform);
+        GameObject obj = Instantiate(_og.GetStat<T>(), action.SubMenu.transform);
         T stat = obj.GetComponent<T>();
         stat.Init();
-        stat.Image.color = action.Button.Image.color;
-        //stat.Fill.color = button.Image.color;
+        if (stat.Image != null)
+        {
+            stat.Image.color = action.Button.Image.color;
+        }
         _statsList.Add(stat);
         return stat;
     }

@@ -586,28 +586,30 @@ public class Twippie : DraggableObjet, ILightnable {
         //TODO : Calculer si évolution de twippie primitif à avancé
     }
 
-    public override void GenerateStats(StatPanel statPanel)
+    public override void GenerateStatsForAction(UserAction action, StatManager statManager)
     {
-        base.GenerateStats(statPanel);
-        statPanel.StatManager.GenerateStat<LabelStat>( name: "Label").Populate(_gender.ToString(), "Gender");
-        statPanel.StatManager.GenerateStat<ValueStat>(name: "Label").Populate(0, 0, 100, "Hunger", true, "Hunger");
-        statPanel.StatManager.GenerateStat<ValueStat>(name: "Label").Populate(0, 0, 100, "Thirst", true, "Thirst");
-        statPanel.StatManager.GenerateStat<ValueStat>(name: "Label").Populate(0, 0, 100, "Fatigue", true, "Sleep");
-        statPanel.StatManager.GenerateStat<LabelStat>(name: "Label").Populate("Main need : ", "Need");
-        statPanel.StatManager.GenerateStat<LabelStat>(name: "Label").Populate("Emotion : ", "Emotion");
-        statPanel.StatManager.GenerateStat<LabelStat>(name: "Label").Populate("Action : " + _state.ToString(), "Action");
+        base.GenerateStatsForAction(action, statManager);
+        var subMenu = action.SubMenu;
+        statManager.GenerateWorldStat<LabelStat>(action).Populate(_gender.ToString(), "Gender");
+        statManager.GenerateWorldStat<ValueStat>(action).Populate(0, 0, 100, "Hunger", true, "Hunger");
+        statManager.GenerateWorldStat<ValueStat>(action).Populate(0, 0, 100, "Thirst", true, "Thirst");
+        statManager.GenerateWorldStat<ValueStat>(action).Populate(0, 0, 100, "Fatigue", true, "Sleep");
+        statManager.GenerateWorldStat<LabelStat>(action).Populate("Main need : ", "Need");
+        statManager.GenerateWorldStat<LabelStat>(action).Populate("Emotion : ", "Emotion");
+        statManager.GenerateWorldStat<LabelStat>(action).Populate("Action : " + _state.ToString(), "Action");
     }
+
 
     public override void PopulateStats()
     {
         base.PopulateStats();
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Gender"), new object[] { _gender.ToString(), "Gender" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Hunger"), new object[] { 0, 0, 100, "Hunger", true, "Hunger" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Thirst"), new object[] { 0, 0, 100, "Thirst", true, "Thirst" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Sleep"), new object[] { 0, 0, 100, "Fatigue", true, "Sleep" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Need"), new object[] { "Main need : " + _needs[0].Type.ToString(), "Need" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Emotion"), new object[] { "Emotion : ", "Emotion" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Action"), new object[] { "Action : " + _state.ToString(), "Action" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Gender"), new object[] { _gender.ToString(), "Gender" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Hunger"), new object[] { 0, 0, 100, "Hunger", true, "Hunger" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Thirst"), new object[] { 0, 0, 100, "Thirst", true, "Thirst" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Sleep"), new object[] { 0, 0, 100, "Fatigue", true, "Sleep" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Need"), new object[] { "Main need : " + _needs[0].Type.ToString(), "Need" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Emotion"), new object[] { "Emotion : ", "Emotion" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Action"), new object[] { "Action : " + _state.ToString(), "Action" });
     }
 
     protected void SetDestination(GoalType goal)
@@ -840,9 +842,9 @@ public class Twippie : DraggableObjet, ILightnable {
             for (int i = 0; i < _deformedVertices.Length; i++)
             {
                 Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
-                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 5, currTime / time);
-                _deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 2, currTime / time);
-                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 2, currTime / time);
+                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 15, currTime / time);
+                _deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 4, currTime / time);
+                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 4, currTime / time);
             }
             currTime += .1f * _timeReference;
             _mesh.vertices = _deformedVertices;

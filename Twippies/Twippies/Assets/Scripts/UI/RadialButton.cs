@@ -11,10 +11,20 @@ public class RadialButton : RadialElement
     protected void Start()
     {
         _initSize = transform.parent.transform.localScale;
-        _focusedSize = _initSize;
-        foreach(var element in transform.GetComponentsInChildren<GraphicElement>())
+        _focusedSize = _initSize * 2;
+        foreach(var element in transform.parent.transform.GetComponentsInChildren<GraphicElement>(true))
         {
-            element.Image.color = _image.color;
+            if (element == this)
+                continue;
+
+            if (element.Image == null)
+            {
+                element.Init();
+            }
+            if (element.Image != null)
+            {
+                element.Image.color = new Color(_image.color.r + .2f, _image.color.g + .2f, _image.color.b + .2f, 1);
+            }
         }
     }
 
@@ -84,17 +94,13 @@ public class RadialButton : RadialElement
 
     protected override Vector3 GetCurrentSize()
     {
-        if (Controls.FocusedUI != null)
+        if (Controls.FocusedUI == this)
+            return _focusedSize;
+        foreach (var radial in transform.parent.transform.GetComponentsInChildren<IRadial>(true))
         {
-            if (Controls.FocusedUI == this)
+            if (Controls.FocusedUI == (object)radial)
                 return _focusedSize;
-            foreach (var radial in transform.parent.transform.GetComponentsInChildren<IRadial>(true))
-            {
-                if (Controls.FocusedUI == radial)
-                    return _focusedSize;
-            }
         }
         return _initSize;
-        return Vector3.ClampMagnitude(_initSize + Vector3.one * 1 / (_mouseProximity * 100 + .01f) * 5000, _initSize.magnitude * 2);
     }
 }

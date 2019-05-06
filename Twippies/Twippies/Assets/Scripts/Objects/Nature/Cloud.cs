@@ -11,19 +11,19 @@ public class Cloud : AerialObjet {
     [SerializeField]
     private ParticleSystem _ps;
 
-
-    public override void GenerateStats(StatPanel statPanel)
+    public override void GenerateStatsForAction(UserAction action, StatManager statManager)
     {
-        base.GenerateStats(statPanel);
-        statPanel.StatManager.GenerateStat<BoolStat>().Populate(true, "Wet/Dry", "Active");
-        statPanel.StatManager.GenerateStat<BoolStat>().Populate(true, "Auto", "Auto");
+        base.GenerateStatsForAction(action, statManager);
+        var subMenu = action.SubMenu;
+        statManager.GenerateWorldStat<BoolStat>(action).Populate(true, "Wet/Dry", "Active");
+        statManager.GenerateWorldStat<BoolStat>(action).Populate(true, "Auto", "Auto");
     }
 
     public override void PopulateStats()
     {
         base.PopulateStats();
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Active"), new object[] { true, "Wet/Dry", "Active" });
-        _og.MainPanel.PopulateStatPanel(_stats.GetStat("Auto"), new object[] { true, "Auto", "Auto" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Active"), new object[] { true, "Wet/Dry", "Active" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Auto"), new object[] { true, "Auto", "Auto" });
     }
 
     protected override void UpdateStats()

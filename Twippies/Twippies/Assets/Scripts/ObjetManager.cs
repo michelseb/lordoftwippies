@@ -5,11 +5,11 @@ using System.Linq;
 using UnityEngine;
 
 public class ObjetManager : MonoBehaviour {
-
     public List<ManageableObjet> allObjects;
     private ObjectGenerator _og;
     private static ObjetManager _instance;
 
+    public List<StatManager> StatManagers { get; internal set; }
     public Planete ActivePlanet { get; set; }
     public static ObjetManager Instance { get { if (_instance == null) _instance = FindObjectOfType<ObjetManager>(); return _instance; } }
 
@@ -17,6 +17,7 @@ public class ObjetManager : MonoBehaviour {
     {
         _og = ObjectGenerator.Instance;
         ActivePlanet = FindObjectOfType<Planete>();
+        StatManagers = new List<StatManager>();
     }
 
     public List<ManageableObjet> AllObjects<T>()
@@ -42,8 +43,8 @@ public class ObjetManager : MonoBehaviour {
         else
         {
             allObjects.Remove(obj);
-            StatPanel statPanel = _og.MainPanel.StatPanels.FirstOrDefault(x => x.Type == obj.Type);
-            _og.MainPanel.UpdateGlobalStat(statPanel, -1);
+            //StatPanel statPanel = _og.MainPanel.StatPanels.FirstOrDefault(x => x.Type == obj.Type);
+            //_og.MainPanel.UpdateGlobalStat(statPanel, -1);
         }
     }
 

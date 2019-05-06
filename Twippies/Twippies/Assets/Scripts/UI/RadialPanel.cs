@@ -68,6 +68,18 @@ public class RadialPanel : RadialElement {
 
     public IEnumerator SetAllActionsActiveStateWithDelay(bool active, float delay = 0f)
     {
+        foreach (UserAction action in UserActions)
+        {
+            if (active)
+            {
+                action.Button.Select();
+            }
+            else
+            {
+                action.Button.Selected = false;
+                action.Button.DeSelect();
+            }
+        }
         yield return (delay != 0 ? new WaitForSeconds(delay) : null); 
         foreach (UserAction action in UserActions)
         {

@@ -10,12 +10,6 @@ public class ObjectGenerator : MonoBehaviour {
     [SerializeField]
     public List<ManageableObjet> ObjectFactory;
     [SerializeField]
-    public GameObject MainStatPanel;
-    [SerializeField]
-    public StatPanel StatPanel;
-    [SerializeField]
-    public UIContent SpecificStatPanel;
-    [SerializeField]
     public List<Stat> StatFactory;
     [SerializeField]
     public List<UserAction> ActionFactory;
@@ -25,7 +19,7 @@ public class ObjectGenerator : MonoBehaviour {
     private int _nbTrees;
     [SerializeField]
     private int _nbAdvancedTwippies;
-    public MainPanel MainPanel;
+    public RadialPanel RadialPanel;
     private ObjetManager _om;
     private ZoneManager _zm;
 
@@ -44,25 +38,26 @@ public class ObjectGenerator : MonoBehaviour {
     private void Awake()
     {
         _om = ObjetManager.Instance;
-        MainPanel = MainPanel.Instance;
+        RadialPanel = RadialPanel.Instance;
         foreach (ManageableObjet objet in ObjectFactory)
         {
-            
-            GameObject statPanelObject = Instantiate(StatPanel.gameObject, MainStatPanel.transform);
-            StatPanel statPanel = statPanelObject.GetComponent<StatPanel>();
-            statPanel.StatManager = objet.Stats;
-            statPanel.StatManager.Init();
-            statPanel.Tab.transform.SetParent(MainPanel.TabContainer.transform, true);
-            statPanel.name = objet.Type;
-            statPanel.StatManager.StatPanel = statPanel;
-            statPanel.Type = objet.Type;
-            MainPanel.GenerateStatsForPanel(statPanel, objet);
-            MainPanel.SetStatPanelActiveState(false, objet.Type);
-            statPanel.Init();
-            statPanel.StatManager.SpecificStatPanel.Init();
-            statPanel.Image.color = statPanel.StatManager.Color;
-            statPanel.StatManager.enabled = false;
-            RadialPanel.Instance.GenerateObjectActions(objet);
+            objet.Stats.Type = objet.Type;
+            _om.StatManagers.Add(objet.Stats);
+            //GameObject statPanelObject = Instantiate(StatPanel.gameObject, MainStatPanel.transform);
+            //StatPanel statPanel = statPanelObject.GetComponent<StatPanel>();
+            //statPanel.StatManager = objet.Stats;
+            //statPanel.StatManager.Init();
+            //statPanel.Tab.transform.SetParent(MainPanel.TabContainer.transform, true);
+            //statPanel.name = objet.Type;
+            //statPanel.StatManager.StatPanel = statPanel;
+            //statPanel.Type = objet.Type;
+            //MainPanel.GenerateStatsForPanel(statPanel, objet);
+            //MainPanel.SetStatPanelActiveState(false, objet.Type);
+            //statPanel.Init();
+            //statPanel.StatManager.SpecificStatPanel.Init();
+            //statPanel.Image.color = statPanel.StatManager.Color;
+            //statPanel.StatManager.enabled = false;
+            RadialPanel.GenerateObjectActions(objet);
         }
 
     }
