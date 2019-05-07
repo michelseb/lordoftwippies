@@ -125,7 +125,7 @@ public class Controls : MonoBehaviour {
         {
             if(_autoZoom != ZoomMode.Focused)
             {
-                StartCoroutine(AutoZoom(30));
+                StartCoroutine(AutoZoom(40));
                 _autoZoom = ZoomMode.Focused;
             }
         }
@@ -591,8 +591,6 @@ public class Controls : MonoBehaviour {
         _wheelSpeed = -speed * Mathf.Sign(amout);
         while (!((_zoomAmount < bigger) && (_zoomAmount > smaller)))
         {
-            Debug.Log("amount: " + _zoomAmount + " + speed: " + bigger + " - speed: " + smaller + " speed: "+ _wheelSpeed);
-            
             yield return null;
         }
         _wheelSpeed = 0;

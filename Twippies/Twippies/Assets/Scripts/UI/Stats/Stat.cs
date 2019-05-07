@@ -22,6 +22,14 @@ public abstract class Stat : GraphicElement, IRadial {
     public string Name { get { return _name; } }
     public bool Main { get { return _main; } set { _main = value; } }
     public string SpecificName { get { return _specificName; } set { _specificName = value; } }
+    public bool ReadOnly { get; set; } = false;
+    public RadialButton RadialButton { get; set; }
+
+    protected virtual void Start()
+    {
+        _initSize = transform.localScale;
+        _focusedSize = _initSize * 5;
+    }
 
     protected override Vector3 GetCurrentSize()
     {
@@ -38,15 +46,22 @@ public abstract class Stat : GraphicElement, IRadial {
     {
     }
 
-    public void Select()
+    public virtual void Select()
     {
         Selected = true;
         _controls.FocusedUI = this;
         transform.localScale = _focusedSize;
+        foreach (var stat in RadialButton.transform.GetComponentsInChildren<Stat>())
+        {
+            if (stat == this)
+                continue;
+            StartCoroutine(stat.DeSelect());
+        }
     }
 
     public IEnumerator DeSelect(float delay = 0)
     {
+        Selected = false;
         yield break;
     }
 
@@ -54,7 +69,7 @@ public abstract class Stat : GraphicElement, IRadial {
     {
         Open();
     }
-    public void OnSelect(BaseEventData eventData)
+    public virtual void OnSelect(BaseEventData eventData)
     {
         Select();
     }
@@ -65,6 +80,10 @@ public abstract class Stat : GraphicElement, IRadial {
         {
             DeSelect();
         }
+    }
+
+    public virtual void OnPointerClick(PointerEventData eventData)
+    {
     }
 }
 

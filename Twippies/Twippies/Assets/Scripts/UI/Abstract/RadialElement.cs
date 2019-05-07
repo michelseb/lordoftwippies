@@ -38,4 +38,5 @@ public abstract class RadialElement : GraphicElement, IRadial
     public abstract void OnPointerEnter(PointerEventData eventData);
     public abstract void OnSelect(BaseEventData eventData);
     public abstract void OnPointerExit(PointerEventData eventData);
+    public abstract void OnPointerClick(PointerEventData eventData);
 }

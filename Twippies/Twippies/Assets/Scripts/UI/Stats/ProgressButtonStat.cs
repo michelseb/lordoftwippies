@@ -14,13 +14,11 @@ public class ProgressButtonStat : Stat {
     public string Label { get; set; }
     public int MinValue { get; set; }
     public int MaxValue { get; set; }
-    public bool ReadOnly { get; set; } = true;
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         _fillImage.fillAmount = Value;
-        _initSize = transform.localScale;
-        _focusedSize = _initSize * 5;
     }
 
     protected override void Update()
@@ -34,6 +32,22 @@ public class ProgressButtonStat : Stat {
         else
         {
             Value = _fillImage.fillAmount;
+        }
+        if (Selected)
+        {
+            if (RadialButton.Container.Icon.IsActive())
+            {
+                RadialButton.Container.Icon.enabled = false;
+            }
+            RadialButton.Text.text = Value.ToString();
+        }
+        else
+        {
+            if (!RadialButton.Container.Icon.IsActive())
+            {
+                RadialButton.Container.Icon.enabled = true;
+                RadialButton.Text.text = string.Empty;
+            }
         }
     }
 

@@ -1,9 +1,18 @@
 ﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class RadialButton : RadialElement
 {
+    [SerializeField]
+    private UIContainer _container;
+    [SerializeField]
+    private TextMeshProUGUI _text;
+
+    public UIContainer Container { get { return _container; } }
+    public TextMeshProUGUI Text { get { return _text; } set { _text = value; } }
+
     protected override void Awake()
     {
         _animator = transform.GetComponentInParent<Animator>();
@@ -11,7 +20,7 @@ public class RadialButton : RadialElement
     protected void Start()
     {
         _initSize = transform.parent.transform.localScale;
-        _focusedSize = _initSize * 2;
+        _focusedSize = _initSize * 4;
         foreach(var element in transform.parent.transform.GetComponentsInChildren<GraphicElement>(true))
         {
             if (element == this)
@@ -77,7 +86,11 @@ public class RadialButton : RadialElement
 
     public override IEnumerator DeSelect(float delay = 0)
     {
-        _image.color = new Color(_image.color.r, _image.color.g, _image.color.b, .2f);
+        if (_image != null)
+        {
+            _image.color = new Color(_image.color.r, _image.color.g, _image.color.b, .2f);
+        }
+        
         Close();
         Selected = false;
         if (delay > 0)
@@ -102,5 +115,9 @@ public class RadialButton : RadialElement
                 return _focusedSize;
         }
         return _initSize;
+    }
+
+    public override void OnPointerClick(PointerEventData eventData)
+    {
     }
 }

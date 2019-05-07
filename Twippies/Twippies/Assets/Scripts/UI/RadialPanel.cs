@@ -135,4 +135,8 @@ public class RadialPanel : RadialElement {
     public override void OnPointerExit(PointerEventData eventData)
     {
     }
+
+    public override void OnPointerClick(PointerEventData eventData)
+    {
+    }
 }

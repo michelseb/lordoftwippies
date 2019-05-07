@@ -13,17 +13,18 @@ public class ValueStat : Stat {
     public string Label { get; set; }
     public int MinValue { get; set; }
     public int MaxValue { get; set; }
-    public bool ReadOnly { get; set; }
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         _slider.minValue = MinValue;
         _slider.maxValue = MaxValue;
         _slider.value = Value;
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
         _labelField.text = Label;
         if (ReadOnly)
         {

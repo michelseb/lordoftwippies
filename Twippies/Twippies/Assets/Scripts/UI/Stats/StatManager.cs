@@ -62,6 +62,7 @@ public class StatManager : MonoBehaviour {
     {
         GameObject obj = Instantiate(ObjectGenerator.Instance.GetStat<T>(), action.SubMenu.transform);
         T stat = obj.GetComponent<T>();
+        stat.RadialButton = action.Button;
         stat.Init();
         if (stat.Image != null)
         {

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine.EventSystems;
 
-public interface IRadial : IPointerEnterHandler, ISelectHandler, IPointerExitHandler
+public interface IRadial : IPointerEnterHandler, ISelectHandler, IPointerExitHandler, IPointerClickHandler
 {
     void Open();
     void Close();

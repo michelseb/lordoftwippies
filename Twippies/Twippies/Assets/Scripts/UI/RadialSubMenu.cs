@@ -38,4 +38,8 @@ public class RadialSubMenu : RadialElement
     public override void Select()
     {
     }
+
+    public override void OnPointerClick(PointerEventData eventData)
+    {
+    }
 }
