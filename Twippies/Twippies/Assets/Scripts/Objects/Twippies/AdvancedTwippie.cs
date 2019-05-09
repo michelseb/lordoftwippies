@@ -44,11 +44,10 @@ public class AdvancedTwippie : Twippie {
         }
     }
 
-    public override void GenerateStatsForAction(UserAction action, StatManager statManager)
+    public override void GenerateStatsForAction(StatManager statManager)
     {
-        base.GenerateStatsForAction(action, statManager);
-        var subMenu = action.SubMenu;
-        statManager.GenerateWorldStat<LabelStat>(action).Populate("Bois possédé : ", "WoodPossession");
+        base.GenerateStatsForAction(statManager);
+        statManager.GenerateWorldStat<LabelStat>().Populate("Bois possédé : ", "WoodPossession");
     }
 
     public override void PopulateStats()

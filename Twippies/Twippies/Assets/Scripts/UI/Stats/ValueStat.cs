@@ -46,5 +46,13 @@ public class ValueStat : Stat {
         Label = label;
         ReadOnly = readOnly;
         _specificName = statName;
+        if (ReadOnly)
+        {
+            AssociatedAction = AssociatedAction.Modification;
+        }
+        else
+        {
+            AssociatedAction = AssociatedAction.Description;
+        }
     }
 }

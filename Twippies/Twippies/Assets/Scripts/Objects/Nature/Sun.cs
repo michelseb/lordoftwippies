@@ -13,13 +13,12 @@ public class Sun : AerialObjet {
     [SerializeField]
     private bool _on;
 
-    public override void GenerateStatsForAction(UserAction action, StatManager statManager)
+    public override void GenerateStatsForAction(StatManager statManager)
     {
-        base.GenerateStatsForAction(action, statManager);
-        var subMenu = action.SubMenu;
-        statManager.GenerateWorldStat<BoolStat>(action).Populate(true, "On/Off", "Active");
-        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(1, 0, 10, "Brightness", false, "Strength");
-        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(2, 0, 20, "Rotation speed", false, "Speed");
+        base.GenerateStatsForAction(statManager);
+        statManager.GenerateWorldStat<BoolStat>().Populate(true, "On/Off", "Active");
+        statManager.GenerateWorldStat<ProgressButtonStat>().Populate(1, 0, 10, "Brightness", false, "Strength");
+        statManager.GenerateWorldStat<ProgressButtonStat>().Populate(2, 0, 20, "Rotation speed", false, "Speed");
     }
 
     public override void PopulateStats()

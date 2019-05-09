@@ -15,10 +15,11 @@
     //    _slider.maxValue = _maxValue;
     //}
 
-    public void Populate(string label, string[] values, int value, string statName)
+    public virtual void Populate(string label, string[] values, int value, string statName)
     {
         _name = "choice";
         _statType = StatType.Choice;
+        AssociatedAction = AssociatedAction.Modification;
         _label = label;
         Values = values;
         Value = value;

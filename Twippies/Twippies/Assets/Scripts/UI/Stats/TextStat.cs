@@ -20,12 +20,14 @@ public class TextStat : Stat {
         Value = _textField.text;
     }
 
-    public void Populate(string value, int maxChar, float fontSize)
+    public void Populate(string value, int maxChar, float fontSize, bool readOnly)
     {
         _statType = StatType.Text;
         _name = "texte";
         Value = value;
         MaxChar = maxChar;
+        ReadOnly = readOnly;
         _fontSize = fontSize;
+        AssociatedAction = AssociatedAction.Description;
     }
 }

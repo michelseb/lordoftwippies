@@ -7,12 +7,11 @@ public class WaterObjet : ManageableObjet {
     [SerializeField]
     private Planete _planet;
     
-    public override void GenerateStatsForAction(UserAction action, StatManager statManager)
+    public override void GenerateStatsForAction(StatManager statManager)
     {
-        base.GenerateStatsForAction(action, statManager);
-        var subMenu = action.SubMenu;
-        statManager.GenerateWorldStat<BoolStat>(action).Populate(false, "hard/soft", "Water");
-        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(10, 0, 20, "niveau", false, "Level");
+        base.GenerateStatsForAction(statManager);
+        statManager.GenerateWorldStat<BoolStat>().Populate(false, "hard/soft", "Water");
+        statManager.GenerateWorldStat<ProgressButtonStat>().Populate(10, 0, 20, "niveau", false, "Level");
     }
 
     public float Radius { get; private set; }

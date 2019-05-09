@@ -17,12 +17,6 @@ public class RadialPanel : RadialElement {
         UserActions = new List<UserAction>();
     }
 
-    public void GenerateObjectActions(ManageableObjet obj)
-    {
-        Type t = obj.GetType();
-        t.GetMethod("GenerateActions").Invoke(obj, new object[] { obj });
-    }
-
     public void GenerateStatsForRadialButton(RadialButton button, ManageableObjet obj)
     {
         Type t = obj.GetType();

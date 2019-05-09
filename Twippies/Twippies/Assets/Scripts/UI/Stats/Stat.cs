@@ -11,6 +11,13 @@ public enum StatType
     Value
 }
 
+public enum AssociatedAction
+{
+    Description,
+    Modification,
+    Add
+}
+
 public abstract class Stat : GraphicElement, IRadial {
     protected StatManager _statManager;
     protected StatType _statType;
@@ -19,6 +26,7 @@ public abstract class Stat : GraphicElement, IRadial {
     protected bool _main;
     protected string _specificName;
 
+    public AssociatedAction AssociatedAction { get; set; }
     public string Name { get { return _name; } }
     public bool Main { get { return _main; } set { _main = value; } }
     public string SpecificName { get { return _specificName; } set { _specificName = value; } }
@@ -38,13 +46,8 @@ public abstract class Stat : GraphicElement, IRadial {
         return Vector3.ClampMagnitude(Vector3.one * 1 / (_mouseProximity + .01f) * 50, _initSize.magnitude * 10);
     }
 
-    public void Open()
-    {
-    }
-
-    public void Close()
-    {
-    }
+    public void Open() { }
+    public void Close() { }
 
     public virtual void Select()
     {
@@ -82,8 +85,7 @@ public abstract class Stat : GraphicElement, IRadial {
         }
     }
 
-    public virtual void OnPointerClick(PointerEventData eventData)
-    {
-    }
+    public virtual void OnPointerClick(PointerEventData eventData){ }
+    public void Populate() { }
 }
 

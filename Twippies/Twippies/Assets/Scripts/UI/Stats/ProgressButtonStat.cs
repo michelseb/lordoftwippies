@@ -27,11 +27,11 @@ public class ProgressButtonStat : Stat {
         _labelField.text = Label;
         if (ReadOnly)
         {
-            _fillImage.fillAmount = Value;
+            _fillImage.fillAmount = Value / MaxValue;
         }
         else
         {
-            Value = _fillImage.fillAmount;
+            Value = _fillImage.fillAmount * MaxValue;
         }
         if (Selected)
         {
@@ -70,6 +70,15 @@ public class ProgressButtonStat : Stat {
         Label = label;
         ReadOnly = readOnly;
         _specificName = statName;
+        if (ReadOnly)
+        {
+            AssociatedAction = AssociatedAction.Description;
+        }
+        else
+        {
+            AssociatedAction = AssociatedAction.Modification;
+        }
+        
     }
 
 }

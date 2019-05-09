@@ -4,15 +4,12 @@ using System.Linq;
 using UnityEngine;
 
 public class StatManager : MonoBehaviour {
-    [SerializeField]
     private List<Stat> _statsList;
     private ObjectGenerator _og;
     private ObjetManager _om;
     
     [SerializeField]
     private Color _color;
-
-    public List<Stat> StatsList { get { return _statsList; } set { _statsList = value; } }
     public Color Color { get { return _color; } set { _color = value; } }
     public string Type { get; set; }
 
@@ -47,29 +44,40 @@ public class StatManager : MonoBehaviour {
 
     public T GenerateAction<T>(ManageableObjet obj) where T: UserAction
     {
-        GameObject actionObj = Instantiate(ObjectGenerator.Instance.GetAction<T>(), RadialPanel.Instance.transform);
+        GameObject actionObj = Instantiate(ObjectGenerator.Instance.GetActionGO<T>(), RadialPanel.Instance.transform);
         T action = actionObj.GetComponent<T>();
         action.Type = obj.Type;
         action.Init();
         action.Button.Init();
         action.Button.Image.color = obj.Stats.Color;
         RadialPanel.Instance.UserActions.Add(action);
-        obj.GenerateStatsForAction(action, this);
+        obj.GenerateStatsForAction(this);
         return action;
     }
 
-    public T GenerateWorldStat<T>(UserAction action) where T : Stat
+    public T GenerateWorldStat<T>() where T : Stat
     {
-        GameObject obj = Instantiate(ObjectGenerator.Instance.GetStat<T>(), action.SubMenu.transform);
+        GameObject obj = Instantiate(ObjectGenerator.Instance.GetStat<T>());
         T stat = obj.GetComponent<T>();
-        stat.RadialButton = action.Button;
-        stat.Init();
-        if (stat.Image != null)
-        {
-            stat.Image.color = action.Button.Image.color;
-        }
         _statsList.Add(stat);
         return stat;
+    }
+
+    public void LinkStatsToAction(string type)
+    {
+        foreach (var stat in _statsList)
+        {
+            var action = RadialPanel.Instance.UserActions.FindAll(x => x.Type == type).FirstOrDefault(x => x.AssociatedAction == stat.AssociatedAction);
+            if (action == null)
+                continue;
+            stat.transform.parent = action.transform;
+            stat.RadialButton = action.Button;
+            stat.Init();
+            if (stat.Image != null)
+            {
+                stat.Image.color = action.Button.Image.color;
+            }
+        }
     }
 
     public Stat GetStat(string name)
@@ -85,7 +93,7 @@ public class StatManager : MonoBehaviour {
     public void Init()
     {
         _og = ObjectGenerator.Instance;
+        _om = ObjetManager.Instance;
         _statsList = new List<Stat>();
-        enabled = false;
     }
 }

@@ -158,12 +158,11 @@ public class TreeObjet : StaticObjet, IConsumable, ICollectable, ILightnable {
         _initSize = UpdateVector(_initSize, (100 - _age) / 100 * .03f, 0, 10);
     }
 
-    public override void GenerateStatsForAction(UserAction action, StatManager statManager)
+    public override void GenerateStatsForAction(StatManager statManager)
     {
-        base.GenerateStatsForAction(action, statManager);
-        var subMenu = action.SubMenu;
-        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(0, 0, 100, "Water Amount", true, "Water");
-        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(30, 0, 100, "Sun Amount", true, "Sun");
+        base.GenerateStatsForAction(statManager);
+        statManager.GenerateWorldStat<ProgressButtonStat>().Populate(0, 0, 100, "Water Amount", true, "Water");
+        statManager.GenerateWorldStat<ProgressButtonStat>().Populate(30, 0, 100, "Sun Amount", true, "Sun");
     }
 
     public override void PopulateStats()

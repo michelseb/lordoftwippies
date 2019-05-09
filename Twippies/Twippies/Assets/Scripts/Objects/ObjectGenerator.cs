@@ -43,6 +43,7 @@ public class ObjectGenerator : MonoBehaviour {
         {
             objet.Stats.Type = objet.Type;
             _om.StatManagers.Add(objet.Stats);
+            objet.Stats.Init();
             //GameObject statPanelObject = Instantiate(StatPanel.gameObject, MainStatPanel.transform);
             //StatPanel statPanel = statPanelObject.GetComponent<StatPanel>();
             //statPanel.StatManager = objet.Stats;
@@ -57,7 +58,7 @@ public class ObjectGenerator : MonoBehaviour {
             //statPanel.StatManager.SpecificStatPanel.Init();
             //statPanel.Image.color = statPanel.StatManager.Color;
             //statPanel.StatManager.enabled = false;
-            RadialPanel.GenerateObjectActions(objet);
+            objet.GenerateActions();
         }
 
     }
@@ -153,11 +154,19 @@ public class ObjectGenerator : MonoBehaviour {
         return null;
     }
 
-    public GameObject GetAction<T>() where T : UserAction
+    public GameObject GetActionGO<T>() where T : UserAction
     {
         UserAction action = ActionFactory.Find(x => x is T);
         if (action != null)
             return action.gameObject;
+        return null;
+    }
+
+    public UserAction GetAction<T>() where T : UserAction
+    {
+        UserAction action = ActionFactory.Find(x => x is T);
+        if (action != null)
+            return action;
         return null;
     }
 

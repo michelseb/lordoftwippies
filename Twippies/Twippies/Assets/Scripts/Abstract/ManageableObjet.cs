@@ -248,15 +248,15 @@ public abstract class ManageableObjet : Objet {
         return value;
     }
 
-    public virtual void GenerateActions(ManageableObjet obj)
+    public virtual void GenerateActions()
     {
-        obj.Stats.GenerateAction<DescriptionAction>(obj);
+        Stats.GenerateAction<DescriptionAction>(this);
+        Stats.LinkStatsToAction(Type);
     }
 
-    public virtual void GenerateStatsForAction(UserAction action, StatManager statManager)
+    public virtual void GenerateStatsForAction(StatManager statManager)
     {
-        var subMenu = action.SubMenu;
-        statManager.GenerateWorldStat<ProgressButtonStat>(action).Populate(0, 0, 100, "Age", true, "Age");
+        statManager.GenerateWorldStat<ProgressButtonStat>().Populate(0, 0, 100, "Age", true, "Age");
         //statManager.GenerateWorldStat<DescriptionStat>(action).Populate(_icon, _name, 20, 14, "Description");
         //statManager.GenerateWorldStat<LabelStat>(action).Populate(_type, "Titre");
     }

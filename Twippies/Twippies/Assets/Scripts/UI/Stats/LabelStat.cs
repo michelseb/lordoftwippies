@@ -17,5 +17,6 @@ public class LabelStat : Stat {
         _statType = StatType.Label;
         Value = value;
         _specificName = statName;
+        AssociatedAction = AssociatedAction.Description;
     }
 }
