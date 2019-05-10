@@ -11,9 +11,8 @@ public class BoolStat : Stat {
     public bool Value { get; set; }
     public string Label { get; set; }
 
-    protected override void Start()
+    private void Start()
     {
-        base.Start();
         _cover.SetActive(Value);
     }
 
@@ -27,13 +26,22 @@ public class BoolStat : Stat {
         }
     }
 
-    public void Populate(bool value, string label, string statName)
+    public void Populate(bool value, string label, string statName, bool readOnly)
     {
         _statType = StatType.Bool;
         _name = "bool";
         Label = label;
         Value = value;
+        ReadOnly = readOnly;
         _specificName = statName;
+        if (ReadOnly)
+        {
+            AssociatedAction = AssociatedAction.Modification;
+        }
+        else
+        {
+            AssociatedAction = AssociatedAction.Description;
+        }
     }
 
     public override void OnPointerClick(PointerEventData eventData)

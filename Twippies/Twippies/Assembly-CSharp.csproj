@@ -141,8 +141,8 @@
     <Compile Include="Assets\Scripts\UI\Stats\BoolStat.cs" />
     <Compile Include="Assets\Scripts\UI\Stats\ChoiceStat.cs" />
     <Compile Include="Assets\Scripts\UI\Stats\DescriptionStat.cs" />
+    <Compile Include="Assets\Scripts\UI\Stats\ImageStat.cs" />
     <Compile Include="Assets\Scripts\UI\Stats\LabelStat.cs" />
-    <Compile Include="Assets\Scripts\UI\Stats\ProgressButtonStat.cs" />
     <Compile Include="Assets\Scripts\UI\Stats\Stat.cs" />
     <Compile Include="Assets\Scripts\UI\Stats\StatManager.cs" />
     <Compile Include="Assets\Scripts\UI\Stats\TextStat.cs" />

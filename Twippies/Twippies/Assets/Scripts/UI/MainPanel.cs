@@ -33,7 +33,7 @@ public class MainPanel : GraphicElement {
         if (panel != null)
         {
             t.GetMethod("GenerateStats").Invoke(obj, new object[] { panel });
-            //panel.StatManager.GenerateStat<ProgressButtonStat>(mainStat: true, name: "Amount").Populate(0, 0, 100, "Nombre de " + obj.Type.Split(' ')[0] + "s", true, "Amount");
+            //panel.StatManager.GenerateStat<ValueStat>(mainStat: true, name: "Amount").Populate(0, 0, 100, "Nombre de " + obj.Type.Split(' ')[0] + "s", true, "Amount");
             UpdateGlobalStat(panel, 1);
             panel.StatManager.GetStat("Amount").SetActive(false);
         }

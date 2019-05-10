@@ -195,12 +195,12 @@ public class Planete : ManageableObjet {
         base.GenerateActions();
     }
 
-    public override void GenerateStatsForAction(StatManager statManager)
+    public override void GenerateStatsForActions()
     {
-        base.GenerateStatsForAction(statManager);
-        statManager.GenerateWorldStat<BoolStat>().Populate(true, "Don't press this", "Destroy");
-        statManager.GenerateWorldStat<BoolStat>().Populate(false, "Shape mode", "Shape");
-        //statManager.GenerateWorldStat<ChoiceStat>(action).Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode");
+        base.GenerateStatsForActions();
+        Stats.GenerateWorldStat<BoolStat>().Populate(true, "Don't press this", "Destroy", true);
+        Stats.GenerateWorldStat<BoolStat>().Populate(false, "Shape mode", "Shape", false);
+        Stats.GenerateWorldStat<ChoiceStat>().Populate("Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode", false);
 
     }
 
@@ -209,7 +209,7 @@ public class Planete : ManageableObjet {
         base.PopulateStats();
         _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Destroy"), new object[] { true, "Don't press this", "Destroy" });
         _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Shape"), new object[] { false, "Shape mode", "Shape" });
-        //_og.RadialPanel.PopulateStatPanel(_stats.GetStat("Mode"), new object[] { "Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode" });
+        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Mode"), new object[] { "Display mode", new string[] { "None", "Population", "Height", "Needs", "Groups", "Access", "Water Access", "Food" }, 0, "Mode" });
     }
 
 

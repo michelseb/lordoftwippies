@@ -586,16 +586,16 @@ public class Twippie : DraggableObjet, ILightnable {
         //TODO : Calculer si évolution de twippie primitif à avancé
     }
 
-    public override void GenerateStatsForAction(StatManager statManager)
+    public override void GenerateStatsForActions()
     {
-        base.GenerateStatsForAction(statManager);
-        statManager.GenerateWorldStat<LabelStat>().Populate(_gender.ToString(), "Gender");
-        statManager.GenerateWorldStat<ProgressButtonStat>().Populate(0, 0, 100, "Hunger", true, "Hunger");
-        statManager.GenerateWorldStat<ProgressButtonStat>().Populate(0, 0, 100, "Thirst", true, "Thirst");
-        statManager.GenerateWorldStat<ProgressButtonStat>().Populate(0, 0, 100, "Fatigue", true, "Sleep");
-        statManager.GenerateWorldStat<LabelStat>().Populate("Main need : ", "Need");
-        statManager.GenerateWorldStat<LabelStat>().Populate("Emotion : ", "Emotion");
-        statManager.GenerateWorldStat<LabelStat>().Populate("Action : " + _state.ToString(), "Action");
+        base.GenerateStatsForActions();
+        Stats.GenerateWorldStat<LabelStat>().Populate(_gender.ToString(), "Gender");
+        Stats.GenerateWorldStat<ValueStat>().Populate(0, 0, 100, "Hunger", true, "Hunger");
+        Stats.GenerateWorldStat<ValueStat>().Populate(0, 0, 100, "Thirst", true, "Thirst");
+        Stats.GenerateWorldStat<ValueStat>().Populate(0, 0, 100, "Fatigue", true, "Sleep");
+        Stats.GenerateWorldStat<LabelStat>().Populate("Main need : ", "Need");
+        Stats.GenerateWorldStat<LabelStat>().Populate("Emotion : ", "Emotion");
+        Stats.GenerateWorldStat<LabelStat>().Populate("Action : " + _state.ToString(), "Action");
     }
 
 

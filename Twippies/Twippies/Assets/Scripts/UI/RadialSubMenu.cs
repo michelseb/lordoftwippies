@@ -4,7 +4,16 @@ using UnityEngine.EventSystems;
 
 public class RadialSubMenu : RadialElement
 {
-    public List<RadialElement> Elements { get; set; }
+    private List<IRadial> _elements;
+    private RadialLayout _radialLayout;
+    public List<IRadial> Elements { get { if (_elements == null) _elements = new List<IRadial>(); return _elements; } }
+    public RadialLayout RadialLayout { get { if (_radialLayout == null) _radialLayout = GetComponent<RadialLayout>(); return _radialLayout; } }
+
+    public void Arrange()
+    {
+        RadialLayout.MaxAngle = 20 * (Elements.Count - 1);
+        RadialLayout.StartAngle = 90 - 10 * (Elements.Count - 1);
+    }
 
     public override IEnumerator DeSelect(float delay = 0)
     {

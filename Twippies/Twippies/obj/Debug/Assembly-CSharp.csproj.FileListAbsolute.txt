@@ -548,5 +548,3 @@ D:\smichel\lordoftwippies\Twippies\Twippies\obj\Debug\Assembly-CSharp.csproj.Cor
 D:\smichel\lordoftwippies\Twippies\Twippies\obj\Debug\Assembly-CSharp.csproj.CopyComplete
 D:\smichel\lordoftwippies\Twippies\Twippies\obj\Debug\Assembly-CSharp.dll
 D:\smichel\lordoftwippies\Twippies\Twippies\obj\Debug\Assembly-CSharp.pdb
-D:\smichel\lordoftwippies\Twippies\Twippies\Temp\bin\Debug\UnityEditor.UI.dll
-D:\smichel\lordoftwippies\Twippies\Twippies\Temp\bin\Debug\UnityEditor.UI.xml

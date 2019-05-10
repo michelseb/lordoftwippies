@@ -33,12 +33,6 @@ public abstract class Stat : GraphicElement, IRadial {
     public bool ReadOnly { get; set; } = false;
     public RadialButton RadialButton { get; set; }
 
-    protected virtual void Start()
-    {
-        _initSize = transform.localScale;
-        _focusedSize = _initSize * 5;
-    }
-
     protected override Vector3 GetCurrentSize()
     {
         if (Controls.FocusedUI == this)
@@ -46,8 +40,8 @@ public abstract class Stat : GraphicElement, IRadial {
         return Vector3.ClampMagnitude(Vector3.one * 1 / (_mouseProximity + .01f) * 50, _initSize.magnitude * 10);
     }
 
-    public void Open() { }
-    public void Close() { }
+    public virtual void Open() { }
+    public virtual void Close() { }
 
     public virtual void Select()
     {

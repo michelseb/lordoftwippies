@@ -51,7 +51,6 @@ public class StatManager : MonoBehaviour {
         action.Button.Init();
         action.Button.Image.color = obj.Stats.Color;
         RadialPanel.Instance.UserActions.Add(action);
-        obj.GenerateStatsForAction(this);
         return action;
     }
 
@@ -70,13 +69,18 @@ public class StatManager : MonoBehaviour {
             var action = RadialPanel.Instance.UserActions.FindAll(x => x.Type == type).FirstOrDefault(x => x.AssociatedAction == stat.AssociatedAction);
             if (action == null)
                 continue;
-            stat.transform.parent = action.transform;
+            stat.transform.parent = action.SubMenu.transform;
+            action.SubMenu.Elements.Add(stat);
             stat.RadialButton = action.Button;
-            stat.Init();
             if (stat.Image != null)
             {
                 stat.Image.color = action.Button.Image.color;
             }
+        }
+
+        foreach (var action in RadialPanel.Instance.UserActions)
+        {
+            action.SubMenu.Arrange();
         }
     }
 

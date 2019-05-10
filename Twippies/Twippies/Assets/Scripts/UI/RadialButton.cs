@@ -19,8 +19,6 @@ public class RadialButton : RadialElement
     }
     protected void Start()
     {
-        _initSize = transform.parent.transform.localScale;
-        _focusedSize = _initSize * 4;
         foreach(var element in transform.parent.transform.GetComponentsInChildren<GraphicElement>(true))
         {
             if (element == this)

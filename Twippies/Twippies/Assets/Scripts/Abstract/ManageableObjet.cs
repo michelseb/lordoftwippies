@@ -251,12 +251,13 @@ public abstract class ManageableObjet : Objet {
     public virtual void GenerateActions()
     {
         Stats.GenerateAction<DescriptionAction>(this);
+        GenerateStatsForActions();
         Stats.LinkStatsToAction(Type);
     }
 
-    public virtual void GenerateStatsForAction(StatManager statManager)
+    public virtual void GenerateStatsForActions()
     {
-        statManager.GenerateWorldStat<ProgressButtonStat>().Populate(0, 0, 100, "Age", true, "Age");
+        Stats.GenerateWorldStat<ValueStat>().Populate(0, 0, 100, "Age", true, "Age");
         //statManager.GenerateWorldStat<DescriptionStat>(action).Populate(_icon, _name, 20, 14, "Description");
         //statManager.GenerateWorldStat<LabelStat>(action).Populate(_type, "Titre");
     }

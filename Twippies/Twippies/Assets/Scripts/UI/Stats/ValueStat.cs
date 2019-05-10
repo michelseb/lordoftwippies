@@ -5,21 +5,18 @@ using UnityEngine.UI;
 public class ValueStat : Stat {
 
     [SerializeField]
-    private TextMeshProUGUI _labelField;
+    private TMPro.TextMeshProUGUI _labelField;
     [SerializeField]
-    private Slider _slider;
-
+    private Image _fillImage;
+    public Image FillImage { get { return _fillImage; } }
     public float Value { get; set; }
     public string Label { get; set; }
     public int MinValue { get; set; }
     public int MaxValue { get; set; }
 
-    protected override void Start()
+    private void Start()
     {
-        base.Start();
-        _slider.minValue = MinValue;
-        _slider.maxValue = MaxValue;
-        _slider.value = Value;
+        _fillImage.fillAmount = Value;
     }
 
     protected override void Update()
@@ -28,18 +25,43 @@ public class ValueStat : Stat {
         _labelField.text = Label;
         if (ReadOnly)
         {
-            _slider.value = Value;
+            _fillImage.fillAmount = Value / MaxValue;
         }
         else
         {
-            Value = _slider.value;
+            Value = _fillImage.fillAmount * MaxValue;
+        }
+        if (Selected)
+        {
+            if (RadialButton.Container.Icon.IsActive())
+            {
+                RadialButton.Container.Icon.enabled = false;
+            }
+            RadialButton.Text.text = Value.ToString();
+        }
+        else
+        {
+            if (!RadialButton.Container.Icon.IsActive())
+            {
+                RadialButton.Container.Icon.enabled = true;
+                RadialButton.Text.text = string.Empty;
+            }
         }
     }
+
+    //protected void LateUpdate()
+    //{
+    //    transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+    //    foreach (Transform child in transform)
+    //    {
+    //        child.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+    //    }
+    //}
 
     public void Populate(float value, int minValue, int maxValue, string label, bool readOnly, string statName)
     {
         _statType = StatType.Value;
-        _name = "value";
+        _name = "progressButton";
         Value = value;
         MinValue = minValue;
         MaxValue = maxValue;
@@ -48,11 +70,12 @@ public class ValueStat : Stat {
         _specificName = statName;
         if (ReadOnly)
         {
-            AssociatedAction = AssociatedAction.Modification;
+            AssociatedAction = AssociatedAction.Description;
         }
         else
         {
-            AssociatedAction = AssociatedAction.Description;
+            AssociatedAction = AssociatedAction.Modification;
         }
+
     }
 }
