@@ -71,7 +71,10 @@ public class RadialButton : RadialElement
         _image.color = new Color(_image.color.r, _image.color.g, _image.color.b, 1f);
         foreach (var child in transform.parent.transform.GetComponentsInChildren<GraphicElement>(true))
         {
-            child.SetActive(true);
+            if (!(child is RadialSubMenu && child.transform.parent != transform.parent.transform))
+            {
+                child.SetActive(true);
+            }
         }
         foreach (UserAction action in RadialPanel.Instance.UserActions)
         {

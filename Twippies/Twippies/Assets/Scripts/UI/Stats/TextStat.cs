@@ -15,8 +15,9 @@ public class TextStat : Stat {
         _textField.text = Value;
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
         Value = _textField.text;
     }
 

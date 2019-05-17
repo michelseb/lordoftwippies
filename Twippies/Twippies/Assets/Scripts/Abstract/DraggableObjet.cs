@@ -57,8 +57,9 @@ public abstract class DraggableObjet : ManageableObjet {
 
     }
 
-    protected virtual void LateUpdate()
+    protected override void LateUpdate()
     {
+        base.LateUpdate();
         if (_p.Sun != null)
         {
             _timeReference = _p.Sun.Speed;

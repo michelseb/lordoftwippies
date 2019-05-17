@@ -7,8 +7,9 @@ public class LabelStat : Stat {
 
     public string Value { get; set; }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
         _labelField.text = Value;
     }
 

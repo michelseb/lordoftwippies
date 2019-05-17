@@ -44,11 +44,13 @@ public class StatManager : MonoBehaviour {
 
     public T GenerateAction<T>(ManageableObjet obj) where T: UserAction
     {
-        GameObject actionObj = Instantiate(ObjectGenerator.Instance.GetActionGO<T>(), RadialPanel.Instance.transform);
+        GameObject actionObj = Instantiate(ObjectGenerator.Instance.GetActionGO<T>());
         T action = actionObj.GetComponent<T>();
+        action.Parent = RadialPanel.Instance.transform;
         action.Type = obj.Type;
         action.Init();
         action.Button.Init();
+        action.transform.parent = action.Parent;
         action.Button.Image.color = obj.Stats.Color;
         RadialPanel.Instance.UserActions.Add(action);
         return action;
@@ -69,7 +71,8 @@ public class StatManager : MonoBehaviour {
             var action = RadialPanel.Instance.UserActions.FindAll(x => x.Type == type).FirstOrDefault(x => x.AssociatedAction == stat.AssociatedAction);
             if (action == null)
                 continue;
-            stat.transform.parent = action.SubMenu.transform;
+            stat.Parent = action.SubMenu.transform;
+            stat.transform.SetParent(stat.Parent, false);
             action.SubMenu.Elements.Add(stat);
             stat.RadialButton = action.Button;
             if (stat.Image != null)

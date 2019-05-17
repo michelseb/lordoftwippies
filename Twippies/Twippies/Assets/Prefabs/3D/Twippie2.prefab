@@ -187,7 +187,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1953714432734514}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -11260.224, y: -17244.006, z: 39567.14}
+  m_LocalPosition: {x: 8.247655, y: 2.5490456, z: 17.571745}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_Children:
   - {fileID: 4698711178221614}
@@ -447,6 +447,7 @@ MonoBehaviour:
     m_Bits: 10497
   _initialStepsBeforeReproduce: 10
   _health: 0
+  _healthBar: {fileID: 114685691731089880}
   _speed: 1
 --- !u!114 &114685691731089880
 MonoBehaviour:
@@ -472,30 +473,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8678757669c261419b52f0fb6065523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _statsList:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   _color: {r: 1, g: 1, b: 0, a: 1}
 --- !u!114 &114828306073754496
 MonoBehaviour:
@@ -644,7 +621,7 @@ LineRenderer:
     alignment: 0
     textureMode: 0
     generateLightingData: 0
-  m_UseWorldSpace: 0
+  m_UseWorldSpace: 1
   m_Loop: 0
 --- !u!136 &136412662776622600
 CapsuleCollider:

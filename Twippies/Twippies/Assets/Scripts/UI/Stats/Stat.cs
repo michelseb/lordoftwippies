@@ -47,7 +47,9 @@ public abstract class Stat : GraphicElement, IRadial {
     {
         Selected = true;
         _controls.FocusedUI = this;
+        transform.SetParent(null);
         transform.localScale = _focusedSize;
+        transform.SetParent(Parent);
         foreach (var stat in RadialButton.transform.GetComponentsInChildren<Stat>())
         {
             if (stat == this)

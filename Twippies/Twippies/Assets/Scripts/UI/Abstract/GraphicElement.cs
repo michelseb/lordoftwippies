@@ -15,6 +15,7 @@ public abstract class GraphicElement : MonoBehaviour
     protected Vector3 _initSize, _focusedSize;
     protected float _initZ, _focusedZ;
     protected int _focusedSortingOrder;
+    public Transform Parent { get; set; }
     public Camera Cam { get { if (_cam == null) _cam = UIManager.Instance.UICam; return _cam; } }
     public Controls Controls { get { if (_controls == null) _controls = Controls.Instance; return _controls; } }
     public bool Selected { get; internal set; }
@@ -40,7 +41,7 @@ public abstract class GraphicElement : MonoBehaviour
     public virtual void Init()
     {
         _initSize = transform.localScale;
-        _focusedSize = _initSize;
+        _focusedSize = _initSize * 3;
         _controls = Controls.Instance;
         _cam = UIManager.Instance.UICam;
         _image = GetComponent<Image>();
@@ -56,29 +57,6 @@ public abstract class GraphicElement : MonoBehaviour
         {
             transform.localScale = GetCurrentSize();
         }
-    }
-
-    protected Rect RectTransformToScreenSpace(RectTransform transform)
-    {
-        Vector2 size = Vector2.Scale(transform.rect.size, transform.lossyScale);
-        float x = transform.position.x + transform.anchoredPosition.x;
-        float y = Screen.height - transform.position.y - transform.anchoredPosition.y;
-
-        return new Rect(x, y, size.x, size.y);
-    }
-
-    protected AnimationClip GetAnimationClip(string name)
-    {
-        if (_animator == null)
-            return null;
-        var anims = _animator.runtimeAnimatorController.animationClips;
-        for (int i = 0; i < anims.Length; i++)
-        {
-            if (anims[i].name == name)
-                return anims[i];
-        }
-        Debug.Log("Anim " + name + " not found for " + gameObject.name);
-        return null;
     }
 
     protected virtual Vector3 GetCurrentSize()

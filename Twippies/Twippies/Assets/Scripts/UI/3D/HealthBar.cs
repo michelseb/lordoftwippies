@@ -9,6 +9,8 @@ public class HealthBar : MonoBehaviour {
     [SerializeField]
     private Image _health;
 
+    public Image Health { get { return _health; } }
+
     private void Awake()
     {
         _camPos = Camera.main.transform;

@@ -68,6 +68,8 @@ public class Twippie : DraggableObjet, ILightnable {
     private int _initialStepsBeforeReproduce;
     [SerializeField]
     private float _health;
+    [SerializeField]
+    private HealthBar _healthBar;
     private float _sicknessDuration;
     protected bool _healthy;
     private IConsumable _consumable;
@@ -94,6 +96,7 @@ public class Twippie : DraggableObjet, ILightnable {
     public float MaxSicknessDuration { get; protected set; }
     public Gender GenderName { get { return _gender; } }
     public int NbGeneration { get; protected set; }
+    public HealthBar HealthBar { get { return _healthBar; } }
 
 
     protected override void Awake()
@@ -884,5 +887,11 @@ public class Twippie : DraggableObjet, ILightnable {
     public void FinishExternalAction()
     {
         SetDestination(DefineGoal());
+    }
+
+    protected override void ColorMe()
+    {
+        base.ColorMe();
+        HealthBar.Health.color = new Color(HealthBar.Health.color.r, HealthBar.Health.color.g, HealthBar.Health.color.b, _renderer.material.color.a);
     }
 }

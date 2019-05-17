@@ -125,7 +125,7 @@ public class Controls : MonoBehaviour {
         {
             if(_autoZoom != ZoomMode.Focused)
             {
-                StartCoroutine(AutoZoom(40));
+                StartCoroutine(AutoZoom(20));
                 _autoZoom = ZoomMode.Focused;
             }
         }
@@ -207,7 +207,7 @@ public class Controls : MonoBehaviour {
 
                 if (Vector2.Distance(OriginClic, Input.mousePosition) > DIST_TO_DRAG)
                 {
-                    if (FocusedObject != null && (clic != ClicMode.CentralClic))
+                    if (FocusedObject != null && (clic != ClicMode.CentralClic) && AnyClicHold())
                     {
                         FocusedLayer = FocusedObject.gameObject.layer;
                         ctrl = ControlMode.Dragging;
@@ -484,6 +484,11 @@ public class Controls : MonoBehaviour {
     private bool AnyClic()
     {
         return Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3");
+    }
+
+    private bool AnyClicHold()
+    {
+        return Input.GetButton("Fire1") || Input.GetButton("Fire2") || Input.GetButton("Fire3");
     }
 
     private void OnGUI()

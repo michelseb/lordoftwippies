@@ -145,6 +145,11 @@ public abstract class ManageableObjet : Objet {
 
     }
 
+    protected virtual void LateUpdate()
+    {
+        ColorMe();
+    }
+
 
     protected virtual void OnMouseEnter()
     {
@@ -196,6 +201,22 @@ public abstract class ManageableObjet : Objet {
     protected virtual void ScaleMe()
     {
         transform.localScale = _currentSize;
+    }
+
+    protected virtual void ColorMe()
+    {
+        if (_renderer.material.HasProperty("_Color"))
+        {
+            var col = _renderer.material.color;
+            if ((_controls.FocusedObject != null && _controls.FocusedObject != this) || (_controls.FocusedObjects.Count > 0 && !_controls.FocusedObjects.Contains(this)))
+            {
+                _renderer.material.color = new Color(col.r, col.g, col.b, .2f);
+            }
+            else
+            {
+                _renderer.material.color = new Color(col.r, col.g, col.b, 1);
+            }
+        }
     }
 
     protected virtual void OnMouseDrag()
