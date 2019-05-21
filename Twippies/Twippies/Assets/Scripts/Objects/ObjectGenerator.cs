@@ -19,10 +19,11 @@ public class ObjectGenerator : MonoBehaviour {
     private int _nbTrees;
     [SerializeField]
     private int _nbAdvancedTwippies;
-    public RadialPanel RadialPanel;
+    [SerializeField]
+    private Planete _planete;
     private ObjetManager _om;
     private ZoneManager _zm;
-
+    public RadialMenu RadialPanel { get; set; }
     private static ObjectGenerator _instance;
     public static ObjectGenerator Instance
     {
@@ -38,26 +39,12 @@ public class ObjectGenerator : MonoBehaviour {
     private void Awake()
     {
         _om = ObjetManager.Instance;
-        RadialPanel = RadialPanel.Instance;
+        RadialPanel = _planete.MainRadial;
         foreach (ManageableObjet objet in ObjectFactory)
         {
             objet.Stats.Type = objet.Type;
             _om.StatManagers.Add(objet.Stats);
             objet.Stats.Init();
-            //GameObject statPanelObject = Instantiate(StatPanel.gameObject, MainStatPanel.transform);
-            //StatPanel statPanel = statPanelObject.GetComponent<StatPanel>();
-            //statPanel.StatManager = objet.Stats;
-            //statPanel.StatManager.Init();
-            //statPanel.Tab.transform.SetParent(MainPanel.TabContainer.transform, true);
-            //statPanel.name = objet.Type;
-            //statPanel.StatManager.StatPanel = statPanel;
-            //statPanel.Type = objet.Type;
-            //MainPanel.GenerateStatsForPanel(statPanel, objet);
-            //MainPanel.SetStatPanelActiveState(false, objet.Type);
-            //statPanel.Init();
-            //statPanel.StatManager.SpecificStatPanel.Init();
-            //statPanel.Image.color = statPanel.StatManager.Color;
-            //statPanel.StatManager.enabled = false;
             objet.GenerateActions();
         }
 
@@ -164,9 +151,9 @@ public class ObjectGenerator : MonoBehaviour {
 
     public UserAction GetAction<T>() where T : UserAction
     {
-        UserAction action = ActionFactory.Find(x => x is T);
-        if (action != null)
-            return action;
+        UserAction radial = ActionFactory.Find(x => x is T);
+        if (radial != null)
+            return radial;
         return null;
     }
 

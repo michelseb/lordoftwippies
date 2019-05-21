@@ -91,6 +91,7 @@ GameObject:
   - component: {fileID: 114130021448021526}
   - component: {fileID: 114710876362048310}
   - component: {fileID: 114754005014900074}
+  - component: {fileID: 114913528853335392}
   m_Layer: 0
   m_Name: BoolButton
   m_TagString: Untagged
@@ -418,7 +419,20 @@ MonoBehaviour:
   _name: 
   _labelField: {fileID: 114509017663561124}
   _cover: {fileID: 1508646937710816}
-  _pupille: {fileID: 1527214688443198}
+--- !u!114 &114913528853335392
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1554585287946840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93b7c45d350bfe640a938cd09e6fc077, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _subMenu: {fileID: 0}
+  _container: {fileID: 0}
+  _text: {fileID: 114509017663561124}
 --- !u!222 &222085740840038488
 CanvasRenderer:
   m_ObjectHideFlags: 1

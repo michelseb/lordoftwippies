@@ -271,7 +271,7 @@ public abstract class ManageableObjet : Objet {
 
     public virtual void GenerateActions()
     {
-        Stats.GenerateAction<DescriptionAction>(this);
+        Stats.GenerateRadialAction<DescriptionAction>(this);
         GenerateStatsForActions();
         Stats.LinkStatsToAction(Type);
     }

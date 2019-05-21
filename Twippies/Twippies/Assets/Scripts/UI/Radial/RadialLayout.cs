@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 /*
@@ -67,7 +68,7 @@ public class RadialLayout : LayoutGroup
         float fOffsetAngle = ((MaxAngle - MinAngle)) / (children.Count - 1);
 
         float fAngle = StartAngle;
-        foreach (RectTransform child in children)
+        foreach (RectTransform child in children.OrderBy(c=>c.gameObject.name))
         {
             if (child != null)
             {

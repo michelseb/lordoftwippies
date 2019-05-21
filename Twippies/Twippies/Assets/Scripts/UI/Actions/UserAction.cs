@@ -1,13 +1,9 @@
 ﻿using UnityEngine;
 
-public class UserAction : GraphicElement {
-
+public class UserAction : MonoBehaviour
+{
     [SerializeField]
-    private RadialButton _button;
-    [SerializeField]
-    private RadialSubMenu _subMenu;
-    public RadialButton Button { get { return _button; } }
-    public RadialSubMenu SubMenu { get { return _subMenu; } }
-    public string Type { get; set; }
+    private RadialButton _radialButton;
+    public RadialButton RadialButton { get { return _radialButton; } }
     public AssociatedAction AssociatedAction { get; set; }
 }

@@ -8,8 +8,6 @@ public class ChoiceStat : Stat {
     public string[] Choices { get; set; }
     public int Value { get; set; }
     [SerializeField]
-    private RadialSubMenu _subMenu;
-    [SerializeField]
     private TextMeshProUGUI _labelField;
 
 

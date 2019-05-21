@@ -15,7 +15,7 @@ public class Sun : AerialObjet {
 
     public override void GenerateActions()
     {
-        Stats.GenerateAction<ModifyAction>(this);
+        Stats.GenerateRadialAction<ModificationAction>(this);
         base.GenerateActions();
     }
 

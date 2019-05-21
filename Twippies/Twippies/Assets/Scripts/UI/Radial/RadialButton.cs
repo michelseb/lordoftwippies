@@ -10,6 +10,7 @@ public class RadialButton : RadialElement
     [SerializeField]
     private TextMeshProUGUI _text;
 
+    public RadialMenu RadialMenu { get; set; }
     public UIContainer Container { get { return _container; } }
     public TextMeshProUGUI Text { get { return _text; } set { _text = value; } }
 
@@ -71,16 +72,16 @@ public class RadialButton : RadialElement
         _image.color = new Color(_image.color.r, _image.color.g, _image.color.b, 1f);
         foreach (var child in transform.parent.transform.GetComponentsInChildren<GraphicElement>(true))
         {
-            if (!(child is RadialSubMenu && child.transform.parent != transform.parent.transform))
+            if (!(child is RadialMenu && child.transform.parent != transform.parent.transform))
             {
                 child.SetActive(true);
             }
         }
-        foreach (UserAction action in RadialPanel.Instance.UserActions)
+        foreach (RadialButton button in RadialMenu.Elements)
         {
-            if (action.Button == this)
+            if (button == this)
                 continue;
-            StartCoroutine(action.Button.DeSelect(1f));
+            StartCoroutine(button.DeSelect(1f));
         }
         _subMenu.Open();
     }
@@ -110,7 +111,7 @@ public class RadialButton : RadialElement
     {
         if (Controls.FocusedUI == this)
             return _focusedSize;
-        foreach (var radial in transform.parent.transform.GetComponentsInChildren<IRadial>(true))
+        foreach (var radial in transform.parent.transform.GetComponentsInChildren<RadialElement>(true))
         {
             if (Controls.FocusedUI == (object)radial)
                 return _focusedSize;

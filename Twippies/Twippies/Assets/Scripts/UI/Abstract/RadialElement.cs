@@ -2,17 +2,18 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public abstract class RadialElement : GraphicElement, IRadial
+public abstract class RadialElement : GraphicElement, IPointerEnterHandler, ISelectHandler, IPointerExitHandler, IPointerClickHandler
 {
     [SerializeField]
-    protected RadialSubMenu _subMenu;
-    
+    protected RadialMenu _subMenu;
+
+    public string Type { get; set; }
 
     protected virtual void Awake()
     {
         _animator = GetComponent<Animator>();
     }
-
+    
     public virtual void Open()
     {
         if (gameObject.activeSelf)

@@ -42,17 +42,16 @@ public class StatManager : MonoBehaviour {
         return (ChoiceStat)s;
     }
 
-    public T GenerateAction<T>(ManageableObjet obj) where T: UserAction
+    public T GenerateRadialAction<T>(ManageableObjet obj) where T: UserAction
     {
-        GameObject actionObj = Instantiate(ObjectGenerator.Instance.GetActionGO<T>());
-        T action = actionObj.GetComponent<T>();
-        action.Parent = RadialPanel.Instance.transform;
-        action.Type = obj.Type;
-        action.Init();
-        action.Button.Init();
-        action.transform.parent = action.Parent;
-        action.Button.Image.color = obj.Stats.Color;
-        RadialPanel.Instance.UserActions.Add(action);
+        GameObject buttonObj = Instantiate(ObjectGenerator.Instance.GetActionGO<T>());
+        T action = buttonObj.GetComponent<T>();
+        action.RadialButton.Parent = _om.ActivePlanet.MainRadial.transform;
+        action.RadialButton.Type = obj.Type;
+        action.RadialButton.Init();
+        action.transform.SetParent(action.RadialButton.Parent);
+        action.RadialButton.Image.color = obj.Stats.Color;
+        _om.ActivePlanet.MainRadial.Elements.Add(action.RadialButton);
         return action;
     }
 
@@ -68,22 +67,35 @@ public class StatManager : MonoBehaviour {
     {
         foreach (var stat in _statsList)
         {
-            var action = RadialPanel.Instance.UserActions.FindAll(x => x.Type == type).FirstOrDefault(x => x.AssociatedAction == stat.AssociatedAction);
-            if (action == null)
+            var buttons = _om.ActivePlanet.MainRadial.Elements.FindAll(x => x.Type == type);
+            RadialButton button = null;
+            foreach (RadialButton butt in buttons.OfType<RadialButton>())
+            {
+                var action = butt.GetComponentInParent<UserAction>();
+                if (action != null) { 
+                    if (action.AssociatedAction == stat.AssociatedAction)
+                    {
+                        button = butt;
+                        break;
+                    }
+                }
+            }
+            if (button == null)
                 continue;
-            stat.Parent = action.SubMenu.transform;
+            stat.Parent = _om.ActivePlanet.MainRadial.transform;
             stat.transform.SetParent(stat.Parent, false);
-            action.SubMenu.Elements.Add(stat);
-            stat.RadialButton = action.Button;
+            button.RadialMenu = _om.ActivePlanet.MainRadial;
+            button.RadialMenu.Elements.Add(stat);
+            stat.RadialButton = button;
             if (stat.Image != null)
             {
-                stat.Image.color = action.Button.Image.color;
+                stat.Image.color = button.Image.color;
             }
         }
 
-        foreach (var action in RadialPanel.Instance.UserActions)
+        foreach (RadialButton button in _om.ActivePlanet.MainRadial.Elements.OfType<RadialButton>())
         {
-            action.SubMenu.Arrange();
+            button.RadialMenu.Arrange();
         }
     }
 

@@ -4,18 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class RadialPanel : RadialElement {
+public class RadialMenu : RadialElement {
 
-    public List<UserAction> UserActions { get; internal set; }
-
-    private static RadialPanel _instance;
-    public static RadialPanel Instance { get { if (_instance == null) _instance = FindObjectOfType<RadialPanel>(); return _instance; } }
-
-    protected override void Awake()
-    {
-        base.Awake();
-        UserActions = new List<UserAction>();
-    }
+    private RadialLayout _radialLayout;
+    private List<RadialElement> _elements;
+    public List<RadialElement> Elements { get { if (_elements == null) _elements = new List<RadialElement>(); return _elements; } }
+    public RadialLayout RadialLayout { get { if (_radialLayout == null) _radialLayout = GetComponent<RadialLayout>(); return _radialLayout; } }
 
     public void GenerateStatsForRadialButton(RadialButton button, ManageableObjet obj)
     {
@@ -28,56 +22,58 @@ public class RadialPanel : RadialElement {
         }
     }
 
+    public void Arrange()
+    {
+        RadialLayout.MaxAngle = 20 * (Elements.Count - 1);
+        RadialLayout.StartAngle = 90 - 10 * (Elements.Count - 1);
+    }
+
     public void PopulateStatPanel(Stat stat, object[] objs)
     {
         Type t = stat.GetType();
         t.GetMethod("Populate").Invoke(stat, objs);
     }
 
-    public bool SetActionsActiveState(bool active, string type)
+    public void SetButtonsActiveState(bool active, string type)
     {
-        List<UserAction> actions = UserActions.FindAll(x => x.Type == type);
-        if (actions != null && actions.Count > 0)
+        foreach (RadialButton button in Elements)
         {
-            foreach (UserAction action in actions)
+            if (button.Type == type)
             {
-                action.SetActive(active);
-                action.Button.SetActive(active);
-            }
-            return true;
+                button.SetActive(active);
+            }    
         }
-        return false;
     }
 
-    public void SetAllActionsActiveState(bool active, string exceptionType = null)
+    public void SetAllButtonsActiveState(bool active, string exceptionType = null)
     {
-        foreach (UserAction action in UserActions)
+        foreach (RadialButton button in Elements)
         {
-            if (exceptionType != null && exceptionType == action.Type)
+            if (exceptionType != null && exceptionType == button.Type)
                 continue;
 
-            action.SetActive(active);
+            button.SetActive(active);
         }
     }
 
-    public IEnumerator SetAllActionsActiveStateWithDelay(bool active, float delay = 0f)
+    public IEnumerator SetAllButtonsActiveStateWithDelay(bool active, float delay = 0f)
     {
-        foreach (UserAction action in UserActions)
+        foreach (RadialButton button in Elements)
         {
             if (active)
             {
-                action.Button.Select();
+                button.Select();
             }
             else
             {
-                action.Button.Selected = false;
-                action.Button.DeSelect();
+                button.Selected = false;
+                button.DeSelect();
             }
         }
         yield return (delay != 0 ? new WaitForSeconds(delay) : null); 
-        foreach (UserAction action in UserActions)
+        foreach (RadialButton button in Elements)
         {
-            action.SetActive(active);
+            button.SetActive(active);
         }
     }
 
@@ -93,14 +89,15 @@ public class RadialPanel : RadialElement {
     {
         base.Close();
         StartCoroutine(DeSelect());
+        transform.SetAsFirstSibling();
     }
 
     public override void Open()
     {
         base.Open();
         StartCoroutine(DeSelect());
+        transform.SetAsLastSibling();
     }
-
 
     public override void Select()
     {

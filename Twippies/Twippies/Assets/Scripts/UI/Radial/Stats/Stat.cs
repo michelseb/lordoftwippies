@@ -18,7 +18,7 @@ public enum AssociatedAction
     Add
 }
 
-public abstract class Stat : GraphicElement, IRadial {
+public abstract class Stat : RadialElement {
     protected StatManager _statManager;
     protected StatType _statType;
     [SerializeField]
@@ -40,10 +40,7 @@ public abstract class Stat : GraphicElement, IRadial {
         return Vector3.ClampMagnitude(Vector3.one * 1 / (_mouseProximity + .01f) * 50, _initSize.magnitude * 10);
     }
 
-    public virtual void Open() { }
-    public virtual void Close() { }
-
-    public virtual void Select()
+    public override void Select()
     {
         Selected = true;
         _controls.FocusedUI = this;
@@ -58,22 +55,22 @@ public abstract class Stat : GraphicElement, IRadial {
         }
     }
 
-    public IEnumerator DeSelect(float delay = 0)
+    public override IEnumerator DeSelect(float delay = 0)
     {
         Selected = false;
         yield break;
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public override void OnPointerEnter(PointerEventData eventData)
     {
         Open();
     }
-    public virtual void OnSelect(BaseEventData eventData)
+    public override void OnSelect(BaseEventData eventData)
     {
         Select();
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public override void OnPointerExit(PointerEventData eventData)
     {
         if (!Selected)
         {
@@ -81,7 +78,7 @@ public abstract class Stat : GraphicElement, IRadial {
         }
     }
 
-    public virtual void OnPointerClick(PointerEventData eventData){ }
+    public override void OnPointerClick(PointerEventData eventData) { }
     public void Populate() { }
 }
 

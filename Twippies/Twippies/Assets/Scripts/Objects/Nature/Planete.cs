@@ -6,6 +6,8 @@ using UnityEngine;
 public class Planete : ManageableObjet {
 
     [SerializeField]
+    private RadialMenu _mainRadial;
+    [SerializeField]
     private float _gravity;
     [SerializeField]
     private Collider _objectDeplacementField;
@@ -26,6 +28,7 @@ public class Planete : ManageableObjet {
     public WaterObjet Water { get { return _water; } }
     public Sun Sun { get { return _sun; } }
     public ZoneManager ZManager { get; private set; }
+    public RadialMenu MainRadial { get { return _mainRadial; } }
 
 
     protected override void Awake()
@@ -190,8 +193,8 @@ public class Planete : ManageableObjet {
 
     public override void GenerateActions()
     {
-        Stats.GenerateAction<AddAction>(this);
-        Stats.GenerateAction<ModifyAction>(this);
+        Stats.GenerateRadialAction<AddAction>(this);
+        Stats.GenerateRadialAction<ModificationAction>(this);
         base.GenerateActions();
     }
 

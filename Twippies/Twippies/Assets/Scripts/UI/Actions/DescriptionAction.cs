@@ -1,8 +1,4 @@
 ﻿public class DescriptionAction : UserAction
 {
-    public DescriptionAction()
-    {
-        AssociatedAction = AssociatedAction.Description;
-    }
-
+    public new AssociatedAction AssociatedAction => AssociatedAction.Description;
 }

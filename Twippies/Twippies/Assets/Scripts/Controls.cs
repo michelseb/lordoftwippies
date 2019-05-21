@@ -45,6 +45,10 @@ public class Controls : MonoBehaviour {
 
     [SerializeField]
     private Camera _frontCam;
+
+    [SerializeField]
+    private Planete _planete;
+
     private float _wheelSpeed;
     private float _zoomSensitivity = 15;
     private float _initZoomAmount, _zoomAmount, _maxZoom = 50;
@@ -56,8 +60,7 @@ public class Controls : MonoBehaviour {
     private ObjectGenerator _og;
     private MainPanel _mainPanel;
     private Texture2D _whiteTexture;
-    [SerializeField]
-    private RadialPanel _radialPanel;
+    private RadialMenu _radialPanel;
 
     public ClicMode clic;
     public ControlMode ctrl;
@@ -70,7 +73,6 @@ public class Controls : MonoBehaviour {
     public int FocusedLayer { get; set; }
     public List<ManageableObjet> FocusedObjects { get; private set; }
     public Vector2 OriginClic { get; private set; }
-
     private static Controls _instance;
     public static Controls Instance { get { if (_instance == null) _instance = FindObjectOfType<Controls>(); return _instance; } }
 
@@ -81,7 +83,7 @@ public class Controls : MonoBehaviour {
         _uiR = UIResources.Instance;
         _om = ObjetManager.Instance;
         _og = ObjectGenerator.Instance;
-        _radialPanel = RadialPanel.Instance;
+        _radialPanel = _planete.MainRadial;
         _mainPanel = MainPanel.Instance;
     }
 
@@ -140,7 +142,7 @@ public class Controls : MonoBehaviour {
             _ui.DisablePreviewCam();
             _ui.InfoGUI = false;
             FocusedUI = null;
-            StartCoroutine(_radialPanel.SetAllActionsActiveStateWithDelay(false, 1));
+            StartCoroutine(_radialPanel.SetAllButtonsActiveStateWithDelay(false, 1));
             _mainPanel.SetAllStatPanelsActiveState(false);
             _radialPanel.Close();
 
@@ -553,8 +555,8 @@ public class Controls : MonoBehaviour {
             t.LineRenderer.enabled = true;
         }
         _radialPanel.Open();
-        _radialPanel.SetAllActionsActiveState(false, FocusedObject.Type);
-        _radialPanel.SetActionsActiveState(true, FocusedObject.Type);
+        _radialPanel.SetAllButtonsActiveState(false, FocusedObject.Type);
+        _radialPanel.SetButtonsActiveState(true, FocusedObject.Type);
         FocusedObject.GetStatManager();
         FocusedObject.PopulateStats();
         _ui.SetPreviewCam(FocusedObject);
@@ -568,7 +570,7 @@ public class Controls : MonoBehaviour {
         {
             if (!FocusedObjects.Contains(obj))
             {
-                _radialPanel.SetActionsActiveState(false, obj.Type);
+                _radialPanel.SetButtonsActiveState(false, obj.Type);
             }
         }
         foreach (ManageableObjet obj in FocusedObjects)
@@ -581,7 +583,7 @@ public class Controls : MonoBehaviour {
                     t.LineRenderer.enabled = true;
                 }
             }
-            _radialPanel.SetActionsActiveState(true, obj.Type);
+            _radialPanel.SetButtonsActiveState(true, obj.Type);
             if (!_mainPanel.SetStatPanelActiveState(true, obj.Type)) { Debug.Log("global stat not found"); } else { Debug.Log("global stat "+obj.GetType().ToString()+ " a été updaté !"); }
         }
         _ui.InfoGUI = true;
