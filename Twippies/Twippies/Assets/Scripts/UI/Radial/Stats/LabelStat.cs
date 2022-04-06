@@ -13,7 +13,7 @@ public class LabelStat : Stat {
         _labelField.text = Value;
     }
 
-    public void Populate(string value, string statName)
+    public void Populate(string statName, string value)
     {
         _statType = StatType.Label;
         Value = value;

@@ -39,12 +39,6 @@ public class MainPanel : GraphicElement {
         }
     }
 
-    public void PopulateStatPanel(Stat stat, object[] objs)
-    {
-        Type t = stat.GetType();
-        t.GetMethod("Populate").Invoke(stat, objs);
-    }
-
     public bool SetStatPanelActiveState(bool active, string type)
     {
         StatPanel statPanel = StatPanels.FirstOrDefault(x => x.Type == type);

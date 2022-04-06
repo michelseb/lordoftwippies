@@ -1,7 +1,8 @@
 ﻿using TMPro;
 using UnityEngine;
 
-public class ChoiceStat : Stat {
+public class ChoiceStat : Stat
+{
 
     private string _label;
 
@@ -11,26 +12,21 @@ public class ChoiceStat : Stat {
     private TextMeshProUGUI _labelField;
 
 
-    public virtual void Populate(string label, string[] choices, int value, string statName, bool readOnly)
+    public virtual void Populate(string statName, string label, string[] choices, int value, bool readOnly)
     {
         _name = "choice";
         ReadOnly = readOnly;
         _statType = StatType.Choice;
-        if (ReadOnly)
+
+        AssociatedAction = ReadOnly ? AssociatedAction.Description : AssociatedAction.Modification;
+
+        foreach (var choice in choices)
         {
-            AssociatedAction = AssociatedAction.Description;
-        }
-        else
-        {
-            AssociatedAction = AssociatedAction.Modification;
-        }
-        foreach(var choice in choices)
-        {
-            var obj = Instantiate(ObjectGenerator.Instance.GetStat<ImageStat>(), _subMenu.transform);
-            var stat = obj.GetComponent<Stat>();
+            var stat = Instantiate(_objectGenerator.GetStat<ImageStat>(), _subMenu.transform);
             _subMenu.Elements.Add(stat);
             stat.Init();
         }
+
         _subMenu.Arrange();
         _subMenu.Init();
         _label = label;

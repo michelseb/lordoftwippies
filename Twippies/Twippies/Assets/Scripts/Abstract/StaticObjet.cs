@@ -1,43 +1,35 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public abstract class StaticObjet : DraggableObjet {
-
-    private bool _grounded;
-
+public abstract class StaticObjet : DraggableObjet
+{
     protected override void Start()
     {
         base.Start();
-        _r.isKinematic = false;
+        _rigidBody.isKinematic = false;
+        OnZoneChanged(Zone);
     }
 
-    protected virtual void FixedUpdate()
+    protected override void OnCollisionEnter(Collision other)
     {
         if (_grounded)
-        {
-            _r.velocity = Vector3.zero;
-            _r.angularVelocity = Vector3.zero;
-        }
-    }
+            return;
 
-    private void OnCollisionStay(Collision other)
-    {
+        base.OnCollisionEnter(other);
+        
         if (!_grounded)
-        {
-            if (other.gameObject.GetComponent<Planete>() != null)
-            {
-                _r.isKinematic = true;
-                _grounded = true;
-            }
-        }
+            return;
+
+        _rigidBody.isKinematic = true;
+        _rigidBody.velocity = Vector3.zero;
+        _rigidBody.angularVelocity = Vector3.zero;
     }
 
     protected override void OnMouseDrag()
     {
         base.OnMouseDrag();
-        _r.isKinematic = false;
+        _rigidBody.isKinematic = false;
         _grounded = false;
     }
 
+    protected abstract void OnZoneChanged(Zone zone);
 }

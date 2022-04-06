@@ -4,19 +4,22 @@ using UnityEngine.EventSystems;
 
 public abstract class RadialElement : GraphicElement, IPointerEnterHandler, ISelectHandler, IPointerExitHandler, IPointerClickHandler
 {
-    [SerializeField]
-    protected RadialMenu _subMenu;
+    [SerializeField] protected RadialMenu _subMenu;
 
+    public RadialMenu SubMenu => _subMenu;
     public string Type { get; set; }
 
-    protected virtual void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         _animator = GetComponent<Animator>();
     }
     
     public virtual void Open()
     {
-        if (gameObject.activeSelf)
+        SetActive(true);
+        if (gameObject.activeSelf && _animator != null)
         {
             _animator.ResetTrigger("Close");
             _animator.SetTrigger("Open");
@@ -26,12 +29,15 @@ public abstract class RadialElement : GraphicElement, IPointerEnterHandler, ISel
     {
         if (gameObject.activeSelf)
         {
-            _animator.ResetTrigger("Open");
-            _animator.SetTrigger("Close");
-            if (_subMenu != null)
+            if (_animator != null)
             {
-                _subMenu.Close();
+                _animator.ResetTrigger("Open");
+                _animator.SetTrigger("Close");
             }
+            //if (_subMenu != null)
+            //{
+            //    _subMenu.Close();
+            //}
         }
     }
     public abstract void Select();

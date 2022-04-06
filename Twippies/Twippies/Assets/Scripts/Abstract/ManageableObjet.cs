@@ -1,40 +1,77 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using UnityEngine;
-using cakeslice;
-using UnityEngine.UI;
-using System.Collections;
-using System.Linq;
 
-public abstract class ManageableObjet : Objet {
+public abstract class ManageableObjet : Objet
+{
 
-    [SerializeField]
-    protected StatManager _stats;
+    [SerializeField] protected ObjectStatManager _stats;
+    [SerializeField] protected string _type;
+    [SerializeField] protected Sprite _icon;
+    [SerializeField] protected int _woodCost, _waterCost, _stoneCost;
 
-    [SerializeField]
-    protected string _type;
+    protected ObjetManager _objectManager;
+    protected ZoneManager _zoneManager;
+    protected ObjectGenerator _objectGenerator;
+
+    protected Mesh _mesh;
+    protected MeshCollider _meshCollider;
+    protected MeshFilter _meshFilter;
+    protected Vector3 _initSize, _currentSize, _focusedSize;
+
+    protected Camera _camera;
     protected string _name;
-    protected float _age;
+    protected float _ageProgression;
     protected Controls _controls;
-    protected Rigidbody _r;
+    protected Rigidbody _rigidBody;
     protected float _rotSpeedX, _rotSpeedY, _rotSpeedMultiplier = 10;
     protected cakeslice.Outline _outline;
     protected Collider _coll;
     protected Renderer _renderer;
     protected float _timeReference;
     protected bool _mouseOver;
-    protected int _displayIntervals = 3;
-    protected Vector3[] _originalVertices, _deformedVertices;
 
-    public Collider Coll { get { return _coll; } }
-    public StatManager Stats { get { return _stats; } }
-    public float Age { get { return _age; } set { _age = value; } }
+    public Collider Coll => _coll;
+    public ObjectStatManager Stats => _stats;
+    public bool Grown { get; protected set; }
+    public int Age
+    {
+        get
+        {
+            var newAge = (int)_ageProgression;
+            if (newAge != Age)
+            {
+                Grown = true;
+            }
+
+            return newAge;
+        }
+        set
+        {
+            _ageProgression = value;
+        }
+    }
+
     public string Type { get { return _type; } }
-    protected float _mouseProximity { get { return Vector3.Distance(_cam.WorldToScreenPoint(transform.position), Input.mousePosition); } }
+    //protected float _mouseProximity { get { return Vector3.Distance(_camera.WorldToScreenPoint(transform.position), Input.mousePosition); } }
+    public int WoodCost => _woodCost;
+    public int WaterCost => _waterCost;
+    public int StoneCost => _stoneCost;
+    public Sprite Icon => _icon;
+    public Vector3 CurrentSize { get { return _currentSize; } set { _currentSize = value; } }
 
     protected override void Awake()
     {
         base.Awake();
-        _om.UpdateObjectList(this, true);
+
+        _objectManager = ObjetManager.Instance;
+        _objectGenerator = ObjectGenerator.Instance;
+        _zoneManager = ZoneManager.Instance;
+        _camera = Camera.main;
+        _mesh = GetComponentInChildren<MeshFilter>().mesh;
+        _meshCollider = GetComponentInChildren<MeshCollider>();
+        _meshFilter = GetComponentInChildren<MeshFilter>();
+
+        _objectManager.AddObject(this);
         _coll = GetComponent<Collider>();
         _renderer = GetComponent<Renderer>();
         if (_coll == null)
@@ -59,9 +96,9 @@ public abstract class ManageableObjet : Objet {
             }
             else
             {
-                foreach(Transform child in transform)
+                foreach (Transform child in transform)
                 {
-                    if (child.gameObject.GetComponent<Collider>() != null && child.gameObject.GetComponent<cakeslice.Outline>() == null)
+                    if (child.gameObject.GetComponent<Renderer>() != null && child.gameObject.GetComponent<cakeslice.Outline>() == null)
                     {
                         _outline = child.gameObject.AddComponent<cakeslice.Outline>();
                     }
@@ -79,20 +116,21 @@ public abstract class ManageableObjet : Objet {
         }
     }
 
-    protected override void Start()
+    protected virtual void Start()
     {
-        base.Start();
+        _initSize = transform.lossyScale;
+        _currentSize = _initSize;
+
         _outline.enabled = false;
-        _stats = null;
-        _originalVertices = _mesh.vertices.ToArray();
-        _deformedVertices = _originalVertices.ToArray();
+        //_originalVertices = _mesh.vertices.ToArray();
+        //_deformedVertices = _originalVertices.ToArray();
     }
 
 
     protected virtual void Update()
     {
-        _currentSize = SetCurrentSize();
-        ScaleMe();
+        //_currentSize = SetCurrentSize();
+        //ScaleMe();
         if (!_outline.enabled)
         {
             if (_controls.FocusedObjects.Contains(this))
@@ -100,15 +138,15 @@ public abstract class ManageableObjet : Objet {
                 _outline.enabled = true;
             }
         }
-        
-        transform.RotateAround(transform.position, _cam.transform.up, -_rotSpeedX * _rotSpeedMultiplier);
-        transform.RotateAround(transform.position, _cam.transform.right, _rotSpeedY * _rotSpeedMultiplier);
+
+        transform.RotateAround(transform.position, _camera.transform.up, -_rotSpeedX * _rotSpeedMultiplier);
+        transform.RotateAround(transform.position, _camera.transform.right, _rotSpeedY * _rotSpeedMultiplier);
         _rotSpeedX = Mathf.Lerp(_rotSpeedX, 0, .05f);
         _rotSpeedY = Mathf.Lerp(_rotSpeedY, 0, .05f);
 
         if (Input.GetButtonDown("Fire1"))
         {
-            if (_controls.FocusedObject != this && _outline.enabled && Input.mousePosition.x < Screen.width * 2/3)
+            if (_controls.FocusedObject != this && _outline.enabled && Input.mousePosition.x < Screen.width * 2 / 3)
             {
                 _outline.enabled = false;
             }
@@ -137,12 +175,14 @@ public abstract class ManageableObjet : Objet {
             }
         }
 
-        _age = UpdateValue(_age, _timeReference * .01f);
-        if (_stats != null)
-        {
-            UpdateStats();
-        }
+        _ageProgression = UpdateValue(_ageProgression, _timeReference * .01f);
+        //STATS DO NOT DELETE
+        //UpdateStats();
 
+        if (Grown)
+        {
+            UpdateAge();
+        }
     }
 
     protected virtual void LateUpdate()
@@ -190,32 +230,33 @@ public abstract class ManageableObjet : Objet {
         }
     }
 
-    protected virtual Vector3 SetCurrentSize()
-    {
-        if (_controls.FocusedObject == this)
-            return _focusedSize;
+    //protected virtual Vector3 SetCurrentSize()
+    //{
+    //    if (_controls.FocusedObject == this)
+    //        return _focusedSize;
 
-        return _initSize + Vector3.one * 1 / (_mouseProximity * 100 + .01f) * 5000 * _initSize.magnitude;
-    }
+    //    //return _initSize + Vector3.one * 1 / (_mouseProximity * 100 + .01f) * 5000 * _initSize.magnitude;
+    //}
 
     protected virtual void ScaleMe()
     {
-        transform.localScale = _currentSize;
+        //transform.localScale = _currentSize;
     }
 
     protected virtual void ColorMe()
     {
-        if (_renderer.material.HasProperty("_Color"))
+        if (Utils.IsNull(_renderer) || !_renderer.material.HasProperty("_Color"))
+            return;
+
+        var col = _renderer.material.color;
+        
+        if ((_controls.FocusedObject != null && _controls.FocusedObject != this) || (_controls.FocusedObjects.Count > 0 && !_controls.FocusedObjects.Contains(this)))
         {
-            var col = _renderer.material.color;
-            if ((_controls.FocusedObject != null && _controls.FocusedObject != this) || (_controls.FocusedObjects.Count > 0 && !_controls.FocusedObjects.Contains(this)))
-            {
-                _renderer.material.color = new Color(col.r, col.g, col.b, .2f);
-            }
-            else
-            {
-                _renderer.material.color = new Color(col.r, col.g, col.b, 1);
-            }
+            _renderer.material.color = new Color(col.r, col.g, col.b, .2f);
+        }
+        else
+        {
+            _renderer.material.color = new Color(col.r, col.g, col.b, 1);
         }
     }
 
@@ -234,20 +275,19 @@ public abstract class ManageableObjet : Objet {
     {
         Vector2 screenCenter = new Vector2(Screen.width / 2, Screen.height / 2);
         Vector2 rotationVector = (screenCenter - new Vector2(Input.mousePosition.x, Input.mousePosition.y)).normalized;
-        _rotSpeedX = rotationVector.x*.1f;
-        _rotSpeedY = rotationVector.y*.1f;
+        _rotSpeedX = rotationVector.x * .1f;
+        _rotSpeedY = rotationVector.y * .1f;
     }
 
     protected void SetFocus()
     {
-        
         _controls.FocusedObject = this;
-        _dist = _cam.WorldToScreenPoint(transform.position);
-        _posX = Input.mousePosition.x - _dist.x;
-        _posY = Input.mousePosition.y - _dist.y;
+        //var screenPosition = _camera.WorldToScreenPoint(transform.position);
+        //_posX = Input.mousePosition.x - screenPosition.x;
+        //_posY = Input.mousePosition.y - screenPosition.y;
     }
 
-    protected float UpdateValue(float value, float factor = 1, int minVal = 0, int maxVal = 100)
+    protected float UpdateValue(float value, float factor, int minVal = 0, int maxVal = 100)
     {
         value += Time.deltaTime * factor * _timeReference;
         if (value < minVal)
@@ -258,7 +298,7 @@ public abstract class ManageableObjet : Objet {
         return value;
     }
 
-    protected Vector3 UpdateVector(Vector3 value, float factor = 1,int minSize = 0, int maxSize = 100)
+    protected Vector3 UpdateVector(Vector3 value, float factor = 1, int minSize = 0, int maxSize = 100)
     {
         value += Vector3.one * Time.deltaTime * factor * _timeReference;
         if (value.x < minSize)
@@ -278,7 +318,7 @@ public abstract class ManageableObjet : Objet {
 
     public virtual void GenerateStatsForActions()
     {
-        Stats.GenerateWorldStat<ValueStat>().Populate(0, 0, 100, "Age", true, "Age");
+        Stats.GenerateWorldStat<ValueStat>().Populate("Age", 0, 0, 100, "Age", true);
         //statManager.GenerateWorldStat<DescriptionStat>(action).Populate(_icon, _name, 20, 14, "Description");
         //statManager.GenerateWorldStat<LabelStat>(action).Populate(_type, "Titre");
     }
@@ -288,12 +328,12 @@ public abstract class ManageableObjet : Objet {
         //_og.MainPanel.PopulateStatPanel(_stats.GetStat("Age"), new object[] { _age, 0, 100, "Age", true, "Age" });
         //_og.MainPanel.PopulateStatPanel(_stats.GetStat("Description"), new object[] { _icon, _name, 20, 14, "Description" });
         //_og.MainPanel.PopulateStatPanel(_stats.GetStat("Titre"), new object[] { _type, "Titre" });
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Age"), new object[] { _age, 0, 100, "Age", true, "Age" });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Age", _ageProgression, 0, 100, "Age", true });
     }
 
     public void GetStatManager()
     {
-        _stats = _om.StatManagers.FirstOrDefault(x => x.Type == _type);
+        _stats = _objectManager.StatManagers.FirstOrDefault(x => x.Type == _type);
     }
 
     private Bounds GetViewportBounds(Vector3 screenPosition1, Vector3 screenPosition2)
@@ -302,8 +342,8 @@ public abstract class ManageableObjet : Objet {
         var v2 = Camera.main.ScreenToViewportPoint(screenPosition2);
         var min = Vector3.Min(v1, v2);
         var max = Vector3.Max(v1, v2);
-        min.z = _cam.nearClipPlane;
-        max.z = _cam.farClipPlane;
+        min.z = _camera.nearClipPlane;
+        max.z = _camera.farClipPlane;
 
         var bounds = new Bounds();
         bounds.SetMinMax(min, max);
@@ -316,7 +356,7 @@ public abstract class ManageableObjet : Objet {
             GetViewportBounds(_controls.OriginClic, Input.mousePosition);
 
         return viewportBounds.Contains(
-            _cam.WorldToViewportPoint(gameObject.transform.position));
+            _camera.WorldToViewportPoint(gameObject.transform.position));
     }
 
     public void SetSelectionActive(bool active)
@@ -326,7 +366,20 @@ public abstract class ManageableObjet : Objet {
 
     protected virtual void UpdateStats()
     {
-        _stats.StatToValue(_stats.GetStat("Age")).Value = _age;
+        if (_stats == null)
+            return;
+
+        var ageStat = _stats.GetStat("Age");
+
+        if (ageStat == null)
+            return;
+
+        _stats.StatToValue(ageStat).Value = _ageProgression;
+    }
+
+    protected virtual void UpdateAge()
+    {
+        Grown = false;
     }
 
 }

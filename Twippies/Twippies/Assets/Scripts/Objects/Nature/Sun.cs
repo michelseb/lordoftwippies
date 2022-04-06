@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Sun : AerialObjet {
 
@@ -22,17 +20,17 @@ public class Sun : AerialObjet {
     public override void GenerateStatsForActions()
     {
         base.GenerateStatsForActions();
-        Stats.GenerateWorldStat<BoolStat>().Populate(true, "On/Off", "Active", false);
-        Stats.GenerateWorldStat<ValueStat>().Populate(1, 0, 10, "Brightness", false, "Strength");
-        Stats.GenerateWorldStat<ValueStat>().Populate(2, 0, 20, "Rotation speed", false, "Speed");
+        Stats.GenerateWorldStat<BoolStat>().Populate("Active", true, "On/Off", false);
+        Stats.GenerateWorldStat<ValueStat>().Populate("Strength", 1, 0, 10, "Brightness", false);
+        Stats.GenerateWorldStat<ValueStat>().Populate("Speed", 2, 0, 20, "Rotation speed", false);
     }
 
     public override void PopulateStats()
     {
         base.PopulateStats();
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Active"), new object[] { true, "On/Off", "Active" });
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Strength"), new object[] { 1, 0, 10, "Brightness", false, "Strength" });
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Speed"), new object[] { 2, 0, 20, "Rotation speed", false, "Speed" });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Active", true, "On/Off", false });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Strength", 1, 0, 10, "Brightness", false });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Speed", 2, 0, 20, "Rotation speed", false });
     }
     public float Speed { get { return _speed; } }
     protected override void Awake()
@@ -44,7 +42,7 @@ public class Sun : AerialObjet {
     protected override void Start()
     {
         base.Start();
-        _outline.color = 0;
+        _outline.Color = 0;
     }
 
     protected override void Update()
@@ -54,10 +52,10 @@ public class Sun : AerialObjet {
             transform.Translate(_speed * Time.deltaTime, 0, 0);
     }
 
-    protected override Vector3 SetCurrentSize()
-    {
-        return _initSize;
-    }
+    //protected override Vector3 SetCurrentSize()
+    //{
+    //    return _initSize;
+    //}
 
     protected override void OnMouseEnter()
     {

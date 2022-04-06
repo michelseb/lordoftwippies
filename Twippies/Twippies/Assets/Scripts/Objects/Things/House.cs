@@ -12,7 +12,7 @@ public class House : StaticObjet, IBuildable
     protected override void Start()
     {
         base.Start();
-        _outline.color = 1;
+        _outline.Color = 1;
     }
 
     public IEnumerator Build(int sizeFactor)
@@ -24,4 +24,6 @@ public class House : StaticObjet, IBuildable
             yield return null;
         }
     }
+
+    protected override void OnZoneChanged(Zone zone){}
 }

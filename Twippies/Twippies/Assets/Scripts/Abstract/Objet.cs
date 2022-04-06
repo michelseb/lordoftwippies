@@ -1,74 +1,12 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using System;
+using UnityEngine;
 
-public class Objet : MonoBehaviour {
-
-    [SerializeField]
-    protected Sprite _icon;
-
-    protected Vector3 _dist, _initSize, _currentSize, _focusedSize;
-    protected ObjetManager _om;
-    protected ObjectGenerator _og;
-    protected float _posX, _posY;
-    protected Mesh _mesh;
-    protected MeshCollider _meshCollider;
-    [SerializeField]
-    protected int WOODCOST, WATERCOST, STONECOST;
-    
-    protected Camera _cam;
-
-    public int WoodCost { get { return WOODCOST; } }
-    public int WaterCost { get { return WATERCOST; } }
-    public int StoneCost { get { return STONECOST; } }
-    public Sprite Icon { get { return _icon; } }
-    public Vector3 CurrentSize { get { return _currentSize; } set { _currentSize = value; } }
+public class Objet : MonoBehaviour
+{
+    public Guid Id { get; private set; }
 
     protected virtual void Awake()
     {
-        _om = ObjetManager.Instance;
-        _og = ObjectGenerator.Instance;
-        _cam = Camera.main;
-
-        if (GetComponent<MeshFilter>() != null)
-        {
-            _mesh = GetComponent<MeshFilter>().mesh;
-        }
-        else
-        {
-            foreach (Transform child in transform)
-            {
-                _mesh = child.gameObject.GetComponent<MeshFilter>().mesh;
-                if (_mesh != null)
-                    continue;
-            }
-        }
-
-        if (GetComponent<MeshFilter>() != null)
-        {
-            _meshCollider = GetComponent<MeshCollider>();
-        }
-        else
-        {
-            foreach (Transform child in transform)
-            {
-                _meshCollider = child.gameObject.GetComponent<MeshCollider>();
-                if (_meshCollider != null)
-                    continue; 
-            }
-        }
-
+        Id = Guid.NewGuid();
     }
-
-    protected virtual void Start()
-    {
-        _initSize = transform.lossyScale;
-        _currentSize = _initSize;
-    }
-
-    protected bool CoinFlip(float chance = .5f)
-    {
-        float rand = Random.value;
-        return (rand < chance);
-    }
-
 }

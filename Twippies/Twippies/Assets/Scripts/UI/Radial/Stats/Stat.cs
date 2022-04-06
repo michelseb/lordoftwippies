@@ -19,10 +19,11 @@ public enum AssociatedAction
 }
 
 public abstract class Stat : RadialElement {
-    protected StatManager _statManager;
+
+    [SerializeField] protected string _name;
+
+    protected ObjectGenerator _objectGenerator;
     protected StatType _statType;
-    [SerializeField]
-    protected string _name;
     protected bool _main;
     protected string _specificName;
 
@@ -33,11 +34,19 @@ public abstract class Stat : RadialElement {
     public bool ReadOnly { get; set; } = false;
     public RadialButton RadialButton { get; set; }
 
+    protected override void Awake()
+    {
+        base.Awake();
+
+        _objectGenerator = ObjectGenerator.Instance;
+    }
+
     protected override Vector3 GetCurrentSize()
     {
         if (Controls.FocusedUI == this)
             return _focusedSize;
-        return Vector3.ClampMagnitude(Vector3.one * 1 / (_mouseProximity + .01f) * 50, _initSize.magnitude * 10);
+        var size = Vector3.ClampMagnitude(Vector3.one / (_mouseProximity + .01f) * 20, _initSize.magnitude * 2);
+        return size.magnitude > _initSize.magnitude ? size : _initSize;
     }
 
     public override void Select()
@@ -51,6 +60,7 @@ public abstract class Stat : RadialElement {
         {
             if (stat == this)
                 continue;
+
             StartCoroutine(stat.DeSelect());
         }
     }
@@ -79,6 +89,5 @@ public abstract class Stat : RadialElement {
     }
 
     public override void OnPointerClick(PointerEventData eventData) { }
-    public void Populate() { }
 }
 

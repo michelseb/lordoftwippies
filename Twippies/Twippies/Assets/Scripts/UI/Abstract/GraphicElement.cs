@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class GraphicElement : MonoBehaviour
+public abstract class GraphicElement : Objet
 {
 
     protected Controls _controls;
@@ -41,7 +41,7 @@ public abstract class GraphicElement : MonoBehaviour
     public virtual void Init()
     {
         _initSize = transform.localScale;
-        _focusedSize = _initSize * 3;
+        _focusedSize = _initSize * 2;
         _controls = Controls.Instance;
         _cam = UIManager.Instance.UICam;
         _image = GetComponent<Image>();

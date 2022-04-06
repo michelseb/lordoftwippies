@@ -1,26 +1,15 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class RadialMenu : RadialElement {
+public class RadialMenu : RadialElement
+{
 
     private RadialLayout _radialLayout;
     private List<RadialElement> _elements;
     public List<RadialElement> Elements { get { if (_elements == null) _elements = new List<RadialElement>(); return _elements; } }
     public RadialLayout RadialLayout { get { if (_radialLayout == null) _radialLayout = GetComponent<RadialLayout>(); return _radialLayout; } }
-
-    public void GenerateStatsForRadialButton(RadialButton button, ManageableObjet obj)
-    {
-        Type t = obj.GetType();
-        if (button != null)
-        {
-            //button.StatManager.GenerateStat<ValueStat>(obj.Type, mainStat: true, name: "Amount").Populate(0, 0, 100, "Nombre de " + obj.Type.Split(' ')[0] + "s", true, "Amount");
-            //UpdateGlobalStat(button, 1);
-            //button.StatManager.GetStat("Amount").SetActive(false);
-        }
-    }
 
     public void Arrange()
     {
@@ -28,65 +17,69 @@ public class RadialMenu : RadialElement {
         RadialLayout.StartAngle = 90 - 10 * (Elements.Count - 1);
     }
 
-    public void PopulateStatPanel(Stat stat, object[] objs)
+    public void PopulateStatPanel(ObjectStatManager statManager, object[] objs)
     {
-        Type t = stat.GetType();
-        t.GetMethod("Populate").Invoke(stat, objs);
+        var stat = statManager.GetStat((string)objs[0]); // objs[0] = statname
+        stat.GetType().GetMethod("Populate").Invoke(stat, objs);
     }
 
-    public void SetButtonsActiveState(bool active, string type)
+    public void SetButtonsActiveState(bool active, string type, bool children = false)
     {
-        foreach (RadialButton button in Elements)
+        foreach (RadialElement radial in Elements)
         {
-            if (button.Type == type)
+            if (radial.Type != type)
+                continue;
+
+            radial.SetActive(active);
+            if (!children)
+                continue;
+
+            foreach (var rad in radial.GetComponentsInChildren<RadialElement>(true))
             {
-                button.SetActive(active);
-            }    
+                if (!(rad is RadialMenu))
+                {
+                    rad.SetActive(active);
+                }
+            }
         }
     }
 
     public void SetAllButtonsActiveState(bool active, string exceptionType = null)
     {
-        foreach (RadialButton button in Elements)
+        foreach (RadialElement radial in Elements)
         {
-            if (exceptionType != null && exceptionType == button.Type)
+            if (exceptionType != null && exceptionType == radial.Type)
                 continue;
 
-            button.SetActive(active);
+            radial.SetActive(active);
         }
     }
 
     public IEnumerator SetAllButtonsActiveStateWithDelay(bool active, float delay = 0f)
     {
-        foreach (RadialButton button in Elements)
+        foreach (RadialElement element in Elements)
         {
             if (active)
             {
-                button.Select();
+                element.Select();
             }
             else
             {
-                button.Selected = false;
-                button.DeSelect();
+                element.Selected = false;
+                element.DeSelect();
             }
         }
-        yield return (delay != 0 ? new WaitForSeconds(delay) : null); 
-        foreach (RadialButton button in Elements)
-        {
-            button.SetActive(active);
-        }
-    }
 
-    //public void UpdateGlobalStat(RadialButton button, int value)
-    //{
-    //    if (button != null)
-    //    {
-    //        button.StatManager.StatToValue(button.StatManager.GetStat("Amount")).Value += value;
-    //    }
-    //}
+        yield return (delay != 0 ? new WaitForSeconds(delay) : null);
+
+        Elements.ForEach(x => x.SetActive(active));
+    }
 
     public override void Close()
     {
+        if (!gameObject.activeSelf)
+            return;
+
         base.Close();
         StartCoroutine(DeSelect());
         transform.SetAsFirstSibling();
@@ -95,7 +88,6 @@ public class RadialMenu : RadialElement {
     public override void Open()
     {
         base.Open();
-        StartCoroutine(DeSelect());
         transform.SetAsLastSibling();
     }
 

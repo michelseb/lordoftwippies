@@ -1,27 +1,32 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using System.Collections;
-public abstract class DraggableObjet : ManageableObjet {
+﻿using System;
+using System.Linq;
+using UnityEngine;
 
-    [SerializeField]
-    protected Planete _p;
+public abstract class DraggableObjet : ManageableObjet
+{
+
+    [SerializeField] protected Planet _planet;
 
     private int _dragLayer;
     private Vector3 _lastPos;
-    private bool _dragging;
+    protected bool _grounded;
+    protected bool _dragging;
     protected float _initHeight;
-    protected ZoneManager _zManager;
-    protected Zone _zone;
-    protected Sun _planetSun;
+    protected Guid _zoneId;
+    protected Sun _sun;
+    protected PlanetManager _planetManager;
 
-    public Planete P { get { return _p; } set { _p = value; } }
-    public Zone Zone { get { return _zone; } set { _zone = value; } }
-    public ZoneManager ZoneManager { get { return _zManager; } }
+    public Planet Planet { get { return _planet; } set { _planet = value; } }
+    public Zone Zone { get { return _zoneManager.FindById(_zoneId); } set { _zoneId = value.Id; } }
+    public Guid ZoneId { get { return _zoneId; } set { _zoneId = value; } }
 
     protected override void Awake()
     {
         base.Awake();
-        _r = GetComponent<Rigidbody>();
+
+        _rigidBody = GetComponent<Rigidbody>();
+        _planetManager = PlanetManager.Instance;
+        SetPlanet();
     }
 
 
@@ -29,71 +34,118 @@ public abstract class DraggableObjet : ManageableObjet {
     {
         base.Start();
         transform.localScale = _initSize;
-        _r.constraints = RigidbodyConstraints.FreezeRotationZ;
+        _rigidBody.constraints = RigidbodyConstraints.FreezeRotation;
+        _rigidBody.useGravity = false;
         _dragLayer = LayerMask.GetMask("Positionning");
         _currentSize = _initSize;
         _focusedSize = _initSize;
-        SetPlanete();
-        _zManager = P.gameObject.GetComponent<ZoneManager>();
-        transform.parent = _p.gameObject.transform;
-        _p.Face(transform);
-        _planetSun = _p.Sun;
+
+        //if (!(this is Twippie))
+        //{
+        transform.SetParent(_planet.transform);
+        //}
+        _planet.Face(transform);
+        _sun = _planet.Sun;
         _initHeight = transform.position.x;
-        if (_controls.ctrl != Controls.ControlMode.Dragging)
+        if (_controls.CurrentContolMode != ControlMode.Dragging)
         {
-            if ((this is Twippie) == false)
+            if (!(this is Twippie))
             {
-                _zone = _zManager.GetZone(true, _zone, transform);
+                _zoneId = _zoneManager.GetZone(true, _zoneId, transform.position);
             }
             else
             {
-                _zone = _zManager.GetZone(false, _zone, transform);
+                _zoneId = _zoneManager.GetZone(false, _zoneId, transform.position);
             }
         }
         else
         {
-            _zone = _zManager.GetZone(false, _zone, transform);
+            _zoneId = _zoneManager.GetZone(false, _zoneId, transform.position);
         }
 
     }
 
-    protected override void LateUpdate()
+    protected override void Update()
     {
-        base.LateUpdate();
-        if (_p.Sun != null)
-        {
-            _timeReference = _p.Sun.Speed;
-        }
+        base.Update();
 
-        if (_controls.ctrl == Controls.ControlMode.Dragging && _controls.FocusedObject == this)
+        if (_zoneId == default)
         {
-            _dragging = true;
-            _r.velocity = Vector3.zero;
-            _r.angularVelocity = Vector3.zero;
-            Ray pos = _cam.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-            if (Physics.Raycast(pos, out hit, 100, _dragLayer, QueryTriggerInteraction.Collide))
+            if (_controls.CurrentContolMode != ControlMode.Dragging)
             {
-                _lastPos = hit.point;
-                transform.position = Vector3.Lerp(transform.position, hit.point, .2f);
+                if (!(this is Twippie))
+                {
+                    _zoneId = _zoneManager.GetZone(true, _zoneId, transform.position);
+                }
+                else
+                {
+                    _zoneId = _zoneManager.GetZone(false, _zoneId, transform.position);
+                }
             }
             else
             {
-                if (_lastPos != Vector3.zero)
-                {
-                    transform.position = _lastPos;
-                }
+                _zoneId = _zoneManager.GetZone(false, _zoneId, transform.position);
             }
         }
-        else
+
+        if (_planet.Sun != null)
         {
-            _dragging = false;
+            _timeReference = _planet.Sun.Speed;
         }
+
+        _dragging = SetDraggingState();
+
         MakeAttraction();
     }
 
-    
+
+    private bool SetDraggingState()
+    {
+        if (_controls.CurrentContolMode != ControlMode.Dragging || _controls.FocusedObject != this)
+            return false;
+
+        _rigidBody.velocity = Vector3.zero;
+        _rigidBody.angularVelocity = Vector3.zero;
+        var pos = _camera.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(pos, out RaycastHit hit, 100, _dragLayer, QueryTriggerInteraction.Collide))
+        {
+            _lastPos = hit.point;
+            transform.position = Vector3.Lerp(transform.position, hit.point, .2f);
+        }
+        else
+        {
+            if (_lastPos != Vector3.zero)
+            {
+                transform.position = _lastPos;
+            }
+        }
+
+        return true;
+    }
+
+    protected virtual void OnCollisionEnter(Collision other)
+    {
+        if (_grounded)
+            return;
+
+        if (!other.transform.CompareTag("Planet"))
+            return;
+
+        _grounded = true;
+    }
+
+    protected virtual void OnCollisionExit(Collision other)
+    {
+        if (!_grounded)
+            return;
+
+        if (!other.transform.CompareTag("Planet"))
+            return;
+
+        _grounded = false;
+    }
+
 
     protected override void OnMouseUp()
     {
@@ -102,51 +154,19 @@ public abstract class DraggableObjet : ManageableObjet {
         _dragging = false;
     }
 
-    private void SetPlanete()
+    private void SetPlanet()
     {
-        float dist = float.PositiveInfinity;
-        foreach(Planete p in _om.AllObjects<Planete>())
-        {
-            if (Vector2.Distance(transform.position, p.transform.position) < dist)
-            {
-                _p = p;
-                dist = Vector2.Distance(transform.position, p.transform.position);
-            }
-        }
+        _planet = _objectManager.GetAll<Planet>()?.OrderBy(p => (transform.position - p.transform.position).sqrMagnitude).FirstOrDefault() ?? _objectManager.MainPlanet;
     }
 
     protected virtual void MakeAttraction()
     {
-        if (_p)
+        if (!_planet)
+            return;
+
+        if (_dragging)
         {
-            if (_dragging || IsGrounded())
-            {
-                if (Input.GetMouseButton(0))
-                    _p.Face(transform);
-            }
-            else
-            {
-                _p.Attract(transform, _r);
-            }
+            _planet.Face(transform);
         }
     }
-
-    protected virtual void SetRigidbodyState()
-    {
-        if (IsGrounded() && !_r.isKinematic)
-        {
-            _r.isKinematic = true;
-        }
-        else if (!IsGrounded() && _r.isKinematic)
-        {
-            _r.isKinematic = false;
-        }
-    }
-
-
-    protected bool IsGrounded()
-    {
-        return Physics.Raycast(transform.position, -transform.up, .5f);
-    }
-
 }

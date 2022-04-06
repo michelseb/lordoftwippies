@@ -11,18 +11,24 @@ public class Cloud : AerialObjet {
     [SerializeField]
     private ParticleSystem _ps;
 
+    public override void GenerateActions()
+    {
+        Stats.GenerateRadialAction<ModificationAction>(this);
+        base.GenerateActions();
+    }
+
     public override void GenerateStatsForActions()
     {
         base.GenerateStatsForActions();
-        Stats.GenerateWorldStat<BoolStat>().Populate(true, "Wet/Dry", "Active", false);
-        Stats.GenerateWorldStat<BoolStat>().Populate(true, "Auto", "Auto", false);
+        Stats.GenerateWorldStat<BoolStat>().Populate("Active", true, "Wet/Dry", false);
+        Stats.GenerateWorldStat<BoolStat>().Populate("Auto", true, "Auto", false);
     }
 
     public override void PopulateStats()
     {
         base.PopulateStats();
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Active"), new object[] { true, "Wet/Dry", "Active" });
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Auto"), new object[] { true, "Auto", "Auto" });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Active", true, "Wet/Dry", false });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Auto", true, "Auto", false });
     }
 
     protected override void UpdateStats()
@@ -44,7 +50,7 @@ public class Cloud : AerialObjet {
     protected override void Start()
     {
         base.Start();
-        _outline.color = 4;
+        _outline.Color = 4;
     }
 
     protected override void Update()
@@ -62,11 +68,10 @@ public class Cloud : AerialObjet {
 
         if (_raining)
         {
-            if (!_zone.Ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Drink))
+            if (!Zone.HasResource(ResourceType.Drink))
             {
-                _zone.Ressources.Add(new Ressource(Ressource.RessourceType.Drink, 10));
+                Zone.Resources.Add(new Resource(ResourceType.Drink, 10));
             }
-
         }
 
         if (_auto)
@@ -89,7 +94,7 @@ public class Cloud : AerialObjet {
                 yield break;
             }
             
-            _raining = CoinFlip();
+            _raining = Utils.CoinFlip();
             yield return new WaitForSeconds(seconds / _timeReference);
         }
     }

@@ -5,11 +5,11 @@ public abstract class AerialObjet : DraggableObjet {
 
     protected override void MakeAttraction()
     {
-        if (_p)
+        if (_planet)
         {
             if (!Input.GetMouseButton(1))
             {
-                _p.Face(transform);
+                _planet.Face(transform);
             }
         }
     }

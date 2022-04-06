@@ -125,6 +125,7 @@ GameObject:
   - component: {fileID: 224175646089267868}
   - component: {fileID: 95613212649298976}
   - component: {fileID: 114028353492170178}
+  - component: {fileID: 114618392591355324}
   m_Layer: 14
   m_Name: SubRadial
   m_TagString: Untagged
@@ -419,6 +420,27 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114618392591355324
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1909159378002938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 598e45f88841542499abdbf57f419bf0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 0
+  fDistance: 0
+  MinAngle: 0
+  MaxAngle: 0
+  StartAngle: 0
 --- !u!114 &114671753629756742
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -510,6 +532,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57ec3180926ad564abb181f8509fd498, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _subMenu: {fileID: 114028353492170178}
   _radialButton: {fileID: 114206822281793544}
 --- !u!222 &222013760613240852
 CanvasRenderer:
@@ -588,7 +611,7 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1141650675838766}
-  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -596,11 +619,11 @@ RectTransform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.2}
-  m_AnchorMax: {x: 0.5, y: 0.2}
-  m_AnchoredPosition: {x: -100, y: 2.9999912}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 66, y: 125}
-  m_Pivot: {x: 0.5, y: 0.2}
+  m_Pivot: {x: 0, y: 0}
 --- !u!224 &224175646089267868
 RectTransform:
   m_ObjectHideFlags: 1

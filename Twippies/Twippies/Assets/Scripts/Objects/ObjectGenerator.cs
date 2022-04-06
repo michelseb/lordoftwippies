@@ -1,28 +1,25 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ObjectGenerator : MonoBehaviour {
+public class ObjectGenerator : MonoBehaviour
+{
 
-    [SerializeField]
-    private float _spawnTime;
-    [SerializeField]
-    public List<ManageableObjet> ObjectFactory;
-    [SerializeField]
-    public List<Stat> StatFactory;
-    [SerializeField]
-    public List<UserAction> ActionFactory;
-    [SerializeField]
-    private int _nbTwippies;
-    [SerializeField]
-    private int _nbTrees;
-    [SerializeField]
-    private int _nbAdvancedTwippies;
-    [SerializeField]
-    private Planete _planete;
-    private ObjetManager _om;
-    private ZoneManager _zm;
+    [SerializeField] private float _spawnTime;
+    [SerializeField] private List<ManageableObjet> _objectFactory;
+    [SerializeField] private List<Stat> _statFactory;
+    [SerializeField] private List<UserAction> _actionFactory;
+    [SerializeField] private int _nbTwippies;
+    [SerializeField] private int _nbTrees;
+    [SerializeField] private int _nbAdvancedTwippies;
+    [SerializeField] private Planet _planet;
+    [SerializeField] private ActionMenu _actionMenu;
+
+    public List<ManageableObjet> ObjectFactory => _objectFactory;
+
+    private ZoneManager _zoneManager;
     public RadialMenu RadialPanel { get; set; }
     private static ObjectGenerator _instance;
     public static ObjectGenerator Instance
@@ -38,142 +35,126 @@ public class ObjectGenerator : MonoBehaviour {
 
     private void Awake()
     {
-        _om = ObjetManager.Instance;
-        RadialPanel = _planete.MainRadial;
-        foreach (ManageableObjet objet in ObjectFactory)
-        {
-            objet.Stats.Type = objet.Type;
-            _om.StatManagers.Add(objet.Stats);
-            objet.Stats.Init();
-            objet.GenerateActions();
-        }
+        _zoneManager = ZoneManager.Instance;
+        RadialPanel = _planet.MainRadial;
+        Instantiate(_actionMenu, RadialPanel.transform.parent.transform);
+
+        // STATS DO NOT DELETE
+        //foreach (var objet in _objectFactory)
+        //{
+        //    objet.Stats.Type = objet.Type;
+        //    _objectManager.StatManagers.Add(objet.Stats);
+        //    objet.Stats.Init();
+        //    objet.GenerateActions();
+        //}
+        //RadialPanel.Arrange();
 
     }
 
-    private void Start()
+    public void Generate()
     {
-        StartCoroutine(WaitForZoneManager());
+        StartCoroutine(GenerateWorld());
     }
 
-    private IEnumerator WaitForZoneManager()
+    private IEnumerator GenerateWorld()
     {
-        while (_zm == null)
-        {
-            _zm = _om.ActivePlanet.ZManager;
-            yield return null;
-        }
-        List<Zone> z = new List<Zone>();
-        for (int b = 0; b < _zm.Zones.Length; b++)
-        {
-            if (_zm.Zones[b].MaxHeight > 5.8f)
-            {
-                z.Add(_zm.Zones[b]);
-                _zm.Zones[b].Accessible = false;
-            }
-        }
+        var zones = new List<Zone>();
+
+        //for (int b = 0; b < _zoneManager.Zones.Length; b++)
+        //{
+        //    if (_zoneManager.Zones[b].Height > 5.8f)
+        //    {
+        //        zones.Add(_zoneManager.Zones[b]);
+        //        _zoneManager.Zones[b].Accessible = false;
+        //    }
+        //}
+
+        //foreach (var zone in _zoneManager.Zones)
+        //{
+        //    zone.Accessible = true;
+        //}
 
         for (int a = 0; a < _nbTrees; a++)
         {
-            for (int b = 0; b < _zm.Zones.Length; b++)
-            {
-                if (_zm.Zones[b].Accessible)
-                {
-                    GameObject tree = Instantiate(GetGO<TreeObjet>(), _zm.Zones[b].Center, Quaternion.identity, transform);
-                    ManageableObjet mo = tree.GetComponent<ManageableObjet>();
-                    mo.Age = 5;
-                    _zm.Zones[b].Accessible = false;
-                    break;
-                }
-            }
+            var zone = _zoneManager.Zones.OrderBy(x => Guid.NewGuid()).FirstOrDefault(x => x.Accessible);
+            if (zone == null)
+                continue;
+
+            var tree = Instantiate(Get<TreeObjet>(), zone.WorldPos, Quaternion.identity, transform);
+            tree.Age = 5;
+            zone.Accessible = false;
+            zones.Add(zone);
         }
 
-        foreach (Zone zone in z)
-        {
-            zone.Accessible = true;
-        }
-        z = null;
+        zones.ForEach(zone => zone.Accessible = true);
 
+        zones = new List<Zone>();
+        var availableZones = _zoneManager.Zones.Where(z => !z.Taken && z.Accessible).ToList();
 
-        z = new List<Zone>();
         for (int a = 0; a < _nbTwippies; a++)
         {
-            for (int b = 0; b < _zm.Zones.Length; b++)
-            {
-                if (_zm.Zones[b].Accessible)
-                {
-                    Instantiate(GetGO<Twippie>(), _zm.Zones[b].Center, Quaternion.identity, transform);
-                    z.Add(_zm.Zones[b]);
-                    _zm.Zones[b].Accessible = false;
-                    break;
-                }
-            }
+            if (availableZones.Count == 0)
+                continue;
+
+            var zIndex = UnityEngine.Random.Range(0, availableZones.Count);
+            var zone = availableZones[zIndex];
+
+            var position = zone.WorldPos + (zone.WorldPos - _planet.transform.position).normalized;
+            Instantiate(Get<Twippie>(), position, Quaternion.identity);
+
             if (_spawnTime > 0)
                 yield return new WaitForSeconds(_spawnTime);
         }
+
         for (int a = 0; a < _nbAdvancedTwippies; a++)
         {
-            for (int b = 0; b < _zm.Zones.Length; b++)
+            for (int b = 0; b < _zoneManager.Zones.Length; b++)
             {
-                if (_zm.Zones[b].Accessible)
+                if (_zoneManager.Zones[b].Accessible)
                 {
-                    Instantiate(GetGO<AdvancedTwippie>(), _zm.Zones[b].Center, Quaternion.identity, transform);
-                    z.Add(_zm.Zones[b]);
-                    _zm.Zones[b].Accessible = false;
+                    Instantiate(Get<AdvancedTwippie>(), _zoneManager.Zones[b].WorldPos, Quaternion.identity);
+                    zones.Add(_zoneManager.Zones[b]);
+                    _zoneManager.Zones[b].Accessible = false;
                     break;
                 }
             }
+
             if (_spawnTime > 0)
                 yield return new WaitForSeconds(_spawnTime);
         }
-        foreach (Zone zone in z)
-        {
-            zone.Accessible = true;
-        }
-        z = null;
 
+        zones.ForEach(z => z.Accessible = true);
     }
 
-    public GameObject GetGO<T>() where T : ManageableObjet
+    public T Get<T>() where T : ManageableObjet
     {
-        ManageableObjet obj = ObjectFactory.FirstOrDefault(x => x is T);
+        var obj = _objectFactory.FirstOrDefault(x => x is T);
+
         if (obj != null)
-            return obj.gameObject;
+            return (T)obj;
+
         return null;
     }
 
-    public GameObject GetActionGO<T>() where T : UserAction
+    public T GetAction<T>() where T : UserAction
     {
-        UserAction action = ActionFactory.Find(x => x is T);
-        if (action != null)
-            return action.gameObject;
-        return null;
+        return _actionFactory.FirstOrDefault(x => x is T) as T;
     }
 
-    public UserAction GetAction<T>() where T : UserAction
+    public T GetStat<T>(string statType = "") where T : Stat
     {
-        UserAction radial = ActionFactory.Find(x => x is T);
-        if (radial != null)
-            return radial;
-        return null;
-    }
+        var stats = _statFactory.FindAll(x => x is T);
 
-    public GameObject GetStat<T>(string statType = "") where T : Stat
-    {
-        List<Stat> stats = StatFactory.FindAll(x => x is T);
-        if (stats != null)
-        {
-            if (stats.Count == 1 || statType == "")
-                return stats[0].gameObject;
-            return stats.FirstOrDefault(x => x.Name == statType).gameObject;
-        }
-            
-        return null;
+        if (stats == null || stats.Count == 0)
+            return null;
+
+        return string.IsNullOrEmpty(statType) ?
+            (T)stats[0] :
+            (T)stats.FirstOrDefault(x => x.Name == statType);
     }
 
     public List<ManageableObjet> GetObjects<T>() where T : class
     {
-        List<ManageableObjet> result = new List<ManageableObjet>();
-        result = ObjectFactory.FindAll(x => x is T);
-        return result;
+        return _objectFactory.FindAll(x => x is T);
     }
 }

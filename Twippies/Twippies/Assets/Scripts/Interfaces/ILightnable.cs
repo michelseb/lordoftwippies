@@ -1,5 +1,4 @@
-﻿public interface ILightnable {
-
+﻿public interface ILightnable
+{
     bool GetLight();
-
 }

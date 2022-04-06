@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
 
-
-public class Twippie : DraggableObjet, ILightnable {
+public class Twippie : DraggableObjet, ILightnable
+{
 
     protected enum State
     {
@@ -48,90 +49,99 @@ public class Twippie : DraggableObjet, ILightnable {
         Female
     }
 
+    [SerializeField] protected PathFinder _pathFinder;
+    [SerializeField] private LayerMask _mask;
+    [SerializeField] private int _initialStepsBeforeReproduce;
+    [SerializeField] private float _health;
+    [SerializeField] private HealthBar _healthBar;
+    [SerializeField] protected float _speed;
+    [SerializeField] protected CharacterPosition _positionModel;
+
+
     protected GameObject _goalObject;
     protected Arrival _arrival;
-    protected List<Zone> _knownZones;
-    protected List<Twippie> _knownTwippies;
-    protected Twippie _papa, _maman;
-    [SerializeField]
-    protected PathFinder _pathFinder;
+    protected Twippie _dad, _mom;
     protected Gender _gender;
     protected State _state, _previousState;
     protected List<Need> _needs;
     protected GoalType _goalType;
-    [SerializeField]
-    private LayerMask _mask;
     private float _sleepiness;
     private float _hunger;
     private float _thirst;
-    [SerializeField]
-    private int _initialStepsBeforeReproduce;
-    [SerializeField]
-    private float _health;
-    [SerializeField]
-    private HealthBar _healthBar;
     private float _sicknessDuration;
-    protected bool _healthy;
     private IConsumable _consumable;
     private float _endurance;
     private int _placeMemory;
     private int _peopleMemory;
     private int _stepsBeforeReproduce;
-    [SerializeField]
-    protected float _speed;
-    private CapsuleCollider _capsuleCollider;
     protected float _initSpeed;
     protected bool _isDeforming, _isDeformed;
-
-    protected Coroutine _contemplation, _drink, _eat, _reproduce;
+    protected bool _hasDestination;
+    protected Coroutine _contemplation, _drink, _eat, _reproduce, _setDestination;
     protected float _contemplateTime;
+
+    protected TwippieManager _twippieManager;
 
     private readonly bool _reproducing;
 
-    public Twippie Papa { get { return _papa; } protected set { _papa = value; } }
-    public Twippie Maman { get { return _maman; } protected set { _maman = value; } }
-    public List<Twippie> KnownTwippies { get { return _knownTwippies; } set { _knownTwippies = value; } }
+    private GameObject _target;
+    public bool Healthy => _sleepiness < 50 && _thirst < 50 && _hunger < 50;
+    public Twippie Dad { get { return _dad; } protected set { _dad = value; } }
+    public Twippie Mom { get { return _mom; } protected set { _mom = value; } }
     public float Health { get { return _health; } set { _health = value; } }
     public LineRenderer LineRenderer { get; private set; }
     public float MaxSicknessDuration { get; protected set; }
     public Gender GenderName { get { return _gender; } }
-    public int NbGeneration { get; protected set; }
+    public int GenerationIndex { get; protected set; }
     public HealthBar HealthBar { get { return _healthBar; } }
+    public Dictionary<string, Memory> Memories { get; protected set; }
+
+    protected const string TWIPPIE_MEMORY = "TwippieMemory";
+    protected const string ZONE_MEMORY = "ZoneMemory";
 
 
     protected override void Awake()
     {
         base.Awake();
+
+        _twippieManager = TwippieManager.Instance;
+
         _name = "Twippie sans défenses";
-        _gender = CoinFlip() ? Gender.Male : Gender.Female;
+        _gender = Utils.CoinFlip() ? Gender.Male : Gender.Female;
         _needs = new List<Need> { new Need(NeedType.None) };
-        _capsuleCollider = transform.GetComponent<CapsuleCollider>();
+        _twippieManager.Add(this);
     }
 
     protected override void Start()
     {
         base.Start();
-        _displayIntervals = 5;
         _previousState = State.None;
         _goalType = GoalType.Wander;
         _stepsBeforeReproduce = _initialStepsBeforeReproduce;
         _consumable = null;
-        _knownZones = new List<Zone>();
-        _knownTwippies = new List<Twippie>();
+
+        Memories = new Dictionary<string, Memory>
+        {
+            { TWIPPIE_MEMORY, new Memory(MemoryType.People) },
+            { ZONE_MEMORY, new Memory(MemoryType.Places) }
+        };
+
         LineRenderer = GetComponent<LineRenderer>();
         LineRenderer.enabled = false;
         _initSpeed = _speed;
-        _outline.color = 3;
-        _endurance = 10;// +Random.value * 10;
+        _outline.Color = 3;
+        _endurance = 10;
         _health = 100;
         _goalObject = new GameObject();
-        //_goalObject.GetComponent<SphereCollider>().isTrigger = true;
+        _goalObject.transform.position = transform.position;
         _arrival = _goalObject.AddComponent<Arrival>();
-        _arrival.ZoneManager = _zManager;
         SetDestination(GoalType.Wander);
         StartCoroutine(CheckSleepNeed());
         StartCoroutine(CheckBasicNeeds());
-        
+
+
+        _target = new GameObject("Target");
+        _target.transform.SetParent(_planet.transform);
     }
 
 
@@ -142,57 +152,73 @@ public class Twippie : DraggableObjet, ILightnable {
 
         if (_isDeformed && _controls.FocusedObject != this)
         {
-            _r.isKinematic = false;
-            StartCoroutine(Reform(1));
+            _rigidBody.isKinematic = false;
+            //StartCoroutine(Reform(1));
             _isDeformed = false;
         }
 
-        if (_pathFinder.Steps != null && _pathFinder.Steps.Count > 0)
+        if (_pathFinder?.Path?.Count > 0)
         {
-            for (int a = 0; a < _pathFinder.Steps.Count; a++)
-            {
-                LineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center + ((_pathFinder.Steps[a].Zone.Center - _p.transform.position).normalized) / 2);
-            }
-            LineRenderer.SetPosition(_pathFinder.Steps.Count, transform.position + transform.up / 2);
+            _target.transform.position = _pathFinder.Path[0].transform.position;
         }
 
-        if (_state != State.Walking && _state != State.Sleeping && _state != State.BeingChecked)
+        //if (_pathFinder.Steps != null && _pathFinder.Steps.Count > 0)
+        //{
+        //    for (int a = 0; a < _pathFinder.Steps.Count; a++)
+        //    {
+        //        LineRenderer.SetPosition(a, _pathFinder.Steps[a].Zone.Center + ((_pathFinder.Steps[a].Zone.Center - _planet.transform.position).normalized) / 2);
+        //    }
+        //    LineRenderer.SetPosition(_pathFinder.Steps.Count - 1, transform.position + transform.up / 2);
+        //}
+
+        if (_state != State.Walking && _state != State.Sleeping && _state != State.BeingChecked && _hasDestination)
         {
-            if (Vector3.Distance(transform.position, _goalObject.transform.position) > 1)
-            {
-                ChangeState(State.Walking);
-            }
+            ChangeState(State.Walking);
         }
 
         switch (_state)
         {
             case State.Sleeping:
-                _r.velocity = Vector3.zero;
-                _r.angularVelocity = Vector3.zero;
+                _rigidBody.velocity = Vector3.zero;
+                _rigidBody.angularVelocity = Vector3.zero;
                 _sleepiness = UpdateValue(_sleepiness, -3);
                 break;
             case State.BeingChecked:
-                transform.LookAt(_cam.transform, (transform.position - _p.transform.position).normalized);
-                _r.velocity = Vector3.zero;
-                _r.angularVelocity = Vector3.zero;
+                transform.LookAt(_camera.transform, (transform.position - _planet.transform.position).normalized);
+                _rigidBody.velocity = Vector3.zero;
+                _rigidBody.angularVelocity = Vector3.zero;
                 break;
             case State.Walking:
-                if (_pathFinder.Steps != null)
+                if (_pathFinder.Path != null)
                 {
-                    if (_pathFinder.Steps.Count > 0 && !_mouseOver)
+                    if (_pathFinder.Path.Count > 0 && !_mouseOver)
                     {
-                        
-                        Vector3 direction = _pathFinder.Steps[_pathFinder.Steps.Count-1].Zone.Center - transform.position;
-                        Quaternion rotation = Quaternion.FromToRotation(transform.forward, direction);
-                        transform.rotation = Quaternion.Slerp(transform.rotation, rotation * transform.rotation, Mathf.Clamp(Time.deltaTime * _timeReference * 5, .3f, 1));
-                        Vector3 newPos = _r.position + transform.TransformDirection(new Vector3(0, 0, _speed * _timeReference *Time.deltaTime));
-                        _r.MovePosition(newPos); 
-                        if (direction.magnitude < .3f)
+                        var target = _target.transform.position;
+                        var center = _planet.transform.position;
+
+                        var up = (transform.position - center).normalized;
+                        var forward = (target - transform.position).normalized;
+
+                        var targetForward = forward - up * Vector3.Dot(forward, up);
+
+                        transform.rotation = Quaternion.LookRotation(targetForward.normalized, up);
+
+                        _rigidBody.velocity = transform.forward * _speed * _timeReference * Time.deltaTime;
+
+                        if (Vector3.Distance(target, _rigidBody.position) < .1f)
                         {
-                            if (_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go != null)
-                                Destroy(_pathFinder.Steps[_pathFinder.Steps.Count - 1].Go);
-                            _pathFinder.Steps.RemoveAt(_pathFinder.Steps.Count - 1);
-                            LineRenderer.positionCount = _pathFinder.Steps.Count + 1;
+                            if (_pathFinder.Path[0] != null)
+                            {
+                                Destroy(_pathFinder.Path[0]);
+                            }
+
+                            _pathFinder.Path.RemoveAt(0);
+                            LineRenderer.positionCount = _pathFinder.Path.Count + 1;
+
+                            if (_pathFinder.Path.Count == 0)
+                            {
+                                _hasDestination = false;
+                            }
                         }
                     }
                     else
@@ -223,122 +249,116 @@ public class Twippie : DraggableObjet, ILightnable {
                         }
                     }
                 }
-               
+
                 break;
-                
+
             case State.Contemplating:
-                _r.velocity = Vector3.zero;
-                _r.angularVelocity = Vector3.zero;
+                _rigidBody.velocity = Vector3.zero;
+                _rigidBody.angularVelocity = Vector3.zero;
                 break;
         }
 
         if (_state != State.Sleeping)
         {
-            _sleepiness = UpdateValue(_sleepiness, _age / 50); // Le besoin en sommeil augmente avec l'age. Pas besoin de dormir à 0 ans
+            _sleepiness = UpdateValue(_sleepiness, _ageProgression / 50); // Le besoin en sommeil augmente avec l'age. Pas besoin de dormir à 0 ans
         }
-        _thirst = UpdateValue(_thirst, 2/(_age+1)); // Le besoin en eau diminue avec l'age
-        _hunger = UpdateValue(_hunger, 2/(_age+1)); // Le besoin en nourriture diminue avec l'age
-        _placeMemory = 100 - Mathf.FloorToInt(_age); // La mémoire diminue avec l'âge. Alzeimer à 100 ans
-        _peopleMemory = 52 - Mathf.Abs(50 - Mathf.FloorToInt(_age)); // Mémoire des personnes maximale à la moitié de la vie
+        _thirst = UpdateValue(_thirst, 2 / (_ageProgression + 1)); // Le besoin en eau diminue avec l'age
+        _hunger = UpdateValue(_hunger, 2 / (_ageProgression + 1)); // Le besoin en nourriture diminue avec l'age
 
+        if (!_grounded)
+        {
+            _rigidBody.velocity -= transform.up;
+        }
     }
 
     protected override void LateUpdate()
     {
         base.LateUpdate();
 
-        if (Time.frameCount % _displayIntervals == 0)
+        if (!Utils.DisplayHeavyFrame)
+            return;
+
+        UpdateZone();
+    }
+
+    protected override void UpdateAge()
+    {
+        Memories[ZONE_MEMORY].SetCapacity(100 - Age); // La mémoire diminue avec l'âge. Alzeimer à 100 ans
+        Memories[TWIPPIE_MEMORY].SetCapacity(52 - Mathf.Abs(50 - Age)); // Mémoire des personnes maximale à la moitié de la vie
+
+        base.UpdateAge();
+    }
+
+    protected void UpdateZone()
+    {
+        var oldZoneId = _zoneId;
+        _zoneId = _zoneManager.GetZone(false, _zoneId, transform.position);
+
+        if (_zoneId == oldZoneId) // Si on n'a pas changé de zone, return
+            return;
+
+
+        var zone = Zone;
+        var oldZone = _zoneManager.FindById(oldZoneId);
+
+        zone.AddTwippie(Id);
+        oldZone.RemoveTwippie(Id);
+
+        MakeOutIfNeeded(zone);
+
+        Memories[ZONE_MEMORY].AddOrRefresh(_zoneId);
+
+        var otherTwippiesIds = zone.TwippieIds.Where(id => id != Id).ToArray();
+
+        if (otherTwippiesIds?.Any() == false)
+            return;
+
+        var peopleMemory = Memories[TWIPPIE_MEMORY];
+
+        foreach (var twippieId in otherTwippiesIds)
         {
-            var oldZone = _zone;
-            _zone = _zManager.GetZone(false, _zone, transform);
-            
-            if (_zone != oldZone) // Si on a changé de zone
-            {
-                if (!_zone.Twippies.Contains(this)) // Ajout de ce twippie à la liste des twippies de la nouvelle zone
-                {
-                    _zone.Twippies.Add(this);
-                }
-                if (oldZone.Twippies.Contains(this)) // Suppression de ce twippie de la liste des twippies de l'ancienne zone
-                {
-                    oldZone.Twippies.Remove(this);
-                }
-                if (_reproduce == null) { // S'ils ne sont pas déjà en train...
-                    if (_healthy) // Faut être en forme
-                    {
-                        if (_age > 18) // Faut être majeur hein !
-                        {
-                            _stepsBeforeReproduce--; //On recharge les batteries
-                            if (_stepsBeforeReproduce <= 0) // Si la marchandise est prête
-                            {
-                                if (CoinFlip(.5f)) // 50% de chances à chaque changement de zone
-                                {
-                                    Gender otherGender = (_gender == Gender.Male) ? Gender.Female : Gender.Male; // On fait ça avec le sexe opposé
-                                    if (_zone.Twippies.Count > 1)
-                                    {
-                                        Twippie twippie = _zone.Twippies.FirstOrDefault(x => x.GenderName == otherGender && x.Age > 18); // Il faut aussi qu'il y ait un twippie du genre opposé majeur dans la même zone !
-                                        if (twippie != null)
-                                        {
-                                            _goalType = GoalType.Reproduce;
-                                            _goalObject.transform.position = twippie.transform.position;
-                                            _goalObject.transform.parent = twippie.transform;
-                                            _reproduce = StartCoroutine(Reproduce(twippie));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            var twippie = _twippieManager.FindById(twippieId);
+            peopleMemory.AddOrRefresh(twippieId);
+        }
+    }
 
-                if (_knownZones.Contains(_zone))
-                {
-                    if (_knownZones.IndexOf(_zone) < _knownZones.Count - 1)
-                        _knownZones.Remove(_zone);
-                    _knownZones.Add(_zone); //Rafraichissement de mémoire sur une zone déjà visitée
-                }
-                if (!_knownZones.Contains(_zone))
-                {
-                    _knownZones.Add(_zone); //Découverte d'une nouvelle zone
-                }
+    protected void MakeOutIfNeeded(Zone zone)
+    {
+        if (_ageProgression < 18 || !Healthy || _reproduce != null)
+            return;
 
-                while (_knownZones.Count > _placeMemory)
-                {
-                    _knownZones.RemoveAt(0); //Oubli d'une zone lorsque la mémoire est saturée
-                }
-                if (_zone.Twippies?.Count > 0)
-                {
-                    foreach (Twippie twippie in _zone.Twippies)
-                    {
-                        if (twippie == this || twippie == null)
-                            continue;
-                        if (_knownTwippies.Contains(twippie))
-                        {
-                            if (_knownTwippies.IndexOf(twippie) < _knownTwippies.Count - 1)
-                                _knownTwippies.Remove(twippie);
-                            _knownTwippies.Add(twippie); //Rafraichissement de mémoire sur un twippie déjà rencontré
-                        }
-                        if (!_knownTwippies.Contains(twippie))
-                        {
-                            _knownTwippies.Add(twippie); //Rencontre d'un nouveau twippie
-                        }
+        _stepsBeforeReproduce--; //On recharge les batteries
+        if (_stepsBeforeReproduce > 0) // Si la marchandise est prête
+            return;
 
-                        if (twippie.KnownTwippies.Contains(this))
-                        {
-                            if (twippie.KnownTwippies.IndexOf(this) < twippie.KnownTwippies.Count - 1)
-                                twippie.KnownTwippies.Remove(this);
-                            _knownTwippies.Add(this); //Rafraichissement de mémoire de l'autre twippie
-                        }
-                        if (!twippie.KnownTwippies.Contains(this))
-                        {
-                            twippie.KnownTwippies.Add(this); // Rencontre mutuelle
-                        }
-                    }
-                }
-                while (_knownTwippies.Count > _peopleMemory)
-                {
-                    _knownTwippies.RemoveAt(0); //Oubli d'un twippie lorsque la mémoire est saturée
-                }
-            }
+        if (!Utils.CoinFlip(.5f)) // 50% de chances à chaque changement de zone
+            return;
+
+        if (zone.TwippieIds.Count <= 1)
+            return;
+
+        var twippie = zone.TwippieIds.Select(t => _twippieManager.FindById(t)).FirstOrDefault(x => x.GenderName != _gender && x.Age >= 18); // Il faut aussi qu'il y ait un twippie du genre opposé majeur dans la même zone !
+
+        if (twippie == null)
+            return;
+
+        _goalType = GoalType.Reproduce;
+        _goalObject.transform.position = twippie.transform.position;
+        _goalObject.transform.parent = twippie.transform;
+        _reproduce = StartCoroutine(Reproduce(twippie));
+    }
+
+    protected override void MakeAttraction()
+    {
+        if (_state == State.BeingChecked || _isDeforming)
+            return;
+
+        if (!_planet)
+            return;
+
+        if (_dragging)
+        {
+            _planet.Face(transform);
         }
     }
 
@@ -347,7 +367,7 @@ public class Twippie : DraggableObjet, ILightnable {
         switch (_state)
         {
             case State.Sleeping:
-                gameObject.GetComponentInChildren<MeshRenderer>().material.color = Color.black;
+                _renderer.material.color = Color.black;
                 break;
             case State.Walking:
                 break;
@@ -360,12 +380,12 @@ public class Twippie : DraggableObjet, ILightnable {
             case State.Eating:
                 if (_eat == null)
                 {
-                    Ressource ressource = _arrival.FinishZone.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Food);
+                    var ressource = _arrival.FinishZone.GetResourceByType(ResourceType.Food);
                     if (ressource != null)
                     {
-                        if (ressource.consumableObject != null)
+                        if (ressource.Consumable != null)
                         {
-                            _eat = StartCoroutine(Eat(ressource.consumableObject));
+                            _eat = StartCoroutine(Eat(ressource.Consumable));
                         }
                     }
                     else
@@ -377,33 +397,20 @@ public class Twippie : DraggableObjet, ILightnable {
             case State.Contemplating:
                 if (_contemplation == null)
                 {
-                    _contemplation = StartCoroutine(Contemplate(.5f));
+                    _contemplation = StartCoroutine(Contemplate(4f));
                 }
                 break;
         }
-    }
-
-    protected override void MakeAttraction()
-    {
-        if (_state != State.BeingChecked && !_isDeforming)
-        {
-            base.MakeAttraction();
-        }
-    }
-
-    protected override void SetRigidbodyState()
-    {
-        return;
     }
 
     protected override void OnMouseDown()
     {
         base.OnMouseDown();
         ChangeState(State.BeingChecked);
-        if (!_isDeforming)
-        {
-            StartCoroutine(Deform(1));
-        }
+        //if (!_isDeforming)
+        //{
+        //    StartCoroutine(Deform(1));
+        //}
     }
 
     private void UpdateHealth()
@@ -411,12 +418,11 @@ public class Twippie : DraggableObjet, ILightnable {
         if (_hunger >= 100 || _thirst >= 100 || _sleepiness >= 100)
         {
             _health = UpdateValue(_health, -1);
-            _sicknessDuration = UpdateValue(_sicknessDuration);
-            _healthy = false;
+            _sicknessDuration = UpdateValue(_sicknessDuration, 1);
         }
         else if (_hunger < 50 && _thirst < 50 && _sleepiness < 50)
         {
-            _health = UpdateValue(_health);
+            _health = UpdateValue(_health, 1);
             if (_sicknessDuration > 0)
             {
                 if (_sicknessDuration > MaxSicknessDuration)
@@ -425,10 +431,7 @@ public class Twippie : DraggableObjet, ILightnable {
                     _sicknessDuration = 0;
                 }
             }
-            _healthy = true;
         }
-
-
 
         if (_health <= 0)
         {
@@ -441,29 +444,23 @@ public class Twippie : DraggableObjet, ILightnable {
         while (true)
         {
             if (!GetLight() && _sleepiness > 30)
-            { 
-
-                if (_state != State.Sleeping)
+            {
+                if (_state != State.Sleeping && _needs.Any(x => x.Type == NeedType.Sleep))
                 {
-                    if (_needs.Exists(x=>x.Type == NeedType.Sleep))
-                    {
-                        ChangeState(State.Sleeping);
-                    }
+                    ChangeState(State.Sleeping);
                 }
-                yield return new WaitForSeconds(2);
             }
             else
             {
-                    
                 if (_state == State.Sleeping)
                 {
                     ChangeState(_previousState);
                 }
-
-                yield return new WaitForSeconds(2);
             }
+
+            yield return new WaitForSeconds(2);
         }
-        
+
     }
 
     private IEnumerator CheckBasicNeeds()
@@ -473,43 +470,45 @@ public class Twippie : DraggableObjet, ILightnable {
             if (_thirst > 90)
             {
                 _renderer.material.color = Color.cyan;
-                Need thirst = _needs.FirstOrDefault(x => x.Type == NeedType.Drink);
-                SetCurrentNeed(thirst != null?thirst:new Need(NeedType.Drink));
-                
-            }else if (_hunger > 90)
+                var thirst = _needs.FirstOrDefault(x => x.Type == NeedType.Drink);
+                SetCurrentNeed(thirst != null ? thirst : new Need(NeedType.Drink));
+            }
+            else if (_hunger > 90)
             {
                 _renderer.material.color = Color.green;
-                Need hunger = _needs.FirstOrDefault(x => x.Type == NeedType.Eat);
+                var hunger = _needs.FirstOrDefault(x => x.Type == NeedType.Eat);
                 SetCurrentNeed(hunger != null ? hunger : new Need(NeedType.Eat));
             }
             else if (_sleepiness > 90)
             {
                 _renderer.material.color = Color.red;
-                Need sleepiness = _needs.FirstOrDefault(x => x.Type == NeedType.Sleep);
+                var sleepiness = _needs.FirstOrDefault(x => x.Type == NeedType.Sleep);
                 SetCurrentNeed(sleepiness != null ? sleepiness : new Need(NeedType.Sleep));
             }
             else if (_thirst >= 50 && _thirst > _hunger - 10 && _thirst > _sleepiness - 20)
             {
                 _renderer.material.color = Color.cyan;
-                Need thirst = _needs.FirstOrDefault(x => x.Type == NeedType.Drink);
+                var thirst = _needs.FirstOrDefault(x => x.Type == NeedType.Drink);
                 SetCurrentNeed(thirst != null ? thirst : new Need(NeedType.Drink));
             }
             else if (_hunger >= 50 && _hunger > _sleepiness - 10)
             {
                 _renderer.material.color = Color.green;
-                Need hunger = _needs.FirstOrDefault(x => x.Type == NeedType.Eat);
+                var hunger = _needs.FirstOrDefault(x => x.Type == NeedType.Eat);
                 SetCurrentNeed(hunger != null ? hunger : new Need(NeedType.Eat));
             }
             else if (_sleepiness >= 50)
             {
                 _renderer.material.color = Color.red;
-                Need sleepiness = _needs.FirstOrDefault(x => x.Type == NeedType.Sleep);
+                var sleepiness = _needs.FirstOrDefault(x => x.Type == NeedType.Sleep);
                 SetCurrentNeed(sleepiness != null ? sleepiness : new Need(NeedType.Sleep));
             }
             else
             {
                 if (_state != State.Sleeping)
+                {
                     _renderer.material.color = Color.white;
+                }
                 SetCurrentNeed(_needs.FirstOrDefault(x => x.Type == NeedType.None));
             }
             yield return new WaitForSeconds(3);
@@ -524,7 +523,10 @@ public class Twippie : DraggableObjet, ILightnable {
         while (count > 0)
         {
             if (_renderer != null)
-                _renderer.material.color = new Color(Random.value, Random.value, Random.value);
+            {
+                _renderer.material.color = UnityEngine.Random.ColorHSV();
+            }
+
             if (other != null)
             {
                 transform.LookAt(other.transform);
@@ -542,150 +544,239 @@ public class Twippie : DraggableObjet, ILightnable {
 
         if (_gender == Gender.Female)// C'est la femme qui accouche
         {
-            foreach (Zone zone in _zone.Neighbours)
+            foreach (var zoneId in Zone.NeighbourIds)
             {
-             
-                if (CoinFlip(.5f / (nbBabies + 1))) //% de chance de faire un bébé dans chaque zone voisine => diminue de moitié par twippie créé. Peu de chance d'avoir des triplets...
+
+                if (Utils.CoinFlip(.5f / (nbBabies + 1))) //% de chance de faire un bébé dans chaque zone voisine => diminue de moitié par twippie créé. Peu de chance d'avoir des triplets...
                 {
+                    var zone = _zoneManager.FindById(zoneId);
+
                     nbBabies++;
                     GenerateBaby(zone, other, this); // Génère le bébé selon la maman et le papa
                 }
-            
+
             }
         }
+
         Debug.Log(nbBabies + " babies made !");
         _stepsBeforeReproduce = _initialStepsBeforeReproduce; // On réinitialise la durée avant prochaine aventure
         SetDestination(DefineGoal());
         _reproduce = null;
     }
 
-    private void GenerateBaby(Zone zone, Twippie papa, Twippie mama)
+    private void GenerateBaby(Zone zone, Twippie dad, Twippie mom)
     {
-        GameObject twippieModel = null;
-        float wealth = (100 - ((papa.MaxSicknessDuration + mama.MaxSicknessDuration) / 2))/100;
-        int parentsMeanGeneration = Mathf.FloorToInt((papa.NbGeneration + mama.NbGeneration) / 2); // Papa et maman peuvent être à des générations différentes sur l'arbre généalogique
-        if (papa is AdvancedTwippie && mama is AdvancedTwippie)
+        Twippie twippieModel;
+        float wealth = (100 - ((dad.MaxSicknessDuration + mom.MaxSicknessDuration) / 2)) / 100;
+        int parentsMeanGeneration = Mathf.FloorToInt((dad.GenerationIndex + mom.GenerationIndex) / 2); // Papa et maman peuvent être à des générations différentes sur l'arbre généalogique
+        if (dad is AdvancedTwippie && mom is AdvancedTwippie)
         {
-            twippieModel = _og.GetGO<AdvancedTwippie>();
+            twippieModel = _objectGenerator.Get<AdvancedTwippie>();
         }
-        else if ((papa is AdvancedTwippie || mama is AdvancedTwippie)&& CoinFlip())
+        else if ((dad is AdvancedTwippie || mom is AdvancedTwippie) && Utils.CoinFlip())
         {
-            twippieModel = _og.GetGO<AdvancedTwippie>();
+            twippieModel = _objectGenerator.Get<AdvancedTwippie>();
         }
-        else if (CoinFlip(wealth/5 * parentsMeanGeneration)) // Chances de devenir un twippie avancé selon le niveau de santé des parents et la génération en cours
+        else if (Utils.CoinFlip(wealth / 5 * parentsMeanGeneration)) // Chances de devenir un twippie avancé selon le niveau de santé des parents et la génération en cours
         {
-            twippieModel = _og.GetGO<AdvancedTwippie>();
+            twippieModel = _objectGenerator.Get<AdvancedTwippie>();
         }
         else
         {
-            twippieModel = _og.GetGO<Twippie>();
+            twippieModel = _objectGenerator.Get<Twippie>();
         }
-        GameObject baby = Instantiate(twippieModel, zone.Center, Quaternion.identity);
+        Twippie baby = Instantiate(twippieModel, zone.WorldPos, Quaternion.identity);
         Twippie twippie = baby.GetComponent<Twippie>();
-        twippie.NbGeneration = parentsMeanGeneration+1;
-        twippie.Papa = papa;
-        twippie.Maman = mama;
+        twippie.GenerationIndex = parentsMeanGeneration + 1;
+        twippie.Dad = dad;
+        twippie.Mom = mom;
         //TODO : Affecter les stats de papa / maman à l'enfant
         //TODO : Calculer si évolution de twippie primitif à avancé
     }
+
+    public override void GenerateActions()
+    {
+        Stats.GenerateRadialAction<ModificationAction>(this);
+        base.GenerateActions();
+    }
+
 
     public override void GenerateStatsForActions()
     {
         base.GenerateStatsForActions();
         Stats.GenerateWorldStat<LabelStat>().Populate(_gender.ToString(), "Gender");
-        Stats.GenerateWorldStat<ValueStat>().Populate(0, 0, 100, "Hunger", true, "Hunger");
-        Stats.GenerateWorldStat<ValueStat>().Populate(0, 0, 100, "Thirst", true, "Thirst");
-        Stats.GenerateWorldStat<ValueStat>().Populate(0, 0, 100, "Fatigue", true, "Sleep");
-        Stats.GenerateWorldStat<LabelStat>().Populate("Main need : ", "Need");
-        Stats.GenerateWorldStat<LabelStat>().Populate("Emotion : ", "Emotion");
-        Stats.GenerateWorldStat<LabelStat>().Populate("Action : " + _state.ToString(), "Action");
+        Stats.GenerateWorldStat<ValueStat>().Populate("Hunger", 0, 0, 100, "Hunger", true);
+        Stats.GenerateWorldStat<ValueStat>().Populate("Thirst", 0, 0, 100, "Thirst", true);
+        Stats.GenerateWorldStat<ValueStat>().Populate("Sleep", 0, 0, 100, "Fatigue", true);
+        Stats.GenerateWorldStat<LabelStat>().Populate("Need", "Main need : ");
+        Stats.GenerateWorldStat<LabelStat>().Populate("Emotion", "Emotion : ");
+        Stats.GenerateWorldStat<LabelStat>().Populate("Action", "Action : " + _state.ToString());
     }
 
 
     public override void PopulateStats()
     {
         base.PopulateStats();
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Gender"), new object[] { _gender.ToString(), "Gender" });
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Hunger"), new object[] { 0, 0, 100, "Hunger", true, "Hunger" });
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Thirst"), new object[] { 0, 0, 100, "Thirst", true, "Thirst" });
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Sleep"), new object[] { 0, 0, 100, "Fatigue", true, "Sleep" });
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Need"), new object[] { "Main need : " + _needs[0].Type.ToString(), "Need" });
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Emotion"), new object[] { "Emotion : ", "Emotion" });
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("Action"), new object[] { "Action : " + _state.ToString(), "Action" });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Gender", _gender.ToString() });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Hunger", 0, 0, 100, "Hunger", true });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Thirst", 0, 0, 100, "Thirst", true });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Sleep", 0, 0, 100, "Fatigue", true });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Need", "Main need : " + _needs[0].Type.ToString() });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Emotion", "Emotion : " });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "Action", "Action : " + _state.ToString() });
     }
 
-    protected void SetDestination(GoalType goal)
+    protected void SetDestination(GoalType goal, bool reinit = false)
     {
-        _goalObject.transform.parent = null;
-        Zone zone = null;
+        if (reinit && _setDestination != null)
+        {
+            StopCoroutine(_setDestination);
+            _setDestination = null;
+        }
+
+        if (_setDestination != null)
+            return;
+
+        _setDestination = StartCoroutine(DoSetDestination(goal));
+    }
+
+    private IEnumerator DoSetDestination(GoalType goal)
+    {
+        var knownZones = Memories[ZONE_MEMORY].Data;
+
         switch (goal)
         {
             case GoalType.Build:
-                zone = _zManager.GetLargeZoneByDistance(transform, _pathFinder, checkAccessible: true, checkTaken: true, distanceMax: _endurance);
+                yield return StartCoroutine(_zoneManager.GetLargeZoneByDistance(
+                    _zoneId,
+                    transform,
+                    _pathFinder,
+                    checkTaken: true,
+                    distanceMax: _endurance,
+                    onComplete: zoneResult =>
+                    {
+                        TryFinalizePath(zoneResult, goal);
+                    }));
                 break;
             case GoalType.Wander:
-                zone = _zManager.GetRandomZoneByDistance(transform, _pathFinder, checkAccessible: true, checkTaken: false, distanceMax: _endurance);
+                yield return StartCoroutine(_zoneManager.GetRandomZoneByDistance(
+                    _zoneId,
+                    transform,
+                    _pathFinder,
+                    checkTaken: false,
+                    distanceMax: _endurance,
+                    onComplete: zoneResult =>
+                    {
+                        TryFinalizePath(zoneResult, goal);
+                    }));
                 break;
             case GoalType.Drink:
-                zone = _zManager.GetRessourceZoneByDistance(transform, _pathFinder, ressource: Ressource.RessourceType.Drink, checkAccessible: true, checkTaken: true, distanceMax: _endurance);
-                if (zone != null)
-                {
-                    Debug.Log("Drink at close zone");
-                }
-                else
-                {
-                    zone = _zManager.GetZoneByRessourceInList(_knownZones, ressource: Ressource.RessourceType.Drink, p: _pathFinder, checkTaken: true, checkAccessible: true);
-                    if (zone != null)
+                yield return StartCoroutine(_zoneManager.GetRessourceZoneByDistance(
+                    _zoneId,
+                    transform,
+                    _pathFinder,
+                    resource: ResourceType.Drink,
+                    checkTaken: true,
+                    distanceMax: _endurance,
+                    onComplete: zoneResult =>
                     {
-                        Debug.Log("Drink at known zone");
-                    }
-                    else
-                    {
-                        Debug.Log("Can't drink");
-                        SetDestination(GoalType.Wander); // Or create conflict !!
-                        return;
-                    }
-                }
+                        if (zoneResult != null)
+                        {
+                            TryFinalizePath(zoneResult, goal);
+                            Debug.Log("Drink at close zone");
+                        }
+                        else
+                        {
+                            StartCoroutine(_zoneManager.GetZoneByRessourceInList(
+                                _zoneId,
+                                knownZones,
+                                resource: ResourceType.Drink,
+                                pathFinder: _pathFinder,
+                                checkTaken: true,
+                                onComplete: zoneResult =>
+                                {
+
+                                    if (zoneResult != null)
+                                    {
+                                        TryFinalizePath(zoneResult, goal);
+                                        Debug.Log("Drink at known zone");
+                                    }
+                                    else
+                                    {
+                                        Debug.Log("Can't drink");
+                                        SetDestination(GoalType.Wander, true); // Or create conflict !!
+                                    }
+                                }));
+                        }
+                    }));
+
+
                 break;
             case GoalType.Collect:
             case GoalType.Eat:
-                zone = _zManager.GetRessourceZoneByDistance(transform, _pathFinder, ressource: Ressource.RessourceType.Food, checkAccessible: true, checkTaken: true, distanceMax: _endurance);
-                if (zone != null)
-                {
-                    Debug.Log("Try eating at close zone");
-                }
-                else
-                {
-                    zone = _zManager.GetZoneByRessourceInList(_knownZones, ressource: Ressource.RessourceType.Food, p:_pathFinder, checkTaken: true, checkAccessible: true);
-                    if (zone != null)
+                yield return StartCoroutine(_zoneManager.GetRessourceZoneByDistance(
+                    _zoneId,
+                    transform,
+                    _pathFinder,
+                    resource: ResourceType.Food,
+                    checkTaken: true,
+                    distanceMax: _endurance,
+                    onComplete: zoneResult =>
                     {
-                        Debug.Log("Try eating at known zone");
-                    }
-                    else
-                    {
-                        Debug.Log("Can't eat");
-                        SetDestination(GoalType.Wander); // Or create conflict !!
-                        return;
-                    }
-                }
+
+                        if (zoneResult != null)
+                        {
+                            TryFinalizePath(zoneResult, goal);
+                            Debug.Log("Eat at close zone");
+                        }
+                        else
+                        {
+                            StartCoroutine(_zoneManager.GetZoneByRessourceInList(
+                                _zoneId,
+                                knownZones,
+                                resource: ResourceType.Food,
+                                pathFinder: _pathFinder,
+                                checkTaken: true,
+                                onComplete: zoneResult =>
+                                {
+                                    if (zoneResult != null)
+                                    {
+                                        TryFinalizePath(zoneResult, goal);
+                                        Debug.Log("Eat at known zone");
+                                    }
+                                    else
+                                    {
+                                        Debug.Log("Can't eat");
+                                        SetDestination(GoalType.Wander, true); // Or create conflict !!
+                                    }
+                                }));
+                        }
+                    }));
                 break;
         }
 
-        if (zone != null)
-        {
-            _goalObject.transform.position = zone.Center;
-            _goalType = goal;
-            LineRenderer.positionCount = _pathFinder.Steps.Count + 1;
-        }
-        else
-        {
-            _goalObject.transform.position = transform.position;
-            ChangeState(State.Contemplating);
-        }
-        _goalObject.transform.parent = P.transform;
-        _arrival.SetArrival();
-        
 
+    }
+
+    private void TryFinalizePath(Zone destination, GoalType goal)
+    {
+        if (destination == null)
+        {
+            Debug.Log("No paths found");
+            return;
+        }
+
+        _goalObject.transform.SetParent(null);
+
+        _goalObject.transform.position = destination.WorldPos;
+        _goalType = goal;
+        LineRenderer.positionCount = _pathFinder.Path.Count + 1;
+
+        _goalObject.transform.SetParent(Planet.transform);
+        _arrival.SetArrival();
+
+        _hasDestination = true;
+        _setDestination = null;
     }
 
     protected virtual GoalType DefineGoal()
@@ -707,15 +798,15 @@ public class Twippie : DraggableObjet, ILightnable {
         {
             _previousState = _state;
             _state = state;
-            Debug.Log("Previous : " + _previousState + " Current : " + _state);
+            //Debug.Log("Previous : " + _previousState + " Current : " + _state);
             OnStateChange();
         }
     }
 
-    private IEnumerator Contemplate(float temps)
+    private IEnumerator Contemplate(float duration)
     {
-        yield return new WaitForSeconds(temps/_timeReference);
-        SetDestination(DefineGoal());
+        yield return new WaitForSeconds(duration / _timeReference);
+        SetDestination(DefineGoal(), true);
         _contemplation = null;
     }
 
@@ -731,8 +822,8 @@ public class Twippie : DraggableObjet, ILightnable {
         while (_thirst > 5)
         {
             _thirst = UpdateValue(_thirst, -10);
-            _r.velocity = Vector3.zero;
-            _r.angularVelocity = Vector3.zero;
+            _rigidBody.velocity = Vector3.zero;
+            _rigidBody.angularVelocity = Vector3.zero;
             yield return null;
         }
         _thirst = 0;
@@ -756,24 +847,24 @@ public class Twippie : DraggableObjet, ILightnable {
         while (consumable.Consuming(_hunger))
         {
             _hunger = UpdateValue(_hunger, -20);
-            _r.velocity = Vector3.zero;
-            _r.angularVelocity = Vector3.zero;
+            _rigidBody.velocity = Vector3.zero;
+            _rigidBody.angularVelocity = Vector3.zero;
             yield return null;
         }
         _consumable = null;
         consumable.Consume();
         SetDestination(DefineGoal());
         _eat = null;
-        
+
     }
 
     private void Die()
     {
         transform.Rotate(90, 0, 0);
         _renderer.material.color = Color.gray;
-        _r.AddForce((transform.position - _p.transform.position).normalized, ForceMode.Impulse);
+        _rigidBody.AddForce((transform.position - _planet.transform.position).normalized, ForceMode.Impulse);
         Debug.Log("Twippie mort :( thirst : " + Mathf.FloorToInt(_thirst) + " hunger : " + Mathf.FloorToInt(_hunger) + " _fatigue : " + Mathf.FloorToInt(_sleepiness));
-        _om.UpdateObjectList(this, false);
+        _objectManager.RemoveObject(this);
         if (_stats != null)
         {
             _stats.enabled = false;
@@ -785,87 +876,88 @@ public class Twippie : DraggableObjet, ILightnable {
 
     public bool GetLight()
     {
-        RaycastHit hit;
-        if (_planetSun != null)
-        {
-            if (Physics.Linecast(_planetSun.transform.position, transform.position + transform.up / 2, out hit, _mask))
-            {
-                return false;
-            }
-        }
-        return true;
+        return _sun != null && Vector3.Dot(transform.position - _planet.transform.position, transform.position - _sun.transform.position) > 0f;
+        //RaycastHit hit;
+        //if (_sun != null)
+        //{
+        //    if (Physics.Linecast(_sun.transform.position, transform.position + transform.up / 2, out hit, _mask))
+        //    {
+        //        return false;
+        //    }
+        //}
+        //return true;
     }
 
-    protected virtual IEnumerator Reform(float time)
-    {
-        while (_isDeforming)
-        {
-            yield return null;
-        }
-        if (_mouseOver)
-            yield break;
-        _isDeforming = true;
-        var currTime = 0f;
+    //protected virtual IEnumerator Reform(float time)
+    //{
+    //    while (_isDeforming)
+    //    {
+    //        yield return null;
+    //    }
+    //    if (_mouseOver)
+    //        yield break;
+    //    _isDeforming = true;
+    //    var currTime = 0f;
 
-        while (currTime < time)
-        {
-            for (int i = 0; i < _deformedVertices.Length; i++)
-            {
-                Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
-                _deformedVertices[i].x = Mathf.Lerp(_deformedVertices[i].x, _originalVertices[i].x, currTime / time);
-                _deformedVertices[i].y = Mathf.Lerp(_deformedVertices[i].y, _originalVertices[i].y, currTime / time);
-                _deformedVertices[i].z = Mathf.Lerp(_deformedVertices[i].z, _originalVertices[i].z, currTime / time);
-            }
-            currTime += .1f * _timeReference;
-            _mesh.vertices = _deformedVertices;
-            yield return null;
-        }
+    //    while (currTime < time)
+    //    {
+    //        for (int i = 0; i < _deformedVertices.Length; i++)
+    //        {
+    //            Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
+    //            _deformedVertices[i].x = Mathf.Lerp(_deformedVertices[i].x, _originalVertices[i].x, currTime / time);
+    //            _deformedVertices[i].y = Mathf.Lerp(_deformedVertices[i].y, _originalVertices[i].y, currTime / time);
+    //            _deformedVertices[i].z = Mathf.Lerp(_deformedVertices[i].z, _originalVertices[i].z, currTime / time);
+    //        }
+    //        currTime += .1f * _timeReference;
+    //        _mesh.vertices = _deformedVertices;
+    //        yield return null;
+    //    }
 
-        _deformedVertices = _originalVertices.ToArray();
-        _mesh.vertices = _originalVertices;
-        _mesh.RecalculateNormals();
-        if (_meshCollider != null)
-        {
-            _meshCollider.sharedMesh = _mesh;
-        }
-        _isDeforming = false;
-        ChangeState(_previousState);
-    }
+    //    _deformedVertices = _originalVertices.ToArray();
+    //    _mesh.vertices = _originalVertices;
+    //    _mesh.RecalculateNormals();
+    //    if (_meshCollider != null)
+    //    {
+    //        _meshCollider.sharedMesh = _mesh;
+    //    }
+    //    _isDeforming = false;
+    //    ChangeState(_previousState);
+    //}
 
-    protected virtual IEnumerator Deform(float time)
-    {
-        _r.isKinematic = true;
-        _isDeformed = true;
-        _isDeforming = true;
-        var currTime = 0f;
+    //protected virtual IEnumerator Deform(float time)
+    //{
+    //    _rigidBody.isKinematic = true;
+    //    _isDeformed = true;
+    //    _isDeforming = true;
+    //    var currTime = 0f;
 
-        while (currTime < time)
-        {
-            for (int i = 0; i < _deformedVertices.Length; i++)
-            {
-                Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
-                _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 15, currTime / time);
-                _deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 4, currTime / time);
-                _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 4, currTime / time);
-            }
-            currTime += .1f * _timeReference;
-            _mesh.vertices = _deformedVertices;
-            yield return null;
-        }
+    //    while (currTime < time)
+    //    {
+    //        for (int i = 0; i < _deformedVertices.Length; i++)
+    //        {
+    //            Vector3 direction = transform.InverseTransformPoint(transform.position) - _originalVertices[i];
+    //            _deformedVertices[i].x = Mathf.Lerp(_originalVertices[i].x, _originalVertices[i].x * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 15, currTime / time);
+    //            _deformedVertices[i].y = Mathf.Lerp(_originalVertices[i].y, _originalVertices[i].y * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 4, currTime / time);
+    //            _deformedVertices[i].z = Mathf.Lerp(_originalVertices[i].z, _originalVertices[i].z * Mathf.Clamp(direction.magnitude - 2, .1f, 10) * 4, currTime / time);
+    //        }
+    //        currTime += .1f * _timeReference;
+    //        _mesh.vertices = _deformedVertices;
+    //        yield return null;
+    //    }
 
-        _mesh.RecalculateNormals();
-        if (_meshCollider != null)
-        {
-            _meshCollider.sharedMesh = _mesh;
-        }
-        _isDeforming = false;
-    }
+    //    _mesh.RecalculateNormals();
+    //    if (_meshCollider != null)
+    //    {
+    //        _meshCollider.sharedMesh = _mesh;
+    //    }
+    //    _isDeforming = false;
+    //}
 
 
     protected override void UpdateStats()
     {
         base.UpdateStats();
-        _stats.StatToValue(_stats.GetStat("Age")).Value = _age;
+        _stats.StatToValue(_stats.GetStat("Age")).Value = _ageProgression;
         _stats.StatToLabel(_stats.GetStat("Gender")).Value = _gender.ToString();
         _stats.StatToValue(_stats.GetStat("Hunger")).Value = _hunger;
         _stats.StatToValue(_stats.GetStat("Thirst")).Value = _thirst;
@@ -893,5 +985,17 @@ public class Twippie : DraggableObjet, ILightnable {
     {
         base.ColorMe();
         HealthBar.Health.color = new Color(HealthBar.Health.color.r, HealthBar.Health.color.g, HealthBar.Health.color.b, _renderer.material.color.a);
+    }
+
+    public void RefreshPath()
+    {
+        StartCoroutine(_pathFinder.RefreshPath(ZoneId, zoneResult =>
+        {
+            if (zoneResult != null)
+            {
+                TryFinalizePath(zoneResult, _goalType);
+                Debug.Log("Eat at close zone");
+            }
+        }));
     }
 }

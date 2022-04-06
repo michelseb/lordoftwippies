@@ -21,7 +21,7 @@ public class TextStat : Stat {
         Value = _textField.text;
     }
 
-    public void Populate(string value, int maxChar, float fontSize, bool readOnly)
+    public void Populate(string statName, string value, int maxChar, float fontSize, bool readOnly)
     {
         _statType = StatType.Text;
         _name = "texte";
@@ -30,5 +30,6 @@ public class TextStat : Stat {
         ReadOnly = readOnly;
         _fontSize = fontSize;
         AssociatedAction = AssociatedAction.Description;
+        _specificName = statName;
     }
 }

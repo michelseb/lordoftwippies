@@ -1,4 +1,7 @@
 ﻿public class ModificationAction : UserAction
 {
-    public new AssociatedAction AssociatedAction => AssociatedAction.Modification;
+    protected override void Awake()
+    {
+        AssociatedAction = AssociatedAction.Modification;
+    }
 }

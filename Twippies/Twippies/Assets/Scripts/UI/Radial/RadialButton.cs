@@ -1,16 +1,19 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class RadialButton : RadialElement
 {
-    [SerializeField]
-    private UIContainer _container;
-    [SerializeField]
-    private TextMeshProUGUI _text;
-
-    public RadialMenu RadialMenu { get; set; }
+    [SerializeField] private UIContainer _container;
+    [SerializeField] private TextMeshProUGUI _text;
+    [SerializeField] private RectTransform _rectTransform;
+    [SerializeField] private EdgeCollider2D _edgeCollider2D;
+    private float _size;
+    private float _startAngle;
     public UIContainer Container { get { return _container; } }
     public TextMeshProUGUI Text { get { return _text; } set { _text = value; } }
 
@@ -20,18 +23,21 @@ public class RadialButton : RadialElement
     }
     protected void Start()
     {
-        foreach(var element in transform.parent.transform.GetComponentsInChildren<GraphicElement>(true))
+        if (transform.parent != null)
         {
-            if (element == this)
-                continue;
+            foreach (var element in transform.parent.transform.GetComponentsInChildren<GraphicElement>(true))
+            {
+                if (element == this)
+                    continue;
 
-            if (element.Image == null)
-            {
-                element.Init();
-            }
-            if (element.Image != null)
-            {
-                element.Image.color = new Color(_image.color.r + .2f, _image.color.g + .2f, _image.color.b + .2f, 1);
+                if (element.Image == null)
+                {
+                    element.Init();
+                }
+                if (element.Image != null && _image != null)
+                {
+                    element.Image.color = new Color(_image.color.r + .2f, _image.color.g + .2f, _image.color.b + .2f, 1);
+                }
             }
         }
     }
@@ -43,6 +49,42 @@ public class RadialButton : RadialElement
             transform.parent.transform.localScale = GetCurrentSize();
         }
     }
+
+
+    public void UpdateSegment(float size, float startAngle)
+    {
+        var segmentAngle = size * 360;
+        _size = size;
+        _startAngle = startAngle;
+
+        var arcPoints = new List<Vector2>();
+        var angle = 0f;
+
+        if (!Mathf.Approximately(Mathf.Abs(segmentAngle), 360)) arcPoints.Add(Vector2.zero);
+
+        for (var i = 0; i <= segmentAngle; i++)
+        {
+            var x = Mathf.Sin(Mathf.Deg2Rad * angle) * _rectTransform.rect.width / 2;
+            var y = Mathf.Cos(Mathf.Deg2Rad * angle) * _rectTransform.rect.width / 2;
+
+            arcPoints.Add(new Vector2(x, y));
+
+            angle += 1;
+        }
+
+        if (!Mathf.Approximately(Mathf.Abs(segmentAngle), 360)) arcPoints.Add(Vector2.zero);
+
+        foreach (Image image in GetComponentsInChildren<Image>(true))
+        {
+            image.fillAmount = _size;
+            image.transform.eulerAngles = new Vector3(0, 0, _startAngle);
+        }
+        
+        _image.fillAmount = _size;
+        _image.transform.eulerAngles = new Vector3(0, 0, _startAngle);
+        _edgeCollider2D.points = arcPoints.ToArray();
+    }
+
 
     public override void OnPointerEnter(PointerEventData eventData)
     {
@@ -77,13 +119,14 @@ public class RadialButton : RadialElement
                 child.SetActive(true);
             }
         }
-        foreach (RadialButton button in RadialMenu.Elements)
+        SubMenu.SetActive(true);
+        foreach (Stat radial in SubMenu.Elements.OfType<Stat>())
         {
-            if (button == this)
+            if (radial.RadialButton == this)
                 continue;
-            StartCoroutine(button.DeSelect(1f));
+            StartCoroutine(radial.RadialButton.DeSelect(1f));
         }
-        _subMenu.Open();
+        SubMenu.Open();
     }
 
     public override IEnumerator DeSelect(float delay = 0)
@@ -93,7 +136,7 @@ public class RadialButton : RadialElement
             _image.color = new Color(_image.color.r, _image.color.g, _image.color.b, .2f);
         }
         
-        Close();
+        SubMenu.Close();
         Selected = false;
         if (delay > 0)
         {

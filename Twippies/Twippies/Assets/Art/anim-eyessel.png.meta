@@ -1,14 +1,24 @@
 fileFormatVersion: 2
 guid: 3c4369503e7cf1c469ddd92a60f1d3b0
 TextureImporter:
-  fileIDToRecycleName:
-    21300000: anim-eyessel_0
-    21300002: anim-eyessel_1
-    21300004: anim-eyessel_2
-    21300006: anim-eyessel_3
-    21300008: anim-eyessel_4
+  internalIDToNameTable:
+  - first:
+      213: 21300000
+    second: anim-eyessel_0
+  - first:
+      213: 21300002
+    second: anim-eyessel_1
+  - first:
+      213: 21300004
+    second: anim-eyessel_2
+  - first:
+      213: 21300006
+    second: anim-eyessel_3
+  - first:
+      213: 21300008
+    second: anim-eyessel_4
   externalObjects: {}
-  serializedVersion: 7
+  serializedVersion: 11
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -62,8 +72,9 @@ TextureImporter:
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  applyGammaDecoding: 1
   platformSettings:
-  - serializedVersion: 2
+  - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -74,7 +85,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: Standalone
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -85,7 +97,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: iPhone
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -96,7 +109,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -107,6 +121,7 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -126,6 +141,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: bd220a881b94a9b4cbb13b95936af3fa
+      internalID: 21300000
       vertices: []
       indices: 
       edges: []
@@ -146,6 +162,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 46a8b54772996b349a57f5f950d9d7e4
+      internalID: 21300002
       vertices: []
       indices: 
       edges: []
@@ -166,6 +183,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 032a0a721cd420942bdd319a395d02d9
+      internalID: 21300004
       vertices: []
       indices: 
       edges: []
@@ -186,6 +204,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: a7df0046ddfdc994dae545f240c75142
+      internalID: 21300006
       vertices: []
       indices: 
       edges: []
@@ -206,6 +225,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 65362aa800375094bb8884c286ea1ac5
+      internalID: 21300008
       vertices: []
       indices: 
       edges: []
@@ -214,10 +234,12 @@ TextureImporter:
     physicsShape: []
     bones: []
     spriteID: 02da3c7f61366314cb3c571bf1ab7afc
+    internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
+    secondaryTextures: []
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

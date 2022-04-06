@@ -1,163 +1,179 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public class Zone : MonoBehaviour {
+public enum DisplayMode
+{
+    None = 0,
+    Population = 1,
+    Height = 2,
+    Accessible = 3,
+    Water = 4,
+    Food = 5,
+    Needs = 6,
+    Groups = 7
+}
 
-    [SerializeField]
-    private int _id;
-    //private MeshRenderer _renderer;
-    private ObjetManager _om;
+public class Zone : Objet
+{
+    private ObjetManager _objectManager;
+    private ZoneManager _zoneManager;
+    private VertexManager _vertexManager;
+    private Transform _transform;
 
     public Color Col { get; private set; }
-    public List<int> VerticeIds { get; set; }
+    public List<Guid> VerticeIds { get; set; }
     public bool Accessible { get; set; }
     public bool Taken { get; set; }
-    public Vector3 Center { get; set; }
     public float MinHeight { get; private set; }
     public float MaxHeight { get; private set; }
     public float MeanHeight { get; set; }
     public float DeltaHeight { get; set; }
-    public int CenterId { get; set; }
-    //public GameObject ZoneObject { get { return _zoneObject; } set { _zoneObject = value; } }
-    public DisplayMode Display { get; set; }
-    public ZoneManager ZManager { get; set; }
-    public List<Zone> Neighbours { get; set; }
-    public List<PathCost> PathCosts { get; set; }
-    public int Id { get { return _id; } set { _id = value; } }
-    public List<Ressource> Ressources { get; set; }
-    public List<Twippie> Twippies { get; private set; }
+    public float Height { get; set; }
+    public DisplayMode Display => _zoneManager.Planet.Display;
+    public List<Guid> NeighbourIds { get; set; }
+    public Dictionary<Guid, PathCost> PathCosts { get; set; }
+    public List<Resource> Resources { get; set; }
+    public List<Guid> TwippieIds { get; private set; }
     public Color Color { get { return Col; } set { Col = value; } }
+    public Vector3 WorldPos => _transform.position;
 
-    public enum DisplayMode
+    protected override void Awake()
     {
-        None = 0,
-        Population = 1,
-        Height = 2,
-        Accessible = 3,
-        Water = 4,
-        Food = 5,
-        Needs = 6,
-        Groups = 7
+        base.Awake();
+
+        _objectManager = ObjetManager.Instance;
+        _zoneManager = ZoneManager.Instance;
+        _vertexManager = VertexManager.Instance;
+        _transform = transform;
+
+        VerticeIds = new List<Guid>();
+        NeighbourIds = new List<Guid>();
+        PathCosts = new Dictionary<Guid, PathCost>();
+        Resources = new List<Resource>();
+        TwippieIds = new List<Guid>();
+        Col = UnityEngine.Random.ColorHSV();
     }
 
-    private void Awake()
+    private bool SetColor(Color col)
     {
-        VerticeIds = new List<int>();
-        Neighbours = new List<Zone>();
-        _om = ObjetManager.Instance;
-        PathCosts = new List<PathCost>();
-        Ressources = new List<Ressource>();
-        Twippies = new List<Twippie>();
-        Col = new Color(Random.value, Random.value, Random.value);
+        var newCol = new Color(Mathf.Lerp(Col.r, col.r, Time.deltaTime * 3),
+            Mathf.Lerp(Col.g, col.g, Time.deltaTime * 3),
+            Mathf.Lerp(Col.b, col.b, Time.deltaTime * 3));
+
+        if (Col == newCol)
+            return false;
+        
+        Col = newCol;
+        
+        return true;
     }
 
-    private void Update()
+    public void SetHeights(Vector3 origin)
     {
+        Height = Vector3.Distance(origin, transform.position);
 
-        Center = ZManager.transform.TransformPoint(ZManager.Vertices[CenterId]);
-        Vector3 colValue;
+        MinHeight = VerticeIds.Select(v => _vertexManager.FindById(v)).Min(x => Vector3.Distance(x.Position, origin));
+        MaxHeight = VerticeIds.Select(v => _vertexManager.FindById(v)).Max(x => Vector3.Distance(x.Position, origin));
+
+        MeanHeight = (MinHeight + MaxHeight) / 2;
+        DeltaHeight = MaxHeight - MinHeight;
+    }
+
+    public void AddNeighbour(Guid neighbourId)
+    {
+        if (NeighbourIds.Contains(neighbourId))
+            return;
+
+        NeighbourIds.Add(neighbourId);
+    }
+
+    public void AddTwippie(Guid twippieId)
+    {
+        if (TwippieIds.Contains(twippieId))
+            return;
+
+        TwippieIds.Add(twippieId);
+    }
+
+    public void RemoveTwippie(Guid twippieId)
+    {
+        if (!TwippieIds.Contains(twippieId))
+            return;
+
+        TwippieIds.Remove(twippieId);
+    }
+
+    public void SetDisplayMode(DisplayMode mode)
+    {
+        if (mode == Display)
+            return;
+
+        UpdateDisplay();
+    }
+
+    private void UpdateDisplay()
+    {
+        Color color;
         switch (Display)
         {
             case DisplayMode.None:
-                colValue = new Vector3(1, 1, 1);
+                color = new Color(1, 1, 1);
                 break;
 
             case DisplayMode.Population:
-                colValue = new Vector3(Twippies.Count * 50 / _om.allObjects.Count, .3f, .3f + (Twippies.Count * 100) / _om.allObjects.Count);
+                color = new Color(TwippieIds.Count * 50 / _objectManager.AllObjects.Count, .3f, .3f + (TwippieIds.Count * 100) / _objectManager.AllObjects.Count);
                 break;
 
             case DisplayMode.Height:
-                colValue = new Vector3(1, ((MinHeight + MaxHeight) / 2 - 4) / 2, 0);
+                color = new Color(1, (Height / 2 - 4) / 2, 0);
                 break;
 
             case DisplayMode.Needs:
-                colValue = new Vector3(1, 1, 1);
+                color = new Color(1, 1, 1);
                 break;
 
             case DisplayMode.Groups:
-                colValue = new Vector3(1, 1, 1);
+                color = new Color(1, 1, 1);
                 break;
 
             case DisplayMode.Accessible:
-                if (Accessible) { colValue = new Vector3(0, 1, 1); }
-                else { colValue = new Vector3(1, 0, 0); }
+                if (Accessible) { color = new Color(0, 1, 1); }
+                else { color = new Color(1, 0, 0); }
                 break;
 
             case DisplayMode.Water:
-                if (Ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Drink)) { colValue = new Vector3(0, .8f, 1); }
-                else { colValue = new Vector3(1, 1, 1); }
+                if (HasResource(ResourceType.Drink)) { color = new Color(0, .8f, 1); }
+                else { color = new Color(1, 1, 1); }
                 break;
 
             case DisplayMode.Food:
-                if (Ressources.Exists(x => x.ressourceType == Ressource.RessourceType.Food)) { colValue = new Vector3(0, 1, 0); }
-                else { colValue = new Vector3(1, 1, 1); }
+                if (HasResource(ResourceType.Food)) { color = new Color(0, 1, 0); }
+                else { color = new Color(1, 1, 1); }
                 break;
             default:
-                colValue = new Vector3(1, 1, 1);
+                color = new Color(1, 1, 1);
                 break;
         }
 
-        if (SetColor(colValue.x, colValue.y, colValue.z))
-        {
-            foreach (int vertexId in VerticeIds)
-            {
-                ZManager.Colors[vertexId] = Col;
-            }
-            ZManager.SetColors();
-        }    
+        //if (SetColor(color))
+        //{
+        //    foreach (var vertexId in VerticeIds)
+        //    {
+        //        _zoneManager.Colors[vertexId] = Col;
+        //    }
+        //    _zoneManager.SetColors();
+        //}
     }
 
-    public bool CheckRessourceInNeighbours(Ressource.RessourceType ressourceType)
+    public Resource GetResourceByType(ResourceType resourceType)
     {
-        if (Ressources.Exists(x => x.ressourceType == ressourceType))
-            return true;
-
-        foreach (Zone neighbour in Neighbours)
-        {
-            if (neighbour.Ressources.Exists(x => x.ressourceType == ressourceType))
-                return true;
-        }
-
-        return false;
+        return Resources.FirstOrDefault(r => r.ResourceType == resourceType);
     }
 
-    public void SetMinHeight(Vector3 center)
+    public bool HasResource(ResourceType resourceType)
     {
-        float height = float.PositiveInfinity;
-        foreach (int v in VerticeIds)
-        {
-            float distance = Vector3.Distance(ZManager.Vertices[v], center);
-            if (distance < height)
-            {
-                height = distance;
-            }
-        }
-        MinHeight = height;
-    }
-
-
-    public void SetMaxHeight(Vector3 center)
-    {
-        float height = 0;
-        foreach (int v in VerticeIds)
-        {
-            float distance = Vector3.Distance(ZManager.Vertices[v], center);
-            if (distance > height)
-            {
-                height = distance;
-            }
-        }
-        MaxHeight = height;
-    }
-
-    private bool SetColor(float r, float g, float b)
-    {
-        var newCol = new Color(Mathf.Lerp(Col.r, r, Time.deltaTime * 3),
-            Mathf.Lerp(Col.g, g, Time.deltaTime * 3),
-            Mathf.Lerp(Col.b, b, Time.deltaTime * 3));
-        if (Col == newCol)
-            return false;
-        Col = newCol;
-        return true;
+        return GetResourceByType(resourceType) != null;
     }
 }

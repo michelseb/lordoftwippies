@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class AdvancedTwippie : Twippie {
-    
+public class AdvancedTwippie : Twippie
+{
+
     protected float[] advancedNeedSensibilities;
-    protected List<Ressource> _ressources;
+    protected List<Resource> _ressources;
     private Twippie _partner;
     protected List<IBuildable> _builtStuff;
     protected Coroutine _building, _collecting;
@@ -30,7 +31,7 @@ public class AdvancedTwippie : Twippie {
         _advancedNeed = new Skill(SkillType.None, 0);
         SetSensibilities();
         StartCoroutine(CheckAdvancedNeeds());
-        _ressources = new List<Ressource> { new Ressource(Ressource.RessourceType.Drink, 0), new Ressource(Ressource.RessourceType.Food, 0) };
+        _ressources = new List<Resource> { new Resource(ResourceType.Drink, 0), new Resource(ResourceType.Food, 0) };
         _builtStuff = new List<IBuildable>();
 
     }
@@ -38,7 +39,7 @@ public class AdvancedTwippie : Twippie {
     protected override void Update()
     {
         base.Update();
-        for(int a = 0; a < _skills.Length; a++)
+        for (int a = 0; a < _skills.Length; a++)
         {
             _skills[a].SkillValue = UpdateValue(_skills[a].SkillValue, -.001f, 0, 1); //Perte de skill globale constante
         }
@@ -47,13 +48,13 @@ public class AdvancedTwippie : Twippie {
     public override void GenerateStatsForActions()
     {
         base.GenerateStatsForActions();
-        Stats.GenerateWorldStat<LabelStat>().Populate("Bois possédé : ", "WoodPossession");
+        Stats.GenerateWorldStat<LabelStat>().Populate("WoodPossession", "Bois possédé : ");
     }
 
     public override void PopulateStats()
     {
         base.PopulateStats();
-        _og.RadialPanel.PopulateStatPanel(_stats.GetStat("WoodPossession"), new object[] { "Bois possédé : ", "WoodPossession" });
+        _objectGenerator.RadialPanel.PopulateStatPanel(_stats, new object[] { "WoodPossession", "Bois possédé : " });
     }
 
     protected override GoalType DefineGoal()
@@ -70,7 +71,7 @@ public class AdvancedTwippie : Twippie {
             case SkillType.Socialize:
                 return GoalType.Socialize;
             case SkillType.Build:
-                if (_og.GetObjects<IBuildable>().FirstOrDefault(x=>x.WoodCost <= _ressources[1].quantity) != null)
+                if (_objectGenerator.GetObjects<IBuildable>().FirstOrDefault(x => x.WoodCost <= _ressources[1].Quantity) != null)
                 {
                     Debug.Log("Need to build");
                     return GoalType.Build;
@@ -80,7 +81,7 @@ public class AdvancedTwippie : Twippie {
                     Debug.Log("Need to collect");
                     return GoalType.Collect;
                 }
-                
+
         }
         return GoalType.Wander;
     }
@@ -93,24 +94,23 @@ public class AdvancedTwippie : Twippie {
             case State.Building:
                 if (_building == null)
                 {
-                    ManageableObjet obj = _og.GetObjects<IBuildable>().FirstOrDefault(x => Mathf.Pow(x.WoodCost,(_builtStuff.Count+1)) <= _ressources[1].quantity); // Plus on possède de maisons plus elles sont chères
+                    var obj = _objectGenerator.GetObjects<IBuildable>().FirstOrDefault(x => Mathf.Pow(x.WoodCost, _builtStuff.Count + 1) <= _ressources[1].Quantity); // Plus on possède de maisons plus elles sont chères
                     if (obj != null)
                     {
-                        GameObject house = Instantiate(obj.gameObject, _arrival.FinishZone.Center, Quaternion.identity);
+                        GameObject house = Instantiate(obj.gameObject, _arrival.FinishZone.WorldPos, Quaternion.identity);
                         house.transform.localScale = Vector3.zero;
                         obj = house.GetComponent<ManageableObjet>();
                         obj.CurrentSize = Vector3.zero;
                         var buildable = (IBuildable)obj;
                         _builtStuff.Add(buildable);
                         Debug.Log("Building");
+
                         _arrival.FinishZone.Accessible = false;
-                        foreach (Zone z in _arrival.FinishZone.Neighbours)
-                        {
-                            z.Accessible = false;
-                        }
+                        _arrival.FinishZone.NeighbourIds.ForEach(n => _zoneManager.FindById(n).Accessible = false);
+
                         Skill updatingSkill = _skills.FirstOrDefault(x => x.Type == SkillType.Build);
                         updatingSkill.SkillValue = UpdateValue(updatingSkill.SkillValue + .2f, 0, 0, 1);
-                        _building = StartCoroutine(buildable.Build(_builtStuff.Count+1));
+                        _building = StartCoroutine(buildable.Build(_builtStuff.Count + 1));
                     }
                     else
                     {
@@ -122,12 +122,12 @@ public class AdvancedTwippie : Twippie {
                 Debug.Log("Should collect");
                 if (_collecting == null)
                 {
-                    Ressource ressource = _arrival.FinishZone.Ressources.FirstOrDefault(x => x.ressourceType == Ressource.RessourceType.Food);
+                    var ressource = _arrival.FinishZone.GetResourceByType(ResourceType.Food);
                     if (ressource != null)
                     {
-                        if (ressource.consumableObject != null)
+                        if (ressource.Consumable != null)
                         {
-                            if (ressource.consumableObject is ICollectable)
+                            if (ressource.Consumable is ICollectable collectable)
                             {
                                 if (_arrival.FinishZone.Taken)
                                 {
@@ -136,7 +136,6 @@ public class AdvancedTwippie : Twippie {
                                 else
                                 {
                                     _arrival.FinishZone.Taken = true;
-                                    ICollectable collectable = (ICollectable)ressource.consumableObject;
                                     Debug.Log("Collecting");
                                     _collecting = StartCoroutine(collectable.Collecting(this));
                                 }
@@ -163,7 +162,7 @@ public class AdvancedTwippie : Twippie {
 
     }
 
-    public List<Ressource> Ressources
+    public List<Resource> Ressources
     {
         get
         {
@@ -174,7 +173,7 @@ public class AdvancedTwippie : Twippie {
             _ressources = value;
         }
     }
-    
+
     private Skill SelectSkill(List<Skill> skillList)
     {
         if (skillList == null || skillList.Count == 0)
@@ -183,7 +182,7 @@ public class AdvancedTwippie : Twippie {
         float skillsSum = skillList.Sum(x => x.SkillValue); // Somme des valeurs des skills
         for (int a = 0; a < skillList.Count; a++)
         {
-            if (!CoinFlip(skillList[a].SkillValue/skillsSum)) //Coinflip avec chance de la valeur du skill divisée par la somme des valeurs de tous les skills
+            if (!Utils.CoinFlip(skillList[a].SkillValue / skillsSum)) //Coinflip avec chance de la valeur du skill divisée par la somme des valeurs de tous les skills
             {
                 skillList.Remove(skillList[a]); //On enlève l'option si coinflip raté
             }
@@ -201,18 +200,18 @@ public class AdvancedTwippie : Twippie {
     private void SetSensibilities()
     {
         SkillType[] skillArray = (SkillType[])Enum.GetValues(typeof(SkillType));
-        _skills = new Skill[skillArray.Length-1];
-        for (int a = 0; a < skillArray.Length-1; a++)
+        _skills = new Skill[skillArray.Length - 1];
+        for (int a = 0; a < skillArray.Length - 1; a++)
         {
             _skills[a] = new Skill(skillArray[a], UnityEngine.Random.Range(.1f, .3f));
         }
-        if (_papa != null && _maman != null)
+        if (_dad != null && _mom != null)
         {
-            if (_papa is AdvancedTwippie && _maman is AdvancedTwippie)
+            if (_dad is AdvancedTwippie && _mom is AdvancedTwippie)
             {
-                AdvancedTwippie aPapa = (AdvancedTwippie)_papa;
-                AdvancedTwippie aMaman = (AdvancedTwippie)_maman;
-                for (int a = 0; a < skillArray.Length-1; a++)
+                AdvancedTwippie aPapa = (AdvancedTwippie)_dad;
+                AdvancedTwippie aMaman = (AdvancedTwippie)_mom;
+                for (int a = 0; a < skillArray.Length - 1; a++)
                 {
                     float ponderation = UnityEngine.Random.value;
                     _skills[a] = new Skill(skillArray[a], aPapa.Skills[a].SkillValue * ponderation + aMaman.Skills[a].SkillValue * (1 - ponderation));
@@ -220,19 +219,19 @@ public class AdvancedTwippie : Twippie {
             }
             else
             {
-                if (_papa is AdvancedTwippie)
+                if (_dad is AdvancedTwippie)
                 {
-                    AdvancedTwippie aPapa = (AdvancedTwippie)_papa;
-                    for (int a = 0; a < skillArray.Length-1; a++)
+                    AdvancedTwippie aPapa = (AdvancedTwippie)_dad;
+                    for (int a = 0; a < skillArray.Length - 1; a++)
                     {
                         float ponderation = UnityEngine.Random.value;
                         _skills[a] = new Skill(skillArray[a], aPapa.Skills[a].SkillValue * ponderation + UnityEngine.Random.Range(.1f, .3f) * (1 - ponderation));
                     }
                 }
-                else if (_maman is AdvancedTwippie)
+                else if (_mom is AdvancedTwippie)
                 {
-                    AdvancedTwippie aMaman = (AdvancedTwippie)_maman;
-                    for (int a = 0; a < skillArray.Length-1; a++)
+                    AdvancedTwippie aMaman = (AdvancedTwippie)_mom;
+                    for (int a = 0; a < skillArray.Length - 1; a++)
                     {
                         float ponderation = UnityEngine.Random.value;
                         _skills[a] = new Skill(skillArray[a], aMaman.Skills[a].SkillValue * ponderation + UnityEngine.Random.Range(.1f, .3f) * (1 - ponderation));
@@ -240,7 +239,7 @@ public class AdvancedTwippie : Twippie {
                 }
                 else
                 {
-                    for (int a = 0; a < skillArray.Length-1; a++)
+                    for (int a = 0; a < skillArray.Length - 1; a++)
                     {
                         _skills[a] = new Skill(skillArray[a], UnityEngine.Random.Range(.1f, .3f));
                     }
@@ -252,7 +251,7 @@ public class AdvancedTwippie : Twippie {
     protected override void UpdateStats()
     {
         base.UpdateStats();
-        _stats.StatToLabel(_stats.GetStat("WoodPossession")).Value = "Bois possédé : " + _ressources[1].quantity;
+        _stats.StatToLabel(_stats.GetStat("WoodPossession")).Value = "Bois possédé : " + _ressources[1].Quantity;
     }
 
 }

@@ -1,38 +1,33 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public struct Step
-{
-    public GameObject Go { get; }
-    public Zone Zone { get; }
+//public class Step
+//{
+//    public Guid ZoneId { get; }
+//    private Transform _zoneTransform;
+//    public GameObject GameObject { get; set; }
+//    public Vector3 WorldPos => _zoneTransform.position;
 
-    public Step(Zone zone, GameObject go = null)
-    {
-        Go = go;
-        Zone = zone;
-    }
-}
+//    public Step(Guid zoneId, GameObject gameObject = null)
+//    {
+//        ZoneId = zoneId;
+//        GameObject = gameObject;
+//        _zoneTransform = ZoneManager.Instance.FindById(zoneId).transform;
+//    }
+//}
 
 public struct PathCost
 {
-    public Twippie Twippie { get; }
-    public int FCost { get; set; }
-    public int HCost { get; }
-    public int GCost { get; set; }
-    public Zone Parent { get; }
+    public float FCost { get; set; }
+    public float HCost { get; }
+    public float GCost { get; set; }
+    public Guid Parent { get; }
 
-    public PathCost(Twippie twippie, int gCost, int hCost)
+    public PathCost(float gCost, float hCost, Guid parent)
     {
-        Twippie = twippie;
-        GCost = gCost;
-        HCost = hCost;
-        FCost = GCost + HCost;
-        Parent = null;
-    }
-    public PathCost(Twippie twippie, int gCost, int hCost, Zone parent)
-    {
-        Twippie = twippie;
         GCost = gCost;
         HCost = hCost;
         FCost = GCost + HCost;
@@ -40,207 +35,212 @@ public struct PathCost
     }
 }
 
-public class PathFinder : MonoBehaviour {
+public class PathFinder : MonoBehaviour
+{
 
-    [SerializeField]
-    private bool _displayPath;
-    private Twippie _twippie;
-    private List<Zone> _openList, _closeList;
-    public List<Step> Steps { get; private set; }
+    [SerializeField] private bool _displayPath;
 
-    private void Awake () {
-        _twippie = gameObject.GetComponent<Twippie>();
-	}
+    private Guid _twippieId;
+    public List<GameObject> Path { get; private set; }
+    private IEnumerator _findPath;
+    private ZoneManager _zoneManager;
+    private Guid _destination;
+    private GameObject _destinationVisual;
 
-    public Zone FindPath(Zone destination)
+    public bool HasDestination => _destination != default;
+
+    private void Awake()
     {
-        _openList = new List<Zone>();
-        _closeList = new List<Zone>();
-        Zone currentZone = _twippie.Zone; // Set zone de début = zone du twippie
-        _openList.Add(currentZone);
-        currentZone.PathCosts.Add(new PathCost(_twippie, 0, (int)Vector3.Distance(destination.Center, currentZone.Center)));
-        
-        while (true) //Tant que la zone trouvée est trop loin de la zone finale
+        _twippieId = GetComponent<Twippie>().Id;
+        _zoneManager = ZoneManager.Instance;
+
+        // Destination 
+        _destinationVisual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        _destinationVisual.GetComponent<MeshRenderer>().material.color = Color.red;
+        _destinationVisual.GetComponent<Collider>().isTrigger = true;
+        _destinationVisual.transform.localScale = Vector3.one * .2f;
+        _destinationVisual.transform.SetParent(TwippieManager.Instance.FindById(_twippieId).Planet.transform);
+    }
+
+    public IEnumerator FindPath(Guid currentZoneId, Guid destinationId, Action<Zone> result)
+    {
+        if (_findPath != null)
         {
-            float smallestFCost = float.PositiveInfinity;
-            foreach (Zone z in _openList)
-            {
-                for (int b = 0; b < currentZone.PathCosts.Count; b++)
-                {
-                    if (currentZone.PathCosts[b].Twippie != _twippie)
-                    {
-                        continue;
-                    }
-                    for (int c = 0; c < z.PathCosts.Count; c++)
-                    {
-                        if (z.PathCosts[c].Twippie != _twippie)
-                        {
-                            continue;
-                        }
+            StopCoroutine(_findPath);
+        }
 
-                        if (z.PathCosts[c].FCost == smallestFCost)
-                        {
-                            if (z.PathCosts[c].HCost < currentZone.PathCosts[b].HCost)
-                            {
-                                currentZone = z;
-                            }
-                        }
-                        if (z.PathCosts[c].FCost < smallestFCost)
-                        {
-                            smallestFCost = z.PathCosts[c].FCost;
-                            currentZone = z;
-                        }
-                    }
-                }
-            }
-            _openList.Remove(currentZone);
-            _closeList.Add(currentZone);
-            if (currentZone == destination)
-            {
-                break;
-            }
-            int possibilities = 0;
-            for (int a = 0; a < currentZone.Neighbours.Count; a++) //Toutes les zones à proximité de la zone actuelle
-            {
-                if (_closeList.Contains(currentZone.Neighbours[a]) || !currentZone.Neighbours[a].Accessible || currentZone.Neighbours[a].Taken)
-                {
-                    if (a == currentZone.Neighbours.Count - 1 && possibilities == 0)
-                    {
-                        ClearPath();
-                        return null;
-                    }
-                    continue;
-                }
-                possibilities++;
-                if (_openList.Contains(currentZone.Neighbours[a]))
-                {
-                    for (int b = 0; b < currentZone.Neighbours[a].PathCosts.Count; b++)
-                    {
-                        if (currentZone.Neighbours[a].PathCosts[b].Twippie != _twippie)
-                        {
-                            continue;
-                        }
-                        for (int c = 0; c < currentZone.PathCosts.Count; c++)
-                        {
-                            if (currentZone.PathCosts[c].Twippie != _twippie)
-                            {
-                                continue;
-                            }
-                            int gCost = currentZone.PathCosts[c].GCost + (int)Vector3.Distance(currentZone.Center, currentZone.Neighbours[a].Center);
-                            int hCost = currentZone.Neighbours[a].PathCosts[b].HCost;
+        _destination = destinationId;
+        _destinationVisual.transform.position = _zoneManager.FindById(destinationId).WorldPos;
 
-                            if ((gCost + hCost) < currentZone.Neighbours[a].PathCosts[b].FCost)
-                            {
-                                PathCost pathCost = new PathCost(_twippie, gCost, hCost, currentZone);
-                                currentZone.Neighbours[a].PathCosts[b] = pathCost;
-                            }
-                        }
+        _findPath = DoFindPath(currentZoneId, destinationId, zone =>
+        {
+            result(zone);
+        });
+
+        yield return StartCoroutine(_findPath);
+    }
+
+    public IEnumerator RefreshPath(Guid currentZoneId, Action<Zone> result)
+    {
+        if (!HasDestination)
+            yield break;
+
+        if (_findPath != null)
+        {
+            StopCoroutine(_findPath);
+        }
+
+        _findPath = DoFindPath(currentZoneId, _destination, zone =>
+        {
+            result(zone);
+        });
+
+        yield return StartCoroutine(_findPath);
+    }
+
+    private IEnumerator DoFindPath(Guid currentZoneId, Guid destinationId, Action<Zone> result)
+    {
+        var openList = new List<Guid> { currentZoneId };
+        var closeList = new List<Guid>();
+
+        var currentZone = _zoneManager.FindById(currentZoneId);
+        var destination = _zoneManager.FindById(destinationId);
+
+        UpdateZonePathCost(currentZone, 0, Vector3.Distance(destination.WorldPos, currentZone.WorldPos), Guid.Empty);
+
+        while (openList.Count > 0)
+        {
+            currentZone = openList
+                .Select(x => _zoneManager.FindById(x))
+                .OrderBy(z => z.PathCosts[_twippieId].FCost)
+                .ThenBy(z => z.PathCosts[_twippieId].HCost)
+                .FirstOrDefault();
+
+            currentZoneId = currentZone.Id;
+
+            if (currentZoneId == destinationId)
+            {
+                CreatePath(currentZoneId);
+                ClearPath(openList, _twippieId);
+                ClearPath(closeList, _twippieId);
+                result(currentZone);
+                yield break;
+            }
+
+            openList.Remove(currentZoneId);
+            closeList.Add(currentZoneId);
+
+            var neighbourIds = currentZone.NeighbourIds
+                .Where(n => !closeList.Contains(n))
+                .Select(x => _zoneManager.FindById(x))
+                .Where(z => z.Accessible && !z.Taken)
+                .ToList();
+
+            if (neighbourIds == null || neighbourIds.Count == 0)
+            {
+                continue;
+            }
+
+            var currentGCost = currentZone.PathCosts[_twippieId].GCost;
+
+            foreach (var neighbour in neighbourIds)//Toutes les zones à proximité de la zone actuelle
+            {
+                var gCost = currentGCost + Vector3.Distance(currentZone.WorldPos, neighbour.WorldPos);
+
+                if (openList.Contains(neighbour.Id))
+                {
+                    var neighbourPathCost = neighbour.PathCosts[_twippieId];
+
+                    var hCost = neighbourPathCost.HCost;
+
+                    if ((gCost + hCost) < neighbourPathCost.FCost)
+                    {
+                        UpdateZonePathCost(neighbour, gCost, hCost, currentZoneId);
                     }
+
                 }
                 else
                 {
-                    for (int b = 0; b < currentZone.PathCosts.Count; b++)
-                    {
-                        if (currentZone.PathCosts[b].Twippie != _twippie)
-                        {
-                            continue;
-                        }
-                        int gCost = currentZone.PathCosts[b].GCost + (int)Vector3.Distance(currentZone.Center, currentZone.Neighbours[a].Center);
-                        int hCost = (int)Vector3.Distance(destination.Center, currentZone.Neighbours[a].Center);
-                        PathCost pathCost = new PathCost(_twippie, gCost, hCost, currentZone);
-                        currentZone.Neighbours[a].PathCosts.Add(pathCost);
-                        _openList.Add(currentZone.Neighbours[a]);
-                    }
+                    var hCost = Vector3.Distance(destination.WorldPos, neighbour.WorldPos);
+                    UpdateZonePathCost(neighbour, gCost, hCost, currentZoneId);
+                    openList.Add(neighbour.Id);
                 }
             }
-            
+
+            //yield return null;
         }
-        return currentZone;
+
+        // Reached if path could not be found
+        CreatePath(currentZoneId);
+        ClearPath(openList, _twippieId);
+        ClearPath(closeList, _twippieId);
+        result(currentZone);
     }
 
-    public void CreatePath(Zone zone)
+    public void UpdateZonePathCost(Zone zone, float gCost, float hCost, Guid parent)
     {
-        List<Zone> res = SetPath(zone);
-        DisplaySteps(res, _displayPath);
-        ClearPath();
-    }
-
-    private void ClearPath()
-    {
-        foreach (Zone z in _openList)
+        if (zone.PathCosts.ContainsKey(_twippieId))
         {
-            for (int b = 0; b < z.PathCosts.Count; b++)
-            {
-                if (z.PathCosts[b].Twippie != _twippie)
-                {
-                    continue;
-                }
-                z.PathCosts.RemoveAt(b);
-            }
+            zone.PathCosts[_twippieId] = new PathCost(gCost, hCost, parent);
         }
-
-        foreach (Zone z in _closeList)
+        else
         {
-            for (int b = 0; b < z.PathCosts.Count; b++)
-            {
-                if (z.PathCosts[b].Twippie != _twippie)
-                {
-                    continue;
-                }
-                z.PathCosts.RemoveAt(b);
-            }
+            zone.PathCosts.Add(_twippieId, new PathCost(gCost, hCost, parent));
         }
     }
-    private List<Zone> SetPath(Zone currentZone)
+
+    public void CreatePath(Guid zoneId)
     {
-        List<Zone> result = new List<Zone>();
+        var path = SetPath(zoneId);
+        SetSteps(path);
+    }
+
+    private void ClearPath(List<Guid> path, Guid id)
+    {
+        foreach (var zone in path.Select(z => _zoneManager.FindById(z)).ToArray())
+        {
+            zone.PathCosts.Remove(id);
+        }
+    }
+
+    private List<Guid> SetPath(Guid currentZoneId)
+    {
+        var result = new List<Guid>();
+
         while (true)
         {
-            Zone parent = null;
-            for (int b = 0; b < currentZone.PathCosts.Count; b++)
-            {
-                if (currentZone.PathCosts[b].Twippie != _twippie)
-                {
-                    continue;
-                }
-                result.Add(currentZone);
-                parent = currentZone.PathCosts[b].Parent;
-            }
-            if (parent != null)
-            {
-                currentZone = parent;
-            }
-            else
-            {
+            var currentZone = _zoneManager.FindById(currentZoneId);
+
+            result.Insert(0, currentZoneId);
+
+            if (!currentZone.PathCosts.ContainsKey(_twippieId))
                 break;
-            }
+
+            var parent = currentZone.PathCosts[_twippieId].Parent;
+
+            if (parent == default)
+                break;
+
+            currentZoneId = parent;
         }
+
         return result;
     }
 
-    private void DisplaySteps(List<Zone> result, bool obj)
+    private void SetSteps(List<Guid> zoneIds)
     {
-        Color col = new Color(Random.value, Random.value, Random.value);
-        Steps = new List<Step>();
-        Step step;
-        foreach (Zone z in result)
+        var planet = TwippieManager.Instance.FindById(_twippieId).Planet.transform;
+        Path = zoneIds.Select(z =>
         {
-            if (obj)
-            {
-                GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                go.transform.localScale = Vector3.one * .3f;
-                go.GetComponent<MeshRenderer>().material.color = col;
-                go.transform.position = z.Center;
-                go.GetComponent<SphereCollider>().isTrigger = true;
-                go.transform.parent = _twippie.P.transform;
-                step = new Step(z, go);
-            }
-            else
-            {
-                step = new Step(z);
-            }
-            Steps.Add(step);
-        }
+            var obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            obj.GetComponent<Collider>().isTrigger = true;
+            obj.transform.localScale = Vector3.one * .05f;
+            obj.transform.position = _zoneManager.FindById(z).WorldPos;
+            obj.transform.SetParent(planet);
+
+            return obj;
+        })
+        .ToList();
     }
 
 }

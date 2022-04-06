@@ -3,15 +3,15 @@
 public class WaterObjet : ManageableObjet {
 
 
+    [SerializeField] private Planet _planet;
+
     private float _previousRadius;
-    [SerializeField]
-    private Planete _planet;
     
     public override void GenerateStatsForActions()
     {
         base.GenerateStatsForActions();
-        Stats.GenerateWorldStat<BoolStat>().Populate(false, "hard/soft", "Water", false);
-        Stats.GenerateWorldStat<ValueStat>().Populate(10, 0, 20, "niveau", false, "Level");
+        Stats.GenerateWorldStat<BoolStat>().Populate("Water", false, "hard/soft", false);
+        Stats.GenerateWorldStat<ValueStat>().Populate("Level", 10, 0, 20, "niveau", false);
     }
 
     public float Radius { get; private set; }
@@ -25,7 +25,7 @@ public class WaterObjet : ManageableObjet {
     protected override void Start()
     {
         base.Start();
-        _outline.color = 0;
+        _outline.Color = 0;
         _outline.eraseRenderer = true;
         SetRadius();
         _previousRadius = Radius;
@@ -39,16 +39,16 @@ public class WaterObjet : ManageableObjet {
         {
             if (Mathf.Abs(_previousRadius - Radius) > .1f)
             {
-                _planet.ZManager.GetZoneInfo();
+                _zoneManager.SetZoneInfos();
                 _previousRadius = Radius;
             }
         }
     }
 
-    protected override Vector3 SetCurrentSize()
-    {
-        return _initSize;
-    }
+    //protected override Vector3 SetCurrentSize()
+    //{
+    //    return _initSize;
+    //}
 
     private void SetRadius()
     {

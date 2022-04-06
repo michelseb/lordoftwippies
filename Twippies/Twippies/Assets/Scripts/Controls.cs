@@ -1,71 +1,64 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Controls : MonoBehaviour {
+public enum ControlMode
+{
+    Clicking,
+    Dragging,
+    Checking,
+    CheckingMultiple,
+    Selecting,
+    Waiting
+}
 
-    public enum ControlMode
-    {
-        Clicking,
-        Dragging,
-        Checking,
-        CheckingMultiple,
-        Selecting,
-        Waiting
-    }
+public enum ClicMode
+{
+    RightClic,
+    LeftClic,
+    CentralClic,
+    None
+}
 
-    public enum ClicMode
-    {
-        RightClic,
-        LeftClic,
-        CentralClic,
-        None
-    }
-    
-    public enum ZoomMode
-    {
-        Initial,
-        Intermediate,
-        Focused
-    }
+public enum ZoomMode
+{
+    Initial,
+    Intermediate,
+    Focused
+}
 
-    [SerializeField]
-    private float _zoomSpeed;
 
-    [SerializeField]
-    private GameObject _dragCollider;
+public class Controls : MonoBehaviour
+{
+    [SerializeField] private float _zoomSpeed;
+    [SerializeField] private GameObject _dragCollider;
+    [SerializeField] private GameObject _aerialDragCollider;
+    [SerializeField] private GameObject _planeCollider;
+    [SerializeField] private Camera _frontCam;
+    [SerializeField] private Planet _planet;
 
-    [SerializeField]
-    private GameObject _aerialDragCollider;
-
-    [SerializeField]
-    private GameObject _planeCollider;
-
-    [SerializeField]
-    private Camera _frontCam;
-
-    [SerializeField]
-    private Planete _planete;
+    private ObjetManager _objectManager;
+    private ZoneManager _zoneManager;
+    private ObjectGenerator _objectGenerator;
 
     private float _wheelSpeed;
     private float _zoomSensitivity = 15;
-    private float _initZoomAmount, _zoomAmount, _maxZoom = 50;
+    private float _initZoomAmount, _zoomAmount;
     private ZoomMode _autoZoom;
-    private Camera _cam;
-    private UIManager _ui;
-    private UIResources _uiR;
-    private ObjetManager _om;
-    private ObjectGenerator _og;
+    private Camera _camera;
+    private UIManager _uiManager;
+    private UIResources _uiResources;
     private MainPanel _mainPanel;
     private Texture2D _whiteTexture;
     private RadialMenu _radialPanel;
+    private Coroutine _zoomTask;
 
-    public ClicMode clic;
-    public ControlMode ctrl;
+    public ClicMode CurrentClicMode { get; private set; }
+    public ControlMode CurrentContolMode { get; private set; }
 
-    const float DIST_TO_DRAG = 10.0f;
+    const float DIST_TO_DRAG = 10f;
+    const float MAX_ZOOM = 80f;
 
     public ManageableObjet FocusedObject { get; set; }
     public GraphicElement FocusedUI { get; set; }
@@ -78,21 +71,22 @@ public class Controls : MonoBehaviour {
 
     private void Awake()
     {
-        _cam = Camera.main;
-        _ui = UIManager.Instance;
-        _uiR = UIResources.Instance;
-        _om = ObjetManager.Instance;
-        _og = ObjectGenerator.Instance;
-        _radialPanel = _planete.MainRadial;
+        _camera = Camera.main;
+        _uiManager = UIManager.Instance;
+        _uiResources = UIResources.Instance;
+        _objectManager = ObjetManager.Instance;
+        _zoneManager = ZoneManager.Instance;
+        _objectGenerator = ObjectGenerator.Instance;
+        _radialPanel = _planet.MainRadial;
         _mainPanel = MainPanel.Instance;
     }
 
     private void Start()
     {
-        ctrl = ControlMode.Waiting;
-        clic = ClicMode.None;
-        _initZoomAmount = _cam.fieldOfView;
-        _zoomAmount = _cam.fieldOfView;
+        CurrentContolMode = ControlMode.Waiting;
+        CurrentClicMode = ClicMode.None;
+        _initZoomAmount = _camera.fieldOfView;
+        _zoomAmount = _camera.fieldOfView;
         FocusedObjects = new List<ManageableObjet>();
         _whiteTexture = new Texture2D(1, 1);
     }
@@ -101,100 +95,102 @@ public class Controls : MonoBehaviour {
 
     private void Update()
     {
-        if (FocusedUI == null)
+        //if (FocusedUI == null)
+        //{
+        //    if (_uiManager.InfoGUI)
+        //    {
+        //        //if (_autoZoom != ZoomMode.Intermediate)
+        //        //{
+        //        //    _autoZoom = ZoomMode.Intermediate;
+        //        //    StartCoroutine(AutoZoom(10));
+        //        //}
+        //    }
+        //    else
+        //    {
+        //        //if (_autoZoom != ZoomMode.Initial)
+        //        //{
+        //        //    StartCoroutine(AutoZoom(-1, true));
+        //        //}
+        //        //else
+        //        //{
+        //            //_wheelSpeed = Input.GetAxis("Mouse ScrollWheel") * _zoomSensitivity;
+        //        //}
+        //    }
+        //}
+        //else
+        //{
+        //    //if (_autoZoom != ZoomMode.Focused)
+        //    //{
+        //    //    StartCoroutine(AutoZoom(20));
+        //    //    _autoZoom = ZoomMode.Focused;
+        //    //}
+        //}
+
+        _wheelSpeed = Input.GetAxis("Mouse ScrollWheel") * _zoomSensitivity;
+
+        if (_wheelSpeed != 0)
         {
-            if (_ui.InfoGUI)
-            {
-                if (_autoZoom != ZoomMode.Intermediate)
-                {
-                    _autoZoom = ZoomMode.Intermediate;
-                    StartCoroutine(AutoZoom(10));
-                }
-            }
-            else
-            {
-                if (_autoZoom != ZoomMode.Initial)
-                {
-                    StartCoroutine(AutoZoom(-1, true));
-                }
-                else
-                {
-                    _wheelSpeed = Input.GetAxis("Mouse ScrollWheel") * _zoomSensitivity;
-                }
-            }
+            if (_zoomTask != null) StopCoroutine(_zoomTask);
+            _zoomTask = StartCoroutine(ZoomTo(_camera.fieldOfView - _wheelSpeed * _zoomSpeed * _camera.fieldOfView, .2f));
         }
-        else
-        {
-            if(_autoZoom != ZoomMode.Focused)
-            {
-                StartCoroutine(AutoZoom(20));
-                _autoZoom = ZoomMode.Focused;
-            }
-        }
-        _zoomAmount -= _wheelSpeed;
-        _zoomAmount = Mathf.Clamp(_zoomAmount, _initZoomAmount - _maxZoom, _initZoomAmount + _maxZoom);
-        _cam.fieldOfView = Mathf.Lerp(_cam.fieldOfView, _zoomAmount, Time.deltaTime * _zoomSpeed);
-        _frontCam.fieldOfView = _cam.fieldOfView;
 
 
         if (AnyClic() && MousePosVoid())
         {
-            _ui.DisablePreviewCam();
-            _ui.InfoGUI = false;
+            _uiManager.DisablePreviewCam();
+            _uiManager.InfoGUI = false;
             FocusedUI = null;
             StartCoroutine(_radialPanel.SetAllButtonsActiveStateWithDelay(false, 1));
             _mainPanel.SetAllStatPanelsActiveState(false);
             _radialPanel.Close();
 
-            foreach (ManageableObjet obj in FocusedObjects)
+            foreach (var obj in FocusedObjects)
             {
-                if (obj is Twippie)
+                if (obj is Twippie twippie)
                 {
-                    Twippie t = (Twippie)obj;
-                    t.LineRenderer.enabled = false;
+                    twippie.LineRenderer.enabled = false;
                 }
+
                 obj.SetSelectionActive(false);
             }
             FocusedObjects.Clear();
 
             if (FocusedObject != null)
             {
-                if (FocusedObject is Twippie)
+                if (FocusedObject is Twippie twippie)
                 {
-                    Twippie t = (Twippie)FocusedObject;
-                    if (t != null)
-                    {
-                        t.LineRenderer.enabled = false;
-                    }
+                    twippie.LineRenderer.enabled = false;
                 }
+
                 FocusedObject.SetSelectionActive(false);
                 FocusedObject = null;
             }
+
             MainPanel.Instance.SetActive(false);
-            ctrl = ControlMode.Waiting;
+            CurrentContolMode = ControlMode.Waiting;
         }
         else if (AnyClic())
         {
             DefineOriginClick();
         }
 
-        switch (ctrl)
+        switch (CurrentContolMode)
         {
 
             case ControlMode.Waiting:
                 if (Input.GetButton("Fire1"))
                 {
-                    clic = ClicMode.LeftClic;
+                    CurrentClicMode = ClicMode.LeftClic;
                     DefineOriginClick();
                 }
                 else if (Input.GetButton("Fire2"))
                 {
-                    clic = ClicMode.RightClic;
+                    CurrentClicMode = ClicMode.RightClic;
                     DefineOriginClick();
                 }
                 else if (Input.GetButton("Fire3"))
                 {
-                    clic = ClicMode.CentralClic;
+                    CurrentClicMode = ClicMode.CentralClic;
                     DefineOriginClick();
                 }
                 break;
@@ -209,18 +205,18 @@ public class Controls : MonoBehaviour {
 
                 if (Vector2.Distance(OriginClic, Input.mousePosition) > DIST_TO_DRAG)
                 {
-                    if (FocusedObject != null && (clic != ClicMode.CentralClic) && AnyClicHold())
+                    if (FocusedObject != null && (CurrentClicMode != ClicMode.CentralClic) && AnyClicHold())
                     {
                         FocusedLayer = FocusedObject.gameObject.layer;
-                        ctrl = ControlMode.Dragging;
+                        CurrentContolMode = ControlMode.Dragging;
                     }
-                    else if (clic == ClicMode.CentralClic)
+                    else if (CurrentClicMode == ClicMode.CentralClic)
                     {
-                        ctrl = ControlMode.Selecting;
+                        CurrentContolMode = ControlMode.Selecting;
                         FocusedObject = null;
                     }
                 }
-                
+
                 break;
 
 
@@ -229,24 +225,23 @@ public class Controls : MonoBehaviour {
                 if (NewObject && !_planeCollider.activeSelf)
                 {
                     _planeCollider.SetActive(true);
-                    if ((FocusedObject is AerialObjet) == false)
+
+                    if (!(FocusedObject is AerialObjet))
                     {
+                        foreach (var zone in _zoneManager.Zones)
                         {
-                            foreach (Zone z in _om.ActivePlanet.ZManager.Zones)
-                            {
-                                z.Display = Zone.DisplayMode.Accessible;
-                            }
+                            zone.SetDisplayMode(DisplayMode.Accessible);
                         }
                     }
                 }
 
-                if (FocusedObject is DraggableObjet) {
-                    DraggableObjet d = (DraggableObjet)FocusedObject;
-                    if (FocusedObject is Twippie == false)
+                if (FocusedObject is DraggableObjet draggable)
+                {
+                    if (!(FocusedObject is Twippie))
                     {
-                        if (d.Zone != null)
+                        if (draggable.Zone != null)
                         {
-                            d.Zone.Accessible = true;
+                            draggable.Zone.Accessible = true;
                         }
                     }
                 }
@@ -264,9 +259,8 @@ public class Controls : MonoBehaviour {
                         {
                             _aerialDragCollider.SetActive(true);
                         }
-                        if (FocusedObject is DraggableObjet)
+                        if (FocusedObject is DraggableObjet d)
                         {
-                            DraggableObjet d = (DraggableObjet)FocusedObject;
                             if (d.Coll.enabled)
                             {
                                 d.Coll.enabled = false;
@@ -276,9 +270,9 @@ public class Controls : MonoBehaviour {
                                 Input.mousePosition.y < Screen.height * 3 / 8 ||
                                 Input.mousePosition.y > Screen.height * 5 / 8)
                             {
-                                if (d.P != null)
+                                if (d.Planet != null)
                                 {
-                                    d.P.AbsRotateObjet();
+                                    d.Planet.AbsRotateObjet();
                                 }
                             }
                         }
@@ -294,21 +288,20 @@ public class Controls : MonoBehaviour {
                         {
                             child.gameObject.layer = 15;
                         }
-                        if (!_uiR.Selected)
+                        if (!_uiResources.Selected)
                         {
-                            _uiR.PlayMouthOpen();
-                            _uiR.Selected = true;
+                            _uiResources.PlayMouthOpen();
+                            _uiResources.Selected = true;
                         }
                         _planeCollider.SetActive(true);
                     }
                     if (FocusedObject != null)
                     {
-                        if (FocusedObject is DraggableObjet)
+                        if (FocusedObject is DraggableObjet d2)
                         {
-                            DraggableObjet d = (DraggableObjet)FocusedObject;
-                            if (d.Coll.enabled)
+                            if (d2.Coll.enabled)
                             {
-                                d.Coll.enabled = false;
+                                d2.Coll.enabled = false;
                             }
 
                         }
@@ -316,17 +309,17 @@ public class Controls : MonoBehaviour {
                 }
                 else // Clic laché
                 {
-                    if (clic == ClicMode.RightClic)
+                    if (CurrentClicMode == ClicMode.RightClic)
                     {
-                        if (_uiR.MouseOver && FocusedObject is DraggableObjet)
+                        if (_uiResources != null && _uiResources.MouseOver && FocusedObject is DraggableObjet)
                         {
-                            Debug.Log("Resources added: "+FocusedObject.WoodCost+" Wood, "+FocusedObject.WaterCost+" Water, "+FocusedObject.StoneCost+" Stone");
-                            _uiR.AddResources(FocusedObject.WoodCost, FocusedObject.WaterCost, FocusedObject.StoneCost);
-                            _om.UpdateObjectList(FocusedObject, false);
+                            Debug.Log("Resources added: " + FocusedObject.WoodCost + " Wood, " + FocusedObject.WaterCost + " Water, " + FocusedObject.StoneCost + " Stone");
+                            _uiResources.AddResources(FocusedObject.WoodCost, FocusedObject.WaterCost, FocusedObject.StoneCost);
+                            _objectManager.RemoveObject(FocusedObject);
                             Destroy(FocusedObject.gameObject);
                         }
                     }
-                    clic = ClicMode.None;
+                    CurrentClicMode = ClicMode.None;
                     if (_planeCollider.activeSelf)
                     {
                         FocusedObject.gameObject.layer = FocusedLayer;
@@ -338,7 +331,7 @@ public class Controls : MonoBehaviour {
                     }
                     _aerialDragCollider.SetActive(false);
                     _dragCollider.SetActive(false);
-                    
+
                     if (FocusedObject)
                     {
                         if (FocusedObject is DraggableObjet)
@@ -358,15 +351,15 @@ public class Controls : MonoBehaviour {
                             if (FocusedObject is AerialObjet)
                             {
                                 AerialObjet aerialObjet = (AerialObjet)FocusedObject;
-                                aerialObjet.Zone = aerialObjet.ZoneManager.GetAerialZone(aerialObjet.transform);
+                                aerialObjet.Zone = _zoneManager.GetAerialZone(aerialObjet.transform);
                             }
                             else
                             {
                                 DraggableObjet draggableObjet = (DraggableObjet)FocusedObject;
-                                draggableObjet.Zone = draggableObjet.ZoneManager.GetZone(false, draggableObjet.Zone, draggableObjet.transform);
+                                draggableObjet.ZoneId = _zoneManager.GetZone(false, draggableObjet.Zone.Id, draggableObjet.transform.position);
                                 if (draggableObjet is IConsumable)
                                 {
-                                    draggableObjet.Zone.Ressources.Add(new Ressource(Ressource.RessourceType.Food, draggableObjet.GetComponent<IConsumable>(), 0));
+                                    draggableObjet.Zone.Resources.Add(new Resource(ResourceType.Food, draggableObjet.GetComponent<IConsumable>(), 0));
                                 }
                             }
                         }
@@ -381,11 +374,11 @@ public class Controls : MonoBehaviour {
                                 DraggableObjet draggableObjet = (DraggableObjet)FocusedObject;
                                 if (!draggableObjet.Zone.Accessible)
                                 {
-                                    _om.UpdateObjectList(FocusedObject, false);
+                                    _objectManager.RemoveObject(FocusedObject);
                                     Destroy(FocusedObject.gameObject);
                                     FocusedObject = null;
                                     NewObject = false;
-                                    ctrl = ControlMode.Waiting;
+                                    CurrentContolMode = ControlMode.Waiting;
                                 }
                             }
                         }
@@ -393,16 +386,15 @@ public class Controls : MonoBehaviour {
 
                     if (FocusedObject != null)
                     {
-                        if (FocusedObject is DraggableObjet && (FocusedObject is AerialObjet) == false &&(FocusedObject is Twippie) == false)
+                        if (!(FocusedObject is AerialObjet) && !(FocusedObject is Twippie) && FocusedObject is DraggableObjet d3)
                         {
-                            DraggableObjet draggableObjet = (DraggableObjet)FocusedObject;
-                            draggableObjet.Zone = draggableObjet.ZoneManager.GetZone(true, draggableObjet.Zone, draggableObjet.transform);
+                            d3.ZoneId = _zoneManager.GetZone(true, d3.Zone.Id, d3.transform.position);
                         }
                     }
 
                     FocusedObject = null;
                     NewObject = false;
-                    ctrl = ControlMode.Waiting;
+                    CurrentContolMode = ControlMode.Waiting;
                 }
 
                 break;
@@ -410,10 +402,10 @@ public class Controls : MonoBehaviour {
             case ControlMode.Selecting:
                 if (!Input.GetButton("Fire3"))
                 {
-                    clic = ClicMode.None;
+                    CurrentClicMode = ClicMode.None;
                     if (FocusedObjects.Count > 0)
                     {
-                        
+
                         if (FocusedObjects.Count == 1)
                         {
                             FocusedObject = FocusedObjects[0];
@@ -427,53 +419,50 @@ public class Controls : MonoBehaviour {
                     }
                     else
                     {
-                        ctrl = ControlMode.Waiting;
+                        CurrentContolMode = ControlMode.Waiting;
                     }
                 }
                 break;
 
             case ControlMode.Checking:
 
-                if (FocusedObject is Planete)
+                if (FocusedObject is Planet planet)
                 {
-                    Planete planete = (Planete)FocusedObject;
-                    if (planete.Shaping)
-                    {
+                    if (planet.Shaping)
                         return;
-                    }
                 }
                 break;
             case ControlMode.CheckingMultiple:
                 break;
         }
-        
+
     }
 
     private void DefineOriginClick()
     {
         OriginClic = Input.mousePosition;
-        switch (clic)
+        switch (CurrentClicMode)
         {
             case ClicMode.LeftClic:
             case ClicMode.RightClic:
                 if (FocusedObject != null)
                 {
-                    ctrl = ControlMode.Clicking;
+                    CurrentContolMode = ControlMode.Clicking;
                 }
                 else
                 {
-                    ctrl = ControlMode.Waiting;
+                    CurrentContolMode = ControlMode.Waiting;
                 }
                 break;
             case ClicMode.CentralClic:
-                ctrl = ControlMode.Clicking;
+                CurrentContolMode = ControlMode.Clicking;
                 break;
             default:
-                ctrl = ControlMode.Waiting;
+                CurrentContolMode = ControlMode.Waiting;
                 break;
         }
-        
-        
+
+
     }
 
     private bool MousePosVoid()
@@ -495,7 +484,7 @@ public class Controls : MonoBehaviour {
 
     private void OnGUI()
     {
-        if (ctrl == ControlMode.Selecting)
+        if (CurrentContolMode == ControlMode.Selecting)
         {
             Vector3 currPos = Input.mousePosition;
             Vector2 invertedCurrent = new Vector2(currPos.x, Screen.height - currPos.y);
@@ -519,7 +508,7 @@ public class Controls : MonoBehaviour {
             {
                 rect = new Rect(invertedCurrent, invertedOrigin - invertedCurrent);
             }
-            if (!FocusedObjects.Exists(x=>x is Twippie))
+            if (!FocusedObjects.Exists(x => x is Twippie))
             {
                 DrawScreenRect(rect, new Color(1, 1, 1, .4f));
                 DrawScreenRectBorder(rect, 2f, Color.white);
@@ -556,17 +545,17 @@ public class Controls : MonoBehaviour {
         }
         _radialPanel.Open();
         _radialPanel.SetAllButtonsActiveState(false, FocusedObject.Type);
-        _radialPanel.SetButtonsActiveState(true, FocusedObject.Type);
-        FocusedObject.GetStatManager();
-        FocusedObject.PopulateStats();
-        _ui.SetPreviewCam(FocusedObject);
-        _ui.InfoGUI = true;
-        ctrl = ControlMode.Checking;
+        _radialPanel.SetButtonsActiveState(true, FocusedObject.Type, true);
+        //FocusedObject.GetStatManager();
+        //FocusedObject.PopulateStats();
+        _uiManager.SetPreviewCam(FocusedObject);
+        _uiManager.InfoGUI = true;
+        CurrentContolMode = ControlMode.Checking;
     }
 
     private void CheckObjects()
     {
-        foreach (ManageableObjet obj in _og.ObjectFactory)
+        foreach (ManageableObjet obj in _objectGenerator.ObjectFactory)
         {
             if (!FocusedObjects.Contains(obj))
             {
@@ -583,11 +572,11 @@ public class Controls : MonoBehaviour {
                     t.LineRenderer.enabled = true;
                 }
             }
-            _radialPanel.SetButtonsActiveState(true, obj.Type);
-            if (!_mainPanel.SetStatPanelActiveState(true, obj.Type)) { Debug.Log("global stat not found"); } else { Debug.Log("global stat "+obj.GetType().ToString()+ " a été updaté !"); }
+            _radialPanel.SetButtonsActiveState(true, obj.Type, true);
+            if (!_mainPanel.SetStatPanelActiveState(true, obj.Type)) { Debug.Log("global stat not found"); } else { Debug.Log("global stat " + obj.GetType().ToString() + " a été updaté !"); }
         }
-        _ui.InfoGUI = true;
-        ctrl = ControlMode.CheckingMultiple;
+        _uiManager.InfoGUI = true;
+        CurrentContolMode = ControlMode.CheckingMultiple;
     }
 
 
@@ -605,5 +594,28 @@ public class Controls : MonoBehaviour {
         {
             _autoZoom = ZoomMode.Initial;
         }
+    }
+
+    public void SetControlMode(ControlMode mode)
+    {
+        CurrentContolMode = mode;
+    }
+
+    private IEnumerator ZoomTo(float zoom, float duration)
+    {
+        float elapsed = 0;
+        var initZoom = _camera.fieldOfView;
+        zoom = Mathf.Clamp(zoom, _initZoomAmount - MAX_ZOOM, _initZoomAmount + MAX_ZOOM);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            _camera.fieldOfView = Mathf.Lerp(initZoom, zoom, elapsed / duration);
+            _frontCam.fieldOfView = _camera.fieldOfView;
+
+            yield return null;
+        }
+
+        _camera.fieldOfView = zoom;
     }
 }

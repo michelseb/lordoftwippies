@@ -1,17 +1,14 @@
-﻿using UnityEngine;
-public class Vertex : MIConvexHull.IVertex
+﻿using System;
+using UnityEngine;
+
+public class Vertex
 {
-    public double[] Position { get; set; }
-    public Vertex(double x, double y, double z)
+    public Guid Id { get; private set; }
+    public Vector3 Position { get; set; }
+
+    public Vertex(int index, Vector3 position)
     {
-        Position = new double[3] { x, y, z };
-    }
-    public Vertex(Vector3 ver)
-    {
-        Position = new double[3] { ver.x, ver.y, ver.z };
-    }
-    public Vector3 ToVec()
-    {
-        return new Vector3((float)Position[0], (float)Position[1], (float)Position[2]);
+        Id = Utils.IntToGuid(index);
+        Position = position;
     }
 }

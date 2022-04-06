@@ -156,6 +156,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aebca81cb28b10644a27abc8aeb91339, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _subMenu: {fileID: 0}
   _name: 
   _icon: {fileID: 114042872237465138}
 --- !u!114 &114529868907277894
@@ -246,7 +247,7 @@ RectTransform:
   m_GameObject: {fileID: 1467819212362202}
   m_LocalRotation: {x: 0, y: 0, z: -0.25881907, w: 0.9659259}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 224870775593148212}
   m_Father: {fileID: 0}

@@ -1,16 +1,15 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 
 public class StatPanel : GraphicElement {
 
+    [SerializeField] protected Tab _tab;
+
     protected MainPanel _mainStatPanel;
-    [SerializeField]
-    protected Tab _tab;
-    protected StatManager _statManager;
+    protected ObjectStatManager _statManager;
 
     public MainPanel MainStatPanel { get { return _mainStatPanel; } }
     public Tab Tab { get { return _tab; } }
-    public StatManager StatManager { get { return _statManager; } set { _statManager = value; } }
+    public ObjectStatManager StatManager { get { return _statManager; } set { _statManager = value; } }
     public string Type { get; set; }
 
     public override void SetVisible(bool visible)

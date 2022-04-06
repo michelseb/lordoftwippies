@@ -13,7 +13,10 @@ public class BoolStat : Stat {
 
     private void Start()
     {
-        _cover.SetActive(Value);
+        if (_cover != null)
+        {
+            _cover.SetActive(Value);
+        }
     }
 
     protected override void Update()
@@ -22,11 +25,14 @@ public class BoolStat : Stat {
         _labelField.text = Label;
         if ((Time.frameCount % 10) == 0)
         {
-            _cover.SetActive((Random.value < .05f) ? true : Value); //Blink
+            if (_cover != null)
+            {
+                //_cover.SetActive((Random.value < .05f) ? true : Value); //Blink
+            }
         }
     }
 
-    public void Populate(bool value, string label, string statName, bool readOnly)
+    public void Populate(string statName, bool value, string label, bool readOnly)
     {
         _statType = StatType.Bool;
         _name = "bool";
@@ -34,7 +40,7 @@ public class BoolStat : Stat {
         Value = value;
         ReadOnly = readOnly;
         _specificName = statName;
-        if (ReadOnly)
+        if (!ReadOnly)
         {
             AssociatedAction = AssociatedAction.Modification;
         }
